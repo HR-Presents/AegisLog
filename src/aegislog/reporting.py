@@ -43,18 +43,34 @@ code{color:#8EB9F0;font:10.5px "Cascadia Mono",Consolas,monospace}.evidence{disp
 @media(max-width:680px){body{background:#090D14}.report{width:100%;margin:0;border:0;border-radius:0;box-shadow:none}.masthead{padding:24px 18px}.brandline,.title-grid,.section-head{align-items:flex-start}.title-grid,.section-head{display:block}.posture{min-width:0;margin-top:16px;text-align:left}.toolbar{overflow-x:auto}.toolbar .local-note{display:none}.content{padding:18px}.metrics{grid-template-columns:1fr 1fr}.record-body{grid-template-columns:1fr}.record-cell+.record-cell{border-left:0;border-top:1px solid var(--line-soft)}.section-note{margin-top:5px;text-align:left}}
 @media(max-width:430px){.case-strip,.metrics{grid-template-columns:1fr}.case-strip>div,.metric{border-right:0;border-bottom:1px solid var(--line)}.record-head{grid-template-columns:1fr}.record-meta{text-align:left}.triage-item{grid-template-columns:1fr}}
  .print-help{padding:10px 16px;color:var(--ink-soft);font-size:12px}.chart{width:100%;height:auto;display:block}.chart text{fill:var(--ink-soft)}
+
+/* Light report theme in browser and print; terminal theme is independent. */
+:root{--ink:#172033;--ink-soft:#334155;--muted:#475569;--paper:#ffffff;--page:#f1f5f9;--navy:#eaf2fb;--line:#cbd5e1;--line-soft:#e2e8f0;--accent:#245ea8;--mono:#f8fafc}
+html{color-scheme:light}body{background:#f1f5f9;color:#172033}
+.report{background:#fff;box-shadow:0 12px 40px rgba(30,50,75,.08)}
+.masthead{background:#eef4fb;color:#172033;border-bottom-color:#cbd5e1}.masthead:after{display:none}
+.report h1,.report h2,.report h3,.record-title,.metric strong,.lead,.chip strong{color:#172033}
+.brand-sub,.classification,.subtitle,.posture small,.case-strip small,.section-note,.record-meta,.cell-label,.action-text,.method-card p,.footer,.caveat,.triage-item p,.assessment p,.decision .action,.meta{color:#475569}
+.eyebrow,.section-label,.record-id,.brand-name span{color:#245ea8}
+.posture{background:#fff;border-color:#cbd5e1;box-shadow:none}.posture.warning strong{color:#855400}.posture.danger strong{color:#a62b38}.posture.good strong{color:#166348}
+.case-strip,.toolbar,.metric,.assessment,.priority-box,.decision,.record,.record-cell,.record-cell+.record-cell,.table-wrap,.telemetry-card,.method-card,.severity-block{background:#fff}
+.record-head,thead th{background:#f1f5f9}.case-strip strong,td,th,.telemetry-card h3,.method-card h3,.toolbar a,.toolbar .local-note,.severity-row small,.severity-row strong{color:#334155}
+.evidence{background:#f8fafc;color:#172033;border-color:#cbd5e1}.chip{background:#f8fafc;color:#334155;border-color:#cbd5e1}.empty{color:#475569;border-color:#cbd5e1}
+.pill{background:#f8fafc;color:#334155;border-color:#94a3b8}.pill.warning{background:#fff7e6;color:#855400}.pill.danger{background:#fff1f2;color:#a62b38}.pill.good{background:#ecfdf5;color:#166348}
+.metric span,.triage-item strong,.assessment h3,.priority-box h3,.decision .lead,.severity-row small,.severity-row strong{color:#172033}
+.toolbar button{background:#245ea8;color:#fff;border-color:#245ea8}.chart text{fill:#334155}
 @media print{
 @page{size:A4;margin:12mm}
 :root{--ink:#111827;--ink-soft:#334155;--muted:#475569;--paper:#fff;--line:#94a3b8;--line-soft:#cbd5e1;--mono:#f8fafc}
 html{color-scheme:light}body{background:#fff;color:#111827;font-size:11px;line-height:1.4}
 .report{width:100%;margin:0;border:0;border-radius:0;box-shadow:none;background:#fff}
-.masthead{padding:18px;background:#111827!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.brandline{margin-bottom:12px}h1{font-size:30px}.toolbar,.print-help{display:none}
+.masthead{padding:18px;background:#eef4fb!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.brandline{margin-bottom:12px}h1{font-size:30px}.toolbar,.print-help{display:none}
 .content{padding:10px 0 0;background:#fff}.metrics{grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}.metric{padding:8px;box-shadow:none}.metric strong{font-size:18px}
 .section{padding:10px 0}.section-head{break-after:avoid;margin-bottom:8px}.section-head h2{font-size:19px}
 .executive-grid{display:block}.priority-box{margin-top:10px}.method-grid{display:block}.method-card{margin-bottom:8px}.telemetry-grid{display:block}.telemetry-card{margin-bottom:8px}.section-head{display:block}.section-note{text-align:left;margin-top:4px}.method-grid+.table-wrap{break-inside:avoid}#method{break-inside:avoid}
 .record,.decision,.severity-block,.telemetry-card{break-inside:avoid}.assessment,.priority-box,.table-wrap{break-inside:auto}.record-list{gap:8px}.record-head{padding:9px 11px}.record-cell{padding:10px}.evidence{padding:8px;font-size:10px}.record{box-shadow:none}.record-body{grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr)}
 .case-strip,.metric,.assessment,.priority-box,.decision,.record,.record-head,.record-cell,.record-cell+.record-cell,.table-wrap,.telemetry-card,.method-card,.chip,thead th,.severity-row{background:#fff!important}
-.content *, .case-strip *{color:#1f2937!important}.content code{color:#172554!important}.content .pill{border-color:#64748b;color:#334155!important;background:#fff!important}.masthead .classification,.masthead .brand-sub,.masthead .posture small{color:#cbd5e1}.case-strip strong{font-size:11px}.section-note{max-width:240px;font-size:10px}.action-text,.method-card p{font-size:11px}
+.content *, .case-strip *{color:#1f2937!important}.content code{color:#172554!important}.content .pill{border-color:#64748b;color:#334155!important;background:#fff!important}.masthead .classification,.masthead .brand-sub,.masthead .posture small{color:#475569}.case-strip strong{font-size:11px}.section-note{max-width:240px;font-size:10px}.action-text,.method-card p{font-size:11px}
 th,td{padding:8px}.chart text{fill:#334155}.chart{break-inside:avoid}thead{display:table-header-group}tr{break-inside:avoid}.footer{position:fixed;bottom:0;left:0;right:0;margin:0;padding-top:4px;font-size:8px}
 }
 
@@ -268,8 +284,8 @@ def build_html_report(data: DashboardData) -> str:
     source_name = Path(data.source).name
     risk = _risk(data)
     case_id = _case_id(data)
-    brand_mark = '''<svg viewBox="0 0 46 52" aria-hidden="true"><path d="M23 2 42 9v14c0 13-7.3 22-19 27C11.3 45 4 36 4 23V9L23 2Z" fill="#0F1A29" stroke="#4C8DFF" stroke-width="2"/><path d="M12 27h7l3-8 4 13 3-6h5" fill="none" stroke="#8FB7FF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'''
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>AegisLog Investigation Report - {escape(source_name)}</title><style>{_REPORT_STYLE}</style></head><body><main class="report">
+    brand_mark = '''<svg viewBox="0 0 46 52" aria-hidden="true"><path d="M23 2 42 9v14c0 13-7.3 22-19 27C11.3 45 4 36 4 23V9L23 2Z" fill="#eef4fb" stroke="#4C8DFF" stroke-width="2"/><path d="M12 27h7l3-8 4 13 3-6h5" fill="none" stroke="#245ea8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'''
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Report - {escape(source_name)}</title><style>{_REPORT_STYLE}</style></head><body><main class="report">
 <header class="masthead" id="cover"><div class="brandline"><div class="brand"><div class="brand-mark">{brand_mark}</div><div><div class="brand-name">AEGIS<span>LOG</span></div><div class="brand-sub">Defensive log investigation</div></div></div><div class="classification">Local-first · read-only<br>Investigation record</div></div><div class="title-grid"><div><div class="eyebrow">Case {escape(case_id)}</div><h1>Security Investigation Report</h1><p class="subtitle">Analyst-ready summary and retained evidence for <strong>{escape(source_name)}</strong>.</p></div><div class="posture {_risk_class(risk)}"><small>Current posture</small><strong>{escape(risk)}</strong></div></div></header>
 <section class="case-strip"><div><small>Source</small><strong>{escape(source_name)}</strong></div><div><small>Case ID</small><strong>{escape(case_id)}</strong></div><div><small>Generated</small><strong>{generated}</strong></div><div><small>Processing</small><strong>LOCAL / READ-ONLY</strong></div></section>
 <nav class="toolbar"><a href="#executive">Summary</a><a href="#incidents">Incidents</a><a href="#findings">Findings</a><a href="#telemetry">Telemetry</a><a href="#anomalies">Anomalies</a><a href="#method">Method</a><span class="spacer"></span><span class="local-note">DETERMINISTIC ANALYSIS</span><button type="button" onclick="window.print()">Print / Save PDF</button></nav>
