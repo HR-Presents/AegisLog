@@ -669,6 +669,12 @@ def start() -> None:
                 )
                 console.print()
                 commands_reference()
+            elif lowered in {"r", "reports"}:
+                from .report_browser import open_saved_reports
+                open_saved_reports(console)
+            elif lowered in {"a", "about", "guide"}:
+                from .report_browser import guide_view
+                console.print(guide_view())
             elif lowered in {"s", "security", "workbench"}:
                 from .commands_security import run_workbench
                 path = _choose_single_file_workspace("SECURITY WORKBENCH", "Filter and review security evidence.", output_note="HTML reports / redacted JSON / integrity baselines")

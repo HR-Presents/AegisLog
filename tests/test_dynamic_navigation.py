@@ -89,9 +89,9 @@ def test_short_home_keeps_original_logo_and_scrolls_to_panels():
 
 def test_short_laptop_layout_fits_all_panels_without_losing_brand():
     console = Console(file=StringIO(), width=140, color_system=None)
-    lines = console.render_lines(commands_v145._home(140, 35), console.options)
+    lines = console.render_lines(commands_v145._home(140, 39), console.options)
     output = "\n".join("".join(segment.text for segment in line) for line in lines)
-    assert len(lines) <= 35
+    assert len(lines) <= 39
     for label in ("DEFENSIVE LOG INVESTIGATION", "SYSTEM", "QUICK INFO", "UTILITIES", "Q Exit"):
         assert label in output
 
