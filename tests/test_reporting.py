@@ -205,3 +205,17 @@ def test_write_html_report_uses_safe_predictable_filename(tmp_path: Path) -> Non
     html = target.read_text(encoding="utf-8")
     assert "<!doctype html>" in html
     assert "prod auth?.log" in html
+
+
+def test_incident_queue_links_evidence_once_and_preserves_unmatched_excerpt():
+    data = _data()
+    incident = replace(data.incidents[0], evidence=(data.findings[0].evidence, "unique incident excerpt"))
+    html = build_html_report(replace(data, incidents=(incident,)))
+    queue = html.split('id="incidents"', 1)[1].split('id="findings"', 1)[0]
+    assert 'href="#finding-001"' in queue
+    assert 'id="finding-001"' in html
+    assert "user=admin &amp; source=203.0.113.10" not in queue
+    assert "unique incident excerpt" in queue
+    assert html.count("Grouping basis:") == 1
+    single = build_html_report(replace(data, incidents=(replace(incident, count=1),)))
+    assert "Single signal; validate context" in single

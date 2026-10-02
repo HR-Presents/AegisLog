@@ -7,7 +7,6 @@ from pathlib import Path
 
 from . import __version__
 from .dashboard import DashboardData
-from .incidents import _correlation_key
 
 _SEVERITY_RANK = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1, "INFO": 0}
 
@@ -211,15 +210,37 @@ def _triage_actions(data: DashboardData) -> str:
 
 
 def _incident_records(data: DashboardData) -> str:
-    records = []
+    rows = []
+    findings = _ordered_findings(data)
     for item in _ordered_incidents(data):
-        evidence = "".join(
-            f'<li><code class="evidence">{escape(v)}</code></li>' for v in item.evidence
+        references = []
+        unmatched = []
+        for evidence in item.evidence:
+            matches = [index for index, finding in enumerate(findings, 1)
+                       if finding.evidence == evidence]
+            if matches:
+                references.extend(matches)
+            else:
+                unmatched.append(evidence)
+        links = " ".join(f'<a href="#finding-{index:03d}">F-{index:03d}</a>'
+                         for index in dict.fromkeys(references))
+        extra = "".join(f'<code class="evidence">{escape(value)}</code>'
+                        for value in unmatched)
+        basis = "Single signal; validate context" if item.count == 1 else "Grouped signals; validate shared cause"
+        rows.append(
+            f'<tr><td><strong>INC-{escape(item.id.upper()[:8])}</strong></td>'
+            f'<td><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span></td>'
+            f'<td><strong>{escape(item.title)}</strong><br>{escape(item.category)} · {basis}</td>'
+            f'<td>{item.count}</td><td>{links}{extra}</td></tr>'
         )
-        records.append(
-            f'<article class="record"><div class="record-head"><span class="record-id">INC-{escape(item.id.upper()[:8])}</span><span class="record-title">{escape(item.title)}</span><span class="record-meta"><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span> &nbsp; {escape(item.category)} · {item.count} signal(s)</span></div><div class="record-body"><div class="record-cell"><span class="cell-label">Evidence chain</span><ul class="evidence-list">{evidence}</ul></div><div class="record-cell"><span class="cell-label">Analyst handling</span><p class="action-text">{escape(_grouping_note(item, data.findings))}</p><p class="action-text">Validate the grouped signals against original telemetry and surrounding host, identity, and network context. Escalate only when the evidence and operational context support that decision.</p></div></div></article>'
-        )
-    return "".join(records) if records else '<div class="empty">No correlated incidents were recorded.</div>'
+    if not rows:
+        return '<div class="empty">No correlated incidents were recorded.</div>'
+    return ('<p class="caveat">Grouping basis: detector category/title and extracted service or source context '
+            'where available; category-level fallback when context is unresolved. Grouping has no time-window constraint '
+            'and does not establish a common cause. Single-signal entries are leads, not corroborated sequences. '
+            'Evidence references below point to the retained excerpts in Findings; counts may exceed retained excerpts.</p>'
+            '<div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Signal / interpretation</th>'
+            '<th>Count</th><th>Retained evidence</th></tr></thead><tbody>' + "".join(rows) + '</tbody></table></div>')
 
 
 def _recommendation(item) -> str:
@@ -229,15 +250,6 @@ def _recommendation(item) -> str:
     if item.category == "error" and "distributedcom[10010]" in evidence:
         return "Identify the application associated with the recorded CLSID, check its startup and related service logs, and establish user impact. This timeout alone does not justify changing DCOM permissions."
     return item.recommendation
-
-
-def _grouping_note(item, findings) -> str:
-    members = [finding for finding in findings if _correlation_key(finding)[0] == item.category.lower()
-               and finding.title == item.title]
-    contexts = {_correlation_key(finding)[2:] for finding in members}
-    if contexts == {( "", "")}:
-        return "Grouping basis: category-level fallback because structured service/source context was not resolved. This grouping has no time-window constraint and does not establish a common cause. Validate timestamps and component identity before treating these signals as one incident."
-    return "Grouping basis: detector category/title with extracted service or source context where available. Grouping has no time-window constraint; validate time proximity and common cause against original telemetry."
 
 
 def _bar_chart(values: dict[str, int], label: str) -> str:
@@ -257,7 +269,7 @@ def _finding_records(data: DashboardData) -> str:
     records = []
     for index, item in enumerate(_ordered_findings(data), start=1):
         records.append(
-            f'<article class="record"><div class="record-head"><span class="record-id">F-{index:03d}</span><span class="record-title">{escape(item.title)}</span><span class="record-meta"><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span> &nbsp; {escape(item.category)}</span></div><div class="record-body"><div class="record-cell"><span class="cell-label">Retained evidence</span><code class="evidence">{escape(item.evidence)}</code></div><div class="record-cell"><span class="cell-label">Recommended action</span><p class="action-text">{escape(_recommendation(item))}</p></div></div></article>'
+            f'<article class="record" id="finding-{index:03d}"><div class="record-head"><span class="record-id">F-{index:03d}</span><span class="record-title">{escape(item.title)}</span><span class="record-meta"><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span> &nbsp; {escape(item.category)}</span></div><div class="record-body"><div class="record-cell"><span class="cell-label">Retained evidence</span><code class="evidence">{escape(item.evidence)}</code></div><div class="record-cell"><span class="cell-label">Recommended action</span><p class="action-text">{escape(_recommendation(item))}</p></div></div></article>'
         )
     return "".join(records) if records else '<div class="empty">No rule-backed findings were recorded.</div>'
 
