@@ -115,6 +115,15 @@ def parse_line(line: str) -> Event:
         message = match.group("message").strip()
         return Event(raw=raw, source="windows", level=level or _infer_level(message), service=provider, message=message)
 
+    match = re.match(
+        r"^\d{4}-\d{2}-\d{2}T\S+\s+(?P<service>[\w.-]+)(?:\[\d+\])?:\s*(?P<message>.*)$",
+        stripped,
+    )
+    if match:
+        message = match.group("message").strip()
+        return Event(raw=raw, source="iso-service", level=_infer_level(message),
+                     service=match.group("service"), message=message)
+
     match = NGINX.search(stripped)
     if match:
         status = int(match.group("status"))

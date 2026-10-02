@@ -1,0 +1,11 @@
+{
+  "login_failure_threshold": 5,
+  "login_window_seconds": 300,
+  "exceptions": [
+    {
+      "category": "network",
+      "contains": "198.51.100.50",
+      "reason": "Approved synthetic firewall test in the demo fixture"
+    }
+  ]
+}

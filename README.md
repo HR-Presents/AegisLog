@@ -52,6 +52,8 @@ The published v2.1.3 executable is functionally released, but its Mission Contro
 
 The current development dashboard follows the [terminal reference design](docs/TERMINAL_REFERENCE_DESIGN.md), with cyan headings, mint bars, thin borders, and telemetry-based charts. Its labelled development previews do not replace Windows visual acceptance.
 
+The development [Security Workbench](docs/SECURITY_WORKBENCH.md) adds filtered evidence, report access, demo replay, login-sequence review, account timelines, supplied watchlists, integrity fingerprints, detection tuning and collector health. Enter `S` or `P` from the interactive shell.
+
 Public product screenshots should come from a verified build and should not be presented as accepted product imagery until a real Windows capture has been reviewed.
 
 ---

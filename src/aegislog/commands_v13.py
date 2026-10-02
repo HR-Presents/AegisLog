@@ -9,6 +9,7 @@ from rich.live import Live
 
 from .navigation import KeyboardReader, wait_for_navigation
 
+from .collector_health import CollectorHealth
 from .command_center_ui import render_realtime_command_center
 from .live_ux import live_initial_status, live_source_status, live_startup_panel, live_stopped_status
 from .realtime import RealtimeState, initial_cursor, read_new_lines_cursor
@@ -36,11 +37,14 @@ def live_dashboard(
     except ValueError as exc:
         raise typer.BadParameter(str(exc), param_hint="--profile") from exc
     state = RealtimeState(source=str(path), window_size=window, watch_profile=selected.key)
+    health = CollectorHealth()
+    state.collector_health[str(path)] = health
     cursor = initial_cursor(path, from_start=from_start)
 
     if from_start:
         initial, cursor = read_new_lines_cursor(path, cursor)
         state.ingest(initial)
+        health.success(len(initial))
 
     mode = "Existing content + new lines" if from_start else "New lines appended after startup"
     console.print(
@@ -69,6 +73,7 @@ def live_dashboard(
             ) as live:
                 while True:
                     if not path.exists() or not path.is_file():
+                        health.failure("Source missing or inaccessible")
                         live.update(_view(state), refresh=True)
                         if not source_missing:
                             console.print(live_source_status(str(path), available=False))
@@ -78,7 +83,14 @@ def live_dashboard(
                     if source_missing:
                         console.print(live_source_status(str(path), available=True))
                         source_missing = False
-                    lines, cursor = read_new_lines_cursor(path, cursor)
+                    try:
+                        lines, cursor = read_new_lines_cursor(path, cursor)
+                    except OSError as exc:
+                        health.failure(exc)
+                        live.update(_view(state), refresh=True)
+                        wait_for_navigation(keys, refresh, sleep=time.sleep)
+                        continue
+                    health.success(len(lines))
                     if lines:
                         state.ingest(lines)
                     live.update(_view(state), refresh=True)

@@ -4,7 +4,8 @@ import hashlib
 from collections import deque
 from dataclasses import dataclass, field
 
-from .native_collectors import collect
+from .native_collectors import collect, CollectorError
+from .collector_health import CollectorHealth
 
 
 @dataclass
@@ -16,6 +17,7 @@ class NativeLivePoller:
     seen_limit: int = 10000
     _seen_order: deque[str] = field(default_factory=deque)
     _seen: set[str] = field(default_factory=set)
+    health: CollectorHealth = field(default_factory=CollectorHealth)
 
     def __post_init__(self) -> None:
         self.source = self.source.strip().lower()
@@ -35,13 +37,22 @@ class NativeLivePoller:
             expired = self._seen_order.popleft()
             self._seen.discard(expired)
 
+    def _collect(self) -> list[str]:
+        try:
+            lines = collect(
+                self.source,
+                limit=self.limit,
+                channel=self.channel,
+                container=self.container,
+            )
+        except CollectorError as exc:
+            self.health.failure(exc)
+            raise
+        self.health.success(len(lines))
+        return lines
+
     def poll(self) -> list[str]:
-        lines = collect(
-            self.source,
-            limit=self.limit,
-            channel=self.channel,
-            container=self.container,
-        )
+        lines = self._collect()
         fresh: list[str] = []
         for line in lines:
             fingerprint = self._fingerprint(line)
@@ -51,12 +62,7 @@ class NativeLivePoller:
         return fresh
 
     def prime(self, include_existing: bool = False) -> list[str]:
-        lines = collect(
-            self.source,
-            limit=self.limit,
-            channel=self.channel,
-            container=self.container,
-        )
+        lines = self._collect()
         for line in lines:
             self._remember(self._fingerprint(line))
         return lines if include_existing else []

@@ -21,3 +21,5 @@ Live monitoring uses rolling line/byte windows and bounded reads. Rotation, coll
 AI Analyst and remote providers are not part of the supported public v2 command surface. Historical provider modules remain for compatibility tests.
 
 Windows native telemetry and the packaged executable require Windows for final runtime and visual acceptance. A successful executable build does not establish visual acceptance. The published v2.1.3 executable is unsigned; compare its release checksum before use.
+
+The development Security Workbench analyzes a bounded recent sample and supports additional failure-to-success and process-review signals. See [its detection, retention, tuning and integrity limits](SECURITY_WORKBENCH.md). Live monitors use default sequence thresholds; supplied watchlists and tuning are currently workbench-scoped.

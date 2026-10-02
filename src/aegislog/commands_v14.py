@@ -47,7 +47,7 @@ def live_multi(
     )
     cursors = initial_cursors(unique, from_start=from_start)
     if from_start:
-        batches, cursors = poll_sources(unique, cursors)
+        batches, cursors = poll_sources(unique, cursors, state.collector_health)
         for path, lines in batches:
             state.ingest(path, lines)
 
@@ -85,7 +85,7 @@ def live_multi(
                         console.print(live_source_status(str(path), available=True))
                     missing_sources = current_missing
 
-                    batches, cursors = poll_sources(unique, cursors)
+                    batches, cursors = poll_sources(unique, cursors, state.collector_health)
                     for path, lines in batches:
                         state.ingest(path, lines)
                     live.update(_view(state), refresh=True)

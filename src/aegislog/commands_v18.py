@@ -3,7 +3,8 @@ from __future__ import annotations
 import time
 
 import typer
-from rich.console import Console
+from rich.console import Console, Group
+from .collector_health import render_collector_health
 from rich.live import Live
 
 from .navigation import KeyboardReader, wait_for_navigation
@@ -22,7 +23,7 @@ console = Console()
 
 
 def _view(state: RealtimeState):
-    return bounded(render_realtime(state))
+    return bounded(Group(render_realtime(state), render_collector_health(state.collector_health, dropped=state.dropped_window_lines, truncated=state.truncated_lines)))
 
 
 def native_live(
@@ -43,6 +44,7 @@ def native_live(
         raise typer.BadParameter(str(exc), param_hint="--profile") from exc
     poller = NativeLivePoller(normalized, limit=limit, channel=channel, container=container)
     state = RealtimeState(source=f"native:{normalized}", window_size=window, watch_profile=selected.key)
+    state.collector_health[normalized] = poller.health
     try:
         initial = poller.prime(include_existing=from_start)
     except CollectorError as exc:

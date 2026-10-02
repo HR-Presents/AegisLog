@@ -43,8 +43,11 @@ class Prompt(RichPrompt):
                 raise WorkspaceQuit()
             if value.strip().lower() in {"b", "back", "cancel"}:
                 raise WorkspaceBack()
-            if choices is None or value in choices:
+            if choices is None:
                 return value
+            selected = next((choice for choice in choices if choice.casefold() == value.casefold()), None)
+            if selected is not None:
+                return selected
             target = kwargs.get("console")
             if target is None:
                 from rich import get_console

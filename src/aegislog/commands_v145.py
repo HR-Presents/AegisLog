@@ -174,7 +174,7 @@ def _footer(screen_width: int | None = None) -> Text:
     footer.append(" Select", style=NEUTRAL)
     footer.append("   |   [Q Exit]", style=MUTED)
     if width >= 48:
-        footer.append("   |   type a command", style=NEUTRAL)
+        footer.append("   |   type a command / S tools / P replay", style=NEUTRAL)
     if width >= 100:
         footer.append("   |   Ctrl+C stops live views", style=MUTED)
     return footer
