@@ -55,3 +55,20 @@ def test_exact_byte_limit_does_not_truncate_crlf(tmp_path):
     lines = list(iter_bounded_lines(path, 4))
     assert [line.text for line in lines] == ['abcd', 'next']
     assert not any(line.truncated for line in lines)
+
+
+def test_structured_metadata_cannot_crash_service_counts(tmp_path):
+    path = tmp_path / 'metadata.log'
+    path.write_text('{"service":{"unexpected":"object"},"level":"info","message":"healthy"}\n')
+    data = analyze_dashboard(path)
+    assert data.lines == 1
+    assert data.services == {'unknown': 1}
+
+
+def test_large_identifiers_do_not_expand_retained_authentication_evidence():
+    from aegislog.engine import AnalysisState
+    state = AnalysisState()
+    state.process('2026-10-02T10:00:00Z sshd: Failed password for ' + 'x' * 100_000 + ' from 203.0.113.1')
+    event = state._auth['203.0.113.1'][0]
+    assert len(event.account) <= 256
+    assert len(event.evidence) <= 500

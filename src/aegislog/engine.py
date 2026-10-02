@@ -115,7 +115,7 @@ def _first_match(patterns, line: str, group: str) -> str | None:
     for pattern in patterns:
         match = pattern.search(line)
         if match:
-            return match.group(group).strip(".,;[]")
+            return match.group(group).strip(".,;[]")[:256]
     return None
 
 
@@ -332,15 +332,15 @@ class AnalysisState:
                     AuthEvent(
                         windows_timestamp,
                         _valid_ip(windows_event.source_ip),
-                        windows_event.account,
-                        windows_event.workstation,
+                        windows_event.account[:256] if windows_event.account else None,
+                        windows_event.workstation[:256] if windows_event.workstation else None,
                         line[:500],
                     )
                 )
                 return
             if signal is not None:
                 self._append_finding(
-                    Finding(signal.severity, signal.category, signal.title, signal.evidence, signal.recommendation)
+                    Finding(signal.severity, signal.category, signal.title, signal.evidence[:500], signal.recommendation)
                 )
                 return
         severity, category, pattern, title, recommendation = PRIVILEGE_RULE

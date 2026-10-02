@@ -92,11 +92,11 @@ def analyze_dashboard(
         state.process(item.text)
         event = parse_line(item.text)
         if event.message:
-            level = (event.level or "unknown").upper()
+            level = (event.level or "unknown").upper()[:32]
             if level not in level_counts and len(level_counts) >= 32:
                 level = "OTHER LEVELS (RETENTION LIMIT)"
             level_counts[level] += 1
-            service = event.service or "unknown"
+            service = (event.service or "unknown")[:128]
             if service not in service_counts and len(service_counts) >= 2048:
                 service = "other services (retention limit)"
             service_counts[service] += 1
