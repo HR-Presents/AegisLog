@@ -23,7 +23,7 @@ console = Console()
 
 
 def _view(state: RealtimeState):
-    return bounded(Group(render_realtime(state), render_collector_health(state.collector_health, dropped=state.dropped_window_lines, truncated=state.truncated_lines)))
+    return bounded(Group(render_collector_health(state.collector_health, dropped=state.dropped_window_lines, truncated=state.truncated_lines), render_realtime(state)))
 
 
 def native_live(
