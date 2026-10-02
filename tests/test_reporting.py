@@ -264,3 +264,16 @@ def test_report_pair_cannot_overwrite_source(tmp_path):
     with pytest.raises(ValueError, match='overwrite source'):
         write_html_report(_data(str(source)), tmp_path, filename='prod-aegislog-report.html')
     assert source.read_text() == 'original'
+
+
+def test_summary_embeds_brand_logo_and_readable_print_colors():
+    from aegislog.reporting import build_summary_report
+    html = build_summary_report(_data(), "appendix.html")
+    assert 'aria-label="AegisLog shield and telemetry logo"' in html
+    assert 'M84 18 137 38' in html
+    assert 'AEGIS<span>LOG</span>' in html
+    assert 'color:#245ea8!important' in html
+    assert 'color:#a62b38!important' in html
+    assert 'print-color-adjust:exact' in html
+    assert 'class="summary-service-chart"' in html
+    assert 'font-size="14"' in html
