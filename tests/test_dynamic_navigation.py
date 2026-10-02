@@ -58,10 +58,8 @@ def test_home_redraws_while_typing_and_preserves_input(monkeypatch):
     monkeypatch.setattr(commands_v145, 'KeyboardReader', Reader)
     monkeypatch.setattr(commands_v145, 'Live', Live)
     monkeypatch.setattr(commands_v145.time, 'sleep', lambda _: None)
-    redraws = []
-    monkeypatch.setattr(commands_v145, '_home', lambda width: redraws.append(width) or 'clock')
     assert commands_v145._read_home_choice() == '01'
-    assert len(redraws) >= 5
+    assert len(frames) >= 5
 
 
 def test_refresh_reanalyzes_same_source_then_back(monkeypatch):
@@ -73,3 +71,39 @@ def test_refresh_reanalyzes_same_source_then_back(monkeypatch):
     with shell_navigation(), pytest.raises(WorkspaceBack):
         commands_v144._run_analysis_workspace(Path('demo.log'), 'Analyze', 'Saved file')
     assert analyzed == [Path('demo.log'), Path('demo.log')]
+
+
+
+def test_short_home_keeps_original_logo_and_scrolls_to_panels():
+    console = Console(file=StringIO(), width=140, height=14, record=True, color_system=None)
+    console.print(commands_v145._HomeViewport(140, 13, 0))
+    top = console.export_text()
+    assert "DEFENSIVE LOG INVESTIGATION" in top and "HR-PRESENTS" in top
+    console.print(commands_v145._HomeViewport(140, 13, 9))
+    middle = console.export_text()
+    assert "INVESTIGATE" in middle and "SYSTEM" in middle
+    console.print(commands_v145._HomeViewport(140, 13, 100))
+    bottom = console.export_text()
+    assert "UTILITIES" in bottom and "Q Exit" in bottom
+
+
+def test_short_laptop_layout_fits_all_panels_without_losing_brand():
+    console = Console(file=StringIO(), width=140, color_system=None)
+    lines = console.render_lines(commands_v145._home(140, 35), console.options)
+    output = "\n".join("".join(segment.text for segment in line) for line in lines)
+    assert len(lines) <= 35
+    for label in ("DEFENSIVE LOG INVESTIGATION", "SYSTEM", "QUICK INFO", "UTILITIES", "Q Exit"):
+        assert label in output
+
+
+def test_scroll_clamps_after_bottom_and_resize():
+    console = Console(file=StringIO(), width=140, height=14)
+    view = commands_v145._HomeViewport(140, 12, 1000000).prepare(console, console.options)
+    assert view.offset == view.maximum > 0
+    previous = view.offset
+    view.offset -= 1
+    view.prepare(console, console.options)
+    assert view.offset == previous - 1
+    view.height = 100
+    view.prepare(console, console.options)
+    assert view.offset == view.maximum == 0

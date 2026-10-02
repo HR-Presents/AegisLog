@@ -20,12 +20,14 @@ class CollectorHealth:
     polls: int = 0
     events: int = 0
     detail: str = ""
+    last_count: int | None = None
 
     def success(self, count: int):
         self.status = "AVAILABLE"
         self.last_success = datetime.now(timezone.utc).isoformat()
         self.polls += 1
         self.events += count
+        self.last_count = count
         self.detail = ""
 
     def failure(self, error):
@@ -38,7 +40,8 @@ class CollectorHealth:
 def render_collector_health(health, *, dropped=0, truncated=0):
     rows = []
     for source, item in health.items():
-        rows.append(Text(f"{redact_sensitive(str(source))}: {item.status}\n"
+        activity = ("events returned" if item.last_count else "no events returned") if item.status == "AVAILABLE" else "collection unavailable" if item.status == "UNAVAILABLE" else "waiting for first poll"
+        rows.append(Text(f"{redact_sensitive(str(source))}: {item.status} / {activity}\n"
                          f"Last successful collection: {item.last_success or 'never'}; polls {item.polls}; events {item.events}; failures {item.failures}\n"
                          f"Last failure: {item.last_failure or 'none'} {item.detail}",
                          style=SUCCESS if item.status == "AVAILABLE" else WARNING))

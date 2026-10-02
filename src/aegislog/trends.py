@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import re
 from collections import deque
 from dataclasses import dataclass, field
 
@@ -76,9 +77,9 @@ class TrendTracker:
                 "blocked connection",
                 "action=block",
                 "action=deny",
-                " denied ",
             )
         )
+        firewall = firewall or bool(re.search(r"\bfirewall\b.*\b(?:block|drop|deny)\b", text))
         return failed_login, error, firewall
 
     def _trim(self, now: float) -> None:

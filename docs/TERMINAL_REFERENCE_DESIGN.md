@@ -22,10 +22,14 @@ These images render the actual Rich output using a synthetic QA fixture. They ar
 
 ## Interactive navigation
 
-The `start` shell redraws its UTC clock every second while preserving typed menu input. Short terminals use a compact home so input controls stay visible; resizing redraws the layout. Select a menu number or command and press Enter.
+The `start` shell redraws its UTC clock every second while preserving typed menu input. Short terminals scroll through the same full home with Up/Down or PageUp/PageDown; the logo and panel layout are never replaced. Home returns to the top, and resizing redraws the visible portion. Input stays visible below the page. Select a menu number or command and press Enter.
 
 Input workspaces accept `b`/`back` to return and `q`/`quit` to close, including profile and native-source choice prompts. Completed pages show Back and Quit controls. File analysis offers `r`/`refresh` to reread the source and regenerate its HTML report. Saved-file charts show recorded event times and do not invent new activity.
 
 File, multi-source, and native live monitors accept B or Escape to stop/back, Q to quit, and Ctrl+C to stop safely. A terminal keyboard is required for single-key controls; redirected input retains Ctrl+C handling. Live views refresh their clock and telemetry at the configured polling interval; new findings depend on newly collected events. No source file or host setting is changed.
 
 Keyboard checks cover editing, choice-prompt cancellation, immediate monitor interruption, and static refresh. Actual Windows font, colour, keyboard and resizing acceptance still requires the packaged build.
+
+The home fills the terminal width and reduces panel padding below 40 rows. Its live view uses the alternate screen so clock refreshes do not accumulate in scrollback. The layout responds to terminal dimensions on laptops and external monitors; very small windows retain page scrolling.
+
+A pinned control row shows the visible row range when scrolling is needed, or All panels visible when the page fits. Home/End jump to either end. Scroll offsets are clamped on every refresh and resize. Help and Quit stay visible beside the command input; long typed commands display their editable tail.

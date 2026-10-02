@@ -50,3 +50,17 @@ def test_command_table_keeps_two_columns_when_space_allows() -> None:
     assert "Command" in output
     assert "Purpose" in output
     assert "Command / Purpose" not in output
+
+
+def test_docker_unavailable_is_not_reported_as_wrong_os(monkeypatch):
+    from io import StringIO
+    from aegislog import console_pages
+    from aegislog.native_collectors import NativeSource
+    console = Console(file=StringIO(), width=120, record=True)
+    monkeypatch.setattr(console_pages, 'console', console)
+    monkeypatch.setattr(console_pages, 'source_status', lambda: [NativeSource('docker', 'Docker logs', False, 'Engine unavailable or access denied')])
+    console_pages.system_check()
+    output = console.export_text()
+    assert 'UNAVAILABLE' in output
+    assert 'NOT ON THIS OS' not in output
+    assert 'Engine unavailable or access denied' in output

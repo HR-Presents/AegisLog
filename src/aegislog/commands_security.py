@@ -46,7 +46,26 @@ def timeline_view(records):
 def workbench_view(investigation, filters):
     return Group(render_dashboard(investigation.dashboard(filters), screen_width=console.size.width),
                  Text("[F Filters] [X Clear filters] [O Open report] [E Export evidence] [T Timeline]\n"
-                      "[W Watchlist] [C Detection tuning] [I Integrity] [P Demo replay] [R Refresh] [V Scope]\n[B Back] [Q Quit]", style=ACCENT))
+                      "[W Watchlist] [C Detection tuning] [I Integrity] [P Demo replay] [R Refresh] [V Scope] [D Details]\n[B Back] [Q Quit]", style=ACCENT))
+
+
+def finding_details(investigation, filters):
+    records, signals = investigation.select(filters)
+    by_line = {record.line: record for record in records}
+    panels = []
+    for signal in signals[:20]:
+        finding = signal.finding
+        body = Text(f"Trigger / evidence: {finding.evidence}\nNext investigation: {finding.recommendation}\nSource line references: {', '.join(map(str, signal.lines)) or 'not resolved'}", style=NEUTRAL)
+        if signal.suppression_reason:
+            body.append(f"\nSuppressed: {signal.suppression_reason}", style=WARNING)
+        for number in signal.lines[-5:]:
+            record = by_line.get(number)
+            if record:
+                body.append(f"\nLine {number}: {record.evidence[:500]}", style=MUTED)
+        panels.append(TerminalPanel(body, title=Text(f" {finding.severity} / {finding.title} ", style=ACCENT),
+                                    border_style=ACCENT_SOFT, style=f"{NEUTRAL} on {SURFACE}"))
+    return Group(Text(f"FINDING DETAILS: showing {min(20, len(signals))}/{len(signals)} selected signals. Up to five selected source excerpts per finding; export retains available references.", style=MUTED),
+                 *panels, *([Text("No findings match the current filters.", style=MUTED)] if not signals else []))
 
 
 def scope_view(investigation, filters):
@@ -100,7 +119,7 @@ def run_workbench(path: Path, filters=None, tuning=None, indicators=None, year=N
         while True:
             console.clear()
             console.print(workbench_view(investigation, filters))
-            action = Prompt.ask("Action", choices=["f", "x", "o", "e", "t", "w", "c", "i", "p", "r", "v"], default="r")
+            action = Prompt.ask("Action", choices=["f", "x", "o", "e", "t", "w", "c", "i", "p", "r", "v", "d"], default="r")
             try:
                 if action == "r":
                     break
@@ -120,6 +139,8 @@ def run_workbench(path: Path, filters=None, tuning=None, indicators=None, year=N
                     output = Path(Prompt.ask("New JSON export path", default=f"aegislog-evidence-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.json").strip('"'))
                     export_evidence(investigation, filters, output)
                     console.print(Text(f"Exported: {output}", style=SUCCESS))
+                elif action == "d":
+                    console.print(finding_details(investigation, filters))
                 elif action == "v":
                     console.print(scope_view(investigation, filters))
                 elif action == "t":
@@ -143,7 +164,7 @@ def run_workbench(path: Path, filters=None, tuning=None, indicators=None, year=N
                 console.print(Text(redact_sensitive(str(exc)), style=WARNING))
                 Prompt.ask("Enter to continue", default="")
                 continue
-            if action in {"e", "t", "i", "p", "o", "v"}:
+            if action in {"e", "t", "i", "p", "o", "v", "d"}:
                 Prompt.ask("Enter to continue", default="")
 
 

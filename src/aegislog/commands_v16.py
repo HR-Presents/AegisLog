@@ -4,7 +4,7 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
-from rich.panel import Panel
+from .terminal_charts import TerminalPanel as Panel
 from rich.table import Table
 from rich.text import Text
 

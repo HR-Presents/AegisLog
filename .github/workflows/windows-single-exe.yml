@@ -92,6 +92,17 @@ jobs:
           if ($files.Count -ne 1) { throw "Expected exactly one customer executable in dist" }
           if ($files[0].Name -ne "AegisLog.exe") { throw "Unexpected distribution file: $($files[0].Name)" }
 
+      - name: Include demo and quickstart
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force "demo" | Out-Null
+          Copy-Item "docs/examples/security-demo.log", "docs/examples/watchlist-demo.txt", "docs/examples/tuning-demo.json" -Destination "demo"
+          Copy-Item "packaging/WINDOWS_QUICKSTART.md" -Destination "QUICKSTART.md"
+          .\dist\AegisLog.exe security demo\security-demo.log --watchlist demo\watchlist-demo.txt --export demo-smoke-evidence.json
+          if ($LASTEXITCODE -ne 0) { throw "Security workbench executable smoke failed" }
+          .\dist\AegisLog.exe replay --help
+          if ($LASTEXITCODE -ne 0) { throw "Replay command smoke failed" }
+
       - name: Generate checksum
         shell: pwsh
         run: |
@@ -111,3 +122,5 @@ jobs:
           path: |
             dist/AegisLog.exe
             AegisLog.exe.sha256
+            QUICKSTART.md
+            demo/

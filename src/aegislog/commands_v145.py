@@ -9,6 +9,7 @@ from rich.console import Group, RenderableType
 from .terminal_charts import TerminalPanel as Panel
 from rich.table import Table
 from rich.text import Text
+from rich.segment import Segment
 from rich.live import Live
 
 from . import commands_v144 as legacy
@@ -19,7 +20,6 @@ from .theme import SURFACE, ACCENT, ACCENT_SOFT, DIM, MUTED, NEUTRAL, SUCCESS
 _LEGACY_INLINE_COMMAND = legacy._run_inline_command
 _NARROW_BREAKPOINT = 72
 _WIDE_BREAKPOINT = 96
-_MAX_HOME_WIDTH = 144
 
 
 def _screen_width(screen_width: int | None = None) -> int:
@@ -28,7 +28,7 @@ def _screen_width(screen_width: int | None = None) -> int:
 
 
 def _frame_width(screen_width: int | None = None) -> int:
-    return min(_screen_width(screen_width), _MAX_HOME_WIDTH)
+    return _screen_width(screen_width)
 
 
 def _rule(width: int) -> Text:
@@ -180,10 +180,27 @@ def _footer(screen_width: int | None = None) -> Text:
     return footer
 
 
-def _home(screen_width: int | None = None) -> RenderableType:
+def _home(screen_width: int | None = None, screen_height: int | None = None) -> RenderableType:
     frame_width = _frame_width(screen_width)
     available = _screen_width(screen_width)
-    content = Group(_header(screen_width), Text(""), _menu(screen_width), Text(""), _rule(frame_width), _footer(screen_width))
+    header, menu = _header(screen_width), _menu(screen_width)
+    dense = screen_height is not None and screen_height < 40
+    if dense:
+        def tighten(renderable):
+            if isinstance(renderable, Panel):
+                renderable.padding = (0, 1)
+                renderable.height = None
+            elif isinstance(renderable, Group):
+                for child in renderable.renderables:
+                    tighten(child)
+            elif isinstance(renderable, Table):
+                for column in renderable.columns:
+                    for child in column._cells:
+                        tighten(child)
+        tighten(header)
+        tighten(menu)
+    spacer = [] if dense else [Text("")]
+    content = Group(header, *spacer, menu, *spacer, _rule(frame_width), _footer(screen_width))
     return Align.center(content, width=available, pad=False)
 
 
@@ -194,37 +211,67 @@ def _run_inline_command(raw: str) -> None:
     _LEGACY_INLINE_COMMAND(raw)
 
 
+class _HomeViewport:
+    """Scroll the original home without replacing its panels or logo."""
+    def __init__(self, width, height, offset=0):
+        self.width, self.height, self.offset = width, max(1, height), offset
+
+    def prepare(self, console, options):
+        self.lines = console.render_lines(_home(self.width, self.height), options.update(width=self.width), pad=False)
+        self.maximum = max(0, len(self.lines) - self.height)
+        self.offset = min(max(0, self.offset), self.maximum)
+        return self
+
+    def __rich_console__(self, console, options):
+        self.prepare(console, options)
+        lines = self.lines
+        start = self.offset
+        for line in lines[start:start + self.height]:
+            yield from line
+            yield Segment.line()
+
+
 def _read_home_choice() -> str:
     with KeyboardReader() as keys:
         if not keys.enabled or not legacy.console.is_terminal:
             legacy.console.print(_home(legacy.console.size.width))
             return legacy.console.input(f"[bold {ACCENT}]aegis@console > [/bold {ACCENT}]")
         value = ""
+        offset = 0
         def frame():
-            prompt = Text("aegis@console > ", style=f"bold {ACCENT}")
-            prompt.append(value, style=NEUTRAL)
+            nonlocal offset
             size = legacy.console.size
-            if size.height < 44:
-                # Keep navigation visible when the full home exceeds the viewport.
-                title = Text("AEGISLOG / DEFENSIVE LOG INVESTIGATION", style=f"bold {ACCENT}")
-                clock = Text(datetime.now(timezone.utc).strftime("%H:%M:%S UTC / %d %b %Y"), style=SUCCESS)
-                actions = Text("01 Analyze   02 Live   03 Multi-source\n04 Native logs   05 Native monitor   06 Incidents\n07 Demo   08 Health   09 Help\n[Q Exit] Type a number or command, then Enter", style=NEUTRAL)
-                return Group(title, clock, Text("MADE BY HR-PRESENTS / LOCAL / READ-ONLY", style=MUTED), Text(""), actions, Text(""), prompt)
-            return Group(_home(size.width), prompt)
-        legacy.console.clear()
+            viewport = _HomeViewport(size.width, max(1, size.height - 2), offset)
+            viewport.prepare(legacy.console, legacy.console.options)
+            offset = viewport.offset
+            if viewport.maximum:
+                position = f"Rows {offset + 1}-{min(offset + viewport.height, len(viewport.lines))}/{len(viewport.lines)} | PgUp/PgDn | Home/End"
+            else:
+                position = "All panels visible"
+            controls = Text(position + " | 09 Help | Q Quit", style=MUTED, no_wrap=True, overflow="crop")
+            prompt = Text("aegis@console > ", style=f"bold {ACCENT}", no_wrap=True, overflow="crop")
+            available = max(1, size.width - len(prompt.plain) - 1)
+            prompt.append(value[-available:], style=NEUTRAL)
+            return Group(viewport, controls, prompt)
         with Live(frame(), console=legacy.console, auto_refresh=False,
-                  screen=False, transient=True, vertical_overflow="crop") as live:
+                  screen=True, transient=True, vertical_overflow="crop") as live:
             next_refresh = time.monotonic()
             previous_size = legacy.console.size
             while True:
                 key = keys.poll()
-                if key in {"\r", "\n"}:
+                if key in {"UP", "PAGEUP", "HOME"}:
+                    offset = 0 if key == "HOME" else max(0, offset - (1 if key == "UP" else max(1, legacy.console.size.height - 3)))
+                elif key == "END":
+                    offset = 1000000
+                elif key in {"DOWN", "PAGEDOWN"}:
+                    offset += 1 if key == "DOWN" else max(1, legacy.console.size.height - 3)
+                elif key in {"\r", "\n"}:
                     return value
                 if key in {"\x03", "\x04"}:
                     raise KeyboardInterrupt()
                 if key in {"\x08", "\x7f"}:
                     value = value[:-1]
-                elif key and key.isprintable() and len(value) < 4096:
+                elif key and len(key) == 1 and key.isprintable() and len(value) < 4096:
                     value += key
                 size = legacy.console.size
                 if key or time.monotonic() >= next_refresh or size != previous_size:

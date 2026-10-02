@@ -70,3 +70,11 @@ def test_chronological_chart_selects_latest_sorted_buckets():
     output = plain(DistributionChart('TIME', {'10:03': 3, '10:01': 1, '10:02': 2}, chronological=True, limit=2), 80)
     assert '10:01' not in output
     assert output.index('10:02') < output.index('10:03')
+
+
+def test_activity_chart_distinguishes_displayed_and_retained_totals():
+    from aegislog.terminal_charts import ActivityChart
+    values = {f'2026-10-02 12:{n:02d}': 10 for n in range(20)}
+    output = plain(ActivityChart(values), 120)
+    assert 'Displayed: 120 events / 12 minute buckets' in output
+    assert 'Retained total: 200 timestamped events' in output

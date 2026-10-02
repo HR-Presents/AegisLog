@@ -55,3 +55,14 @@ def test_multisource_state_combines_rate_signals_across_sources() -> None:
     snapshot = state.trend_tracker.snapshot()
     assert snapshot.failed_logins_per_minute == 2.0
     assert snapshot.firewall_blocks_per_minute == 3.0
+
+
+def test_firewall_deny_drop_and_block_match_detected_network_events():
+    tracker = TrendTracker()
+    snapshot = tracker.ingest([
+        'firewall: WARN firewall deny src=198.51.100.50',
+        'firewall: connection drop src=198.51.100.50',
+        'firewall: connection block src=198.51.100.50',
+        'api: authorization denied for user',
+    ], now=100)
+    assert snapshot.firewall_blocks_per_minute == 3

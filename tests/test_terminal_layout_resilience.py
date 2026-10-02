@@ -149,7 +149,7 @@ def test_interactive_home_uses_full_terminal_width() -> None:
 def test_interactive_home_expands_on_wide_terminals() -> None:
     text = _render_text(_home(220), 220)
     lines = [line for line in text.splitlines() if line]
-    assert lines[0].startswith("╭") or lines[0].startswith("┌")
+    assert lines[0].startswith(("┌", "+"))
     assert max(len(line) for line in lines) <= 220
     assert max(len(line) for line in lines) >= 218
     assert "LOCAL-FIRST" in text
