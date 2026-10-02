@@ -89,7 +89,10 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
     assert '<svg viewBox="0 0 46 52"' in html
     assert "#4C8DFF" in html
     assert 'content="light"' in html
-    assert 'body{background:#f1f5f9;color:#172033}' in html
+    assert 'body{margin:0;background:#fff;color:var(--ink)' in html
+    assert 'Investigation Information' in html
+    assert 'PRESENTED BY HR-PRESENTS' in html
+    assert 'grid-template-columns:repeat(2,minmax(0,1fr))' in html
     assert "REMOTE AI" not in html
     assert "@media print" in html
     assert "break-inside:avoid" in html
