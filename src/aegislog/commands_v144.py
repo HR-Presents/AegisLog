@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from rich.console import Console, Group, RenderableType
-from rich.panel import Panel
+from .terminal_charts import TerminalPanel as Panel
 from .navigation import Prompt, WorkspaceBack, WorkspaceQuit
 from rich.table import Table
 from rich.text import Text

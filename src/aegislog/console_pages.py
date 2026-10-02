@@ -5,7 +5,7 @@ import sys
 
 from rich import box
 from rich.console import Console
-from rich.panel import Panel
+from .terminal_charts import TerminalPanel as Panel
 from rich.table import Table
 from rich.text import Text
 
@@ -142,7 +142,7 @@ def system_check() -> None:
         ("Command mode", Text("READY", style=SUCCESS), "Menu shortcuts and direct CLI commands"),
     ]
     for item in sources:
-        state = Text("READY", style=SUCCESS) if item.available else Text("NOT ON THIS OS", style=MUTED)
+        state = Text("READY", style=SUCCESS) if item.available else Text("UNAVAILABLE" if item.name == "docker" else "NOT ON THIS OS", style=MUTED)
         rows.append((item.label, state, item.detail))
     console.print(bounded(_health_table(rows, console.size.width)))
     console.print(compact_footer("Capability and source availability only; no host configuration is modified."))

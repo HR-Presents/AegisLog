@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from rich.console import Console
-from rich.panel import Panel
+from .terminal_charts import TerminalPanel as Panel
 from .navigation import Prompt
 from rich.table import Table
 from rich.text import Text
@@ -299,7 +299,7 @@ def _system_check() -> None:
     table.add_row("Native live monitor", Text("READY", style=SUCCESS))
     table.add_row("Command mode", Text("READY — menu numbers and CLI commands", style=SUCCESS))
     for item in source_status():
-        status = Text("READY", style=SUCCESS) if item.available else Text("NOT ON THIS OS", style=MUTED)
+        status = Text("READY", style=SUCCESS) if item.available else Text("UNAVAILABLE" if item.name == "docker" else "NOT ON THIS OS", style=MUTED)
         table.add_row(Text(item.label), status)
     console.print(table)
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import platform
 
-from rich.panel import Panel
+from .terminal_charts import TerminalPanel as Panel
 from rich.text import Text
 
 from .native_collectors import NativeSource
