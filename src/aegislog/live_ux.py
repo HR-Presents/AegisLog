@@ -54,7 +54,7 @@ def live_startup_panel(
         targets.add_row(str(index), Text(source, style=NEUTRAL))
 
     guidance = Text("Live analysis is read-only. ", style=MUTED)
-    guidance.append("Ctrl+C stops safely; source data and host configuration are never modified.", style=MUTED)
+    guidance.append("[B Back / Stop] [Q Quit] Ctrl+C stops safely; source data and host configuration are never modified.", style=MUTED)
 
     rule_width = max(20, min(width - 2, 48))
     return bounded(

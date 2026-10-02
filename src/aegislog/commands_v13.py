@@ -7,6 +7,8 @@ import typer
 from rich.console import Console
 from rich.live import Live
 
+from .navigation import KeyboardReader, wait_for_navigation
+
 from .command_center_ui import render_realtime_command_center
 from .live_ux import live_initial_status, live_source_status, live_startup_panel, live_stopped_status
 from .realtime import RealtimeState, initial_cursor, read_new_lines_cursor
@@ -57,28 +59,29 @@ def live_dashboard(
 
     source_missing = False
     try:
-        with Live(
-            _view(state),
-            console=console,
-            refresh_per_second=max(1, int(round(1 / refresh))),
-            screen=False,
-            transient=False,
-        ) as live:
-            while True:
-                if not path.exists() or not path.is_file():
+        with KeyboardReader() as keys:
+            with Live(
+                _view(state),
+                console=console,
+                refresh_per_second=max(1, int(round(1 / refresh))),
+                screen=False,
+                transient=False,
+            ) as live:
+                while True:
+                    if not path.exists() or not path.is_file():
+                        live.update(_view(state), refresh=True)
+                        if not source_missing:
+                            console.print(live_source_status(str(path), available=False))
+                            source_missing = True
+                        wait_for_navigation(keys, refresh, sleep=time.sleep)
+                        continue
+                    if source_missing:
+                        console.print(live_source_status(str(path), available=True))
+                        source_missing = False
+                    lines, cursor = read_new_lines_cursor(path, cursor)
+                    if lines:
+                        state.ingest(lines)
                     live.update(_view(state), refresh=True)
-                    if not source_missing:
-                        console.print(live_source_status(str(path), available=False))
-                        source_missing = True
-                    time.sleep(refresh)
-                    continue
-                if source_missing:
-                    console.print(live_source_status(str(path), available=True))
-                    source_missing = False
-                lines, cursor = read_new_lines_cursor(path, cursor)
-                if lines:
-                    state.ingest(lines)
-                live.update(_view(state), refresh=True)
-                time.sleep(refresh)
+                    wait_for_navigation(keys, refresh, sleep=time.sleep)
     except KeyboardInterrupt:
         console.print(live_stopped_status("File", degraded=source_missing))

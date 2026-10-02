@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import time
 
 from rich import box
 from rich.align import Align
@@ -8,9 +9,11 @@ from rich.console import Group, RenderableType
 from .terminal_charts import TerminalPanel as Panel
 from rich.table import Table
 from rich.text import Text
+from rich.live import Live
 
 from . import commands_v144 as legacy
 from .config import CONFIG_DIR
+from .navigation import KeyboardReader, shell_navigation
 from .theme import SURFACE, ACCENT, ACCENT_SOFT, DIM, MUTED, NEUTRAL, SUCCESS
 
 _LEGACY_INLINE_COMMAND = legacy._run_inline_command
@@ -59,6 +62,7 @@ def _brand_lockup(compact: bool = False, *, screen_width: int | None = None) -> 
         body.append("DEFENSIVE LOG INVESTIGATION\n", style=f"bold {NEUTRAL}")
         body.append("MADE BY HR-PRESENTS\n", style=f"bold {ACCENT}")
         body.append("LOCAL-FIRST  |  READ-ONLY  |  DETERMINISTIC", style=MUTED)
+        body.append("\n" + datetime.now(timezone.utc).strftime("%H:%M:%S UTC  /  %d %b %Y"), style=SUCCESS)
         return body
     return Group(
         Align.center(_wordmark()),
@@ -168,7 +172,7 @@ def _footer(screen_width: int | None = None) -> Text:
     footer = Text(overflow="crop", no_wrap=True)
     footer.append("[01-09]", style=f"bold {ACCENT}")
     footer.append(" Select", style=NEUTRAL)
-    footer.append("   |   Q Exit", style=MUTED)
+    footer.append("   |   [Q Exit]", style=MUTED)
     if width >= 48:
         footer.append("   |   type a command", style=NEUTRAL)
     if width >= 100:
@@ -190,23 +194,68 @@ def _run_inline_command(raw: str) -> None:
     _LEGACY_INLINE_COMMAND(raw)
 
 
+def _read_home_choice() -> str:
+    with KeyboardReader() as keys:
+        if not keys.enabled or not legacy.console.is_terminal:
+            legacy.console.print(_home(legacy.console.size.width))
+            return legacy.console.input(f"[bold {ACCENT}]aegis@console > [/bold {ACCENT}]")
+        value = ""
+        def frame():
+            prompt = Text("aegis@console > ", style=f"bold {ACCENT}")
+            prompt.append(value, style=NEUTRAL)
+            size = legacy.console.size
+            if size.height < 44:
+                # Keep navigation visible when the full home exceeds the viewport.
+                title = Text("AEGISLOG / DEFENSIVE LOG INVESTIGATION", style=f"bold {ACCENT}")
+                clock = Text(datetime.now(timezone.utc).strftime("%H:%M:%S UTC / %d %b %Y"), style=SUCCESS)
+                actions = Text("01 Analyze   02 Live   03 Multi-source\n04 Native logs   05 Native monitor   06 Incidents\n07 Demo   08 Health   09 Help\n[Q Exit] Type a number or command, then Enter", style=NEUTRAL)
+                return Group(title, clock, Text("MADE BY HR-PRESENTS / LOCAL / READ-ONLY", style=MUTED), Text(""), actions, Text(""), prompt)
+            return Group(_home(size.width), prompt)
+        legacy.console.clear()
+        with Live(frame(), console=legacy.console, auto_refresh=False,
+                  screen=False, transient=True, vertical_overflow="crop") as live:
+            next_refresh = time.monotonic()
+            previous_size = legacy.console.size
+            while True:
+                key = keys.poll()
+                if key in {"\r", "\n"}:
+                    return value
+                if key in {"\x03", "\x04"}:
+                    raise KeyboardInterrupt()
+                if key in {"\x08", "\x7f"}:
+                    value = value[:-1]
+                elif key and key.isprintable() and len(value) < 4096:
+                    value += key
+                size = legacy.console.size
+                if key or time.monotonic() >= next_refresh or size != previous_size:
+                    # Build a fresh clock while preserving the editable command.
+                    live.update(frame(), refresh=True)
+                    next_refresh = time.monotonic() + 1
+                    previous_size = size
+                time.sleep(0.05)
+
+
 def start() -> None:
     """Run the responsive terminal shell over the deterministic investigation engine."""
     original_home = legacy._home
     original_inline = legacy._run_inline_command
     original_input_panel = legacy._input_panel
     original_operation_header = legacy._operation_header
+    original_reader = legacy._read_home_choice
     try:
         legacy._home = _home
         legacy._run_inline_command = _run_inline_command
         legacy._input_panel = _input_panel
         legacy._operation_header = _operation_header
-        legacy.start()
+        legacy._read_home_choice = _read_home_choice
+        with shell_navigation():
+            legacy.start()
     finally:
         legacy._home = original_home
         legacy._run_inline_command = original_inline
         legacy._input_panel = original_input_panel
         legacy._operation_header = original_operation_header
+        legacy._read_home_choice = original_reader
 
 
 __all__ = ["start"]

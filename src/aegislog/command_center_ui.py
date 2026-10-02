@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shutil
+from datetime import datetime, timezone
 from collections import Counter
 
 from rich import box
@@ -60,6 +61,12 @@ def _header(title: str, source: str, profile: str, risk: str, *, subtitle: str =
     else:
         grid.add_row(source_line, mode)
         grid.add_row(Text(subtitle or "LOCAL-FIRST / READ-ONLY / DETERMINISTIC", style=MUTED), Text("MADE BY HR-PRESENTS", style=f"bold {ACCENT}"))
+    clock = Text(datetime.now(timezone.utc).strftime("LIVE CLOCK  %H:%M:%S UTC"), style=SUCCESS)
+    if narrow:
+        grid.add_row(clock)
+        grid.add_row(Text("[B Back / Stop] [Q Quit] [Ctrl+C Stop]", style=MUTED))
+    else:
+        grid.add_row(clock, Text("[B Back / Stop] [Q Quit] [Ctrl+C Stop]", style=MUTED))
     return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=grid, box=box.ASCII, border_style=ACCENT_SOFT, padding=(0, 1), width=_frame_width())
 
 
