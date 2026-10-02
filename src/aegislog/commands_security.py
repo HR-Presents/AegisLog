@@ -44,6 +44,12 @@ def timeline_view(records):
 
 
 def workbench_view(investigation, filters):
+    return Group(render_dashboard(investigation.dashboard(filters), screen_width=console.size.width),
+                 Text("[F Filters] [X Clear filters] [O Open report] [E Export evidence] [T Timeline]\n"
+                      "[W Watchlist] [C Detection tuning] [I Integrity] [P Demo replay] [R Refresh] [V Scope]\n[B Back] [Q Quit]", style=ACCENT))
+
+
+def scope_view(investigation, filters):
     records, signals = investigation.select(filters)
     active = [s for s in signals if not s.suppression_reason]
     suppressed = [s for s in signals if s.suppression_reason]
@@ -57,10 +63,7 @@ def workbench_view(investigation, filters):
     suppression = Text("SUPPRESSED FINDINGS (still exported)\n", style=WARNING)
     for signal in suppressed[:8]:
         suppression.append(f"{signal.finding.title}: {signal.suppression_reason}\n", style=MUTED)
-    return Group(TerminalPanel(summary, border_style=ACCENT, style=f"{NEUTRAL} on {SURFACE}"),
-                 render_dashboard(investigation.dashboard(filters), screen_width=console.size.width), suppression,
-                 Text("[F Filters] [X Clear filters] [O Open report] [E Export evidence] [T Timeline]\n"
-                      "[W Watchlist] [C Detection tuning] [I Integrity] [P Demo replay] [R Refresh]\n[B Back] [Q Quit]", style=ACCENT))
+    return Group(TerminalPanel(summary, border_style=ACCENT, style=f"{NEUTRAL} on {SURFACE}"), suppression)
 
 
 def write_security_report(investigation, filters, output_dir: Path | None = None):
@@ -97,7 +100,7 @@ def run_workbench(path: Path, filters=None, tuning=None, indicators=None, year=N
         while True:
             console.clear()
             console.print(workbench_view(investigation, filters))
-            action = Prompt.ask("Action", choices=["f", "x", "o", "e", "t", "w", "c", "i", "p", "r"], default="r")
+            action = Prompt.ask("Action", choices=["f", "x", "o", "e", "t", "w", "c", "i", "p", "r", "v"], default="r")
             try:
                 if action == "r":
                     break
@@ -117,6 +120,8 @@ def run_workbench(path: Path, filters=None, tuning=None, indicators=None, year=N
                     output = Path(Prompt.ask("New JSON export path", default=f"aegislog-evidence-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.json").strip('"'))
                     export_evidence(investigation, filters, output)
                     console.print(Text(f"Exported: {output}", style=SUCCESS))
+                elif action == "v":
+                    console.print(scope_view(investigation, filters))
                 elif action == "t":
                     console.print(timeline_view(investigation.select(filters)[0]))
                 elif action == "w":
@@ -138,7 +143,7 @@ def run_workbench(path: Path, filters=None, tuning=None, indicators=None, year=N
                 console.print(Text(redact_sensitive(str(exc)), style=WARNING))
                 Prompt.ask("Enter to continue", default="")
                 continue
-            if action in {"e", "t", "i", "p", "o"}:
+            if action in {"e", "t", "i", "p", "o", "v"}:
                 Prompt.ask("Enter to continue", default="")
 
 
@@ -167,6 +172,7 @@ def security(
             return
         investigation = investigate_file(path, selected_tuning, selected_indicators, year=timestamp_year)
         console.print(workbench_view(investigation, filters))
+        console.print(scope_view(investigation, filters))
         console.print(timeline_view(investigation.select(filters)[0]))
         report = write_security_report(investigation, filters)
         console.print(Text(f"Report: {report}", style=SUCCESS))

@@ -8,6 +8,7 @@ Development feature; no new stable version is implied. Open the terminal shell w
 |---|---|
 | F | Select severity, finding category, service, source format/filename, and time range |
 | X | Clear all filters |
+| V | Show scope, retention, active filters and documented suppressions |
 | O | Generate the filtered HTML report and open it locally in a browser |
 | E | Create a redacted JSON evidence export; existing files are never overwritten |
 | T | Show account, privilege, login, process and audit observations with source line references |
@@ -64,3 +65,5 @@ JSON exports include selected redacted events, source line numbers, signal refer
 Workbench input prefixes are capped at 16 KiB per line; retained evidence is capped at 10,000 recent lines and 8 MB. Analysis covers the retained sample, not every original line. Signals are capped at 10,000, and bounded engine state may omit more; omitted counts are disclosed. A signal retains at most 100 matching line references; login-success sequences retain the last 100 failure references plus the success. Watchlists are capped at 200 KB/2,000 entries and tuning at 100 KB. Unknown formats, unavailable fields, sampling, and native collector permissions affect coverage.
 
 Reports and exports are local output artifacts. No accounts, firewall settings, services, source logs or host security policy are modified. Actual Windows keyboard, browser-opening, Unicode, colour and resize acceptance still requires the packaged build.
+
+The default interactive view preserves the earlier analysis dashboard, beginning with its original header, metrics and charts. Scope and suppression details are available through V; timelines remain behind T. The home layout keeps its previous panels, with security/replay shortcuts in the existing footer. Live collector details follow the existing dashboard rather than displacing its charts.

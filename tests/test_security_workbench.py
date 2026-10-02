@@ -279,3 +279,18 @@ def test_report_opens_local_file_uri(demo,tmp_path,monkeypatch):
     monkeypatch.setattr(commands_security.webbrowser,'open',lambda uri:calls.append(uri) or True)
     commands_security.open_report(report)
     assert calls==[report.resolve().as_uri()]
+
+
+def test_default_view_preserves_previous_dashboard_before_controls(demo,monkeypatch):
+    from aegislog import commands_security
+    from aegislog.dashboard_v213 import render_dashboard
+    investigation=investigate_file(demo)
+    console=Console(file=StringIO(),width=120,record=True)
+    monkeypatch.setattr(commands_security,'console',console)
+    console.print(commands_security.workbench_view(investigation,Filters()))
+    actual=console.export_text()
+    original=Console(file=StringIO(),width=120,record=True)
+    original.print(render_dashboard(investigation.dashboard(Filters()),screen_width=120))
+    assert actual.startswith(original.export_text())
+    assert 'SECURITY WORKBENCH / SAVED FILE' not in actual
+    assert '[V Scope]' in actual

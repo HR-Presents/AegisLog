@@ -157,7 +157,7 @@ def render_realtime_command_center(state) -> RenderableType:
     sections.append(ActivityChart(minute_activity(state.lines)))
     sections.extend((Text(""), render_trends(trend, profile.trend_metrics), Text(""), _recent_findings(list(state.recent_findings), profile.label, compact=compact), Text(""), Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Text(f"Read-only monitoring active. {state.total_bytes:,} bytes ingested; {state.truncated_lines} oversized lines truncated; {state.dropped_window_lines} old lines evicted. No remediation is performed.", style=MUTED), title=Text(" LIVE STATUS ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT)))
     if getattr(state, "collector_health", None):
-        sections.insert(4, render_collector_health(state.collector_health, dropped=getattr(state, "dropped_window_lines", max(0, state.total_lines - state.rolling_count)), truncated=getattr(state, "truncated_lines", 0)))
+        sections.append(render_collector_health(state.collector_health, dropped=getattr(state, "dropped_window_lines", max(0, state.total_lines - state.rolling_count)), truncated=getattr(state, "truncated_lines", 0)))
     return Align.left(Group(*sections), width=width, pad=False)
 
 
@@ -205,7 +205,7 @@ def render_multisource_command_center(state) -> RenderableType:
         sections.extend((_distribution("SEVERITY DISTRIBUTION", severities, compact=compact, semantic=True), Text(""), _distribution("FINDINGS BY CATEGORY", categories, compact=compact)))
     sections.extend((Text(""), render_trends(trend, profile.trend_metrics), Text(""), _alerts(state, compact=compact), Text(""), Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Text(f"Read-only multi-source monitoring active. {state.total_bytes:,} bytes ingested across {len(state.sources)} sources. No remediation is performed.", style=MUTED), title=Text(" SOC STATUS ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT)))
     if getattr(state, "collector_health", None):
-        sections.insert(4, render_collector_health(state.collector_health, dropped=getattr(state, "dropped_window_lines", max(0, state.total_lines - state.rolling_count)), truncated=getattr(state, "truncated_lines", 0)))
+        sections.append(render_collector_health(state.collector_health, dropped=getattr(state, "dropped_window_lines", max(0, state.total_lines - state.rolling_count)), truncated=getattr(state, "truncated_lines", 0)))
     return Align.left(Group(*sections), width=width, pad=False)
 
 
