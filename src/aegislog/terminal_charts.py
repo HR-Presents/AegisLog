@@ -95,7 +95,7 @@ class ActivityChart:
             dot_rows.append(row)
         rows.append(Text("Dot plot / same minute counts", style=MUTED))
         rows.extend(dot_rows)
-        rows.append(Text(f"Total: {sum(self.values.values()):,} | retained timestamped events; peak {maximum:,}/minute", style=MUTED))
+        rows.append(Text(f"Displayed: {sum(value for _, value in items):,} events / {len(items)} minute buckets | Retained total: {sum(self.values.values()):,} timestamped events | displayed peak {maximum:,}/minute", style=MUTED))
         yield TerminalPanel(Group(*rows), title=Text(f" {self.title} ", style=f"bold {ACCENT}"), title_align="left",
                     box=box.ASCII, border_style=ACCENT_SOFT, style=f"{NEUTRAL} on {SURFACE}", padding=(0, 1))
 
