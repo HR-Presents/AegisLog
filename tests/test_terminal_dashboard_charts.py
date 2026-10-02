@@ -51,3 +51,22 @@ def test_live_charts_resize_with_actual_telemetry(monkeypatch, width):
     assert "#" in output
     assert "Total: 7" in output
     assert max(map(len, output.splitlines())) <= width
+
+
+@pytest.mark.parametrize('width', [40, 64, 80, 120, 180])
+def test_reference_colour_rendering_preserves_counts_and_viewport(tmp_path, width):
+    path = tmp_path / 'sample.log'
+    path.write_text('2026-10-02T10:00:00Z INFO api: healthy\n' * 7)
+    console = Console(file=StringIO(), width=width, force_terminal=False, color_system='truecolor', record=True)
+    console.print(render_dashboard(analyze_dashboard(path), screen_width=width))
+    output = console.export_text()
+    assert 'API' in output
+    assert 'Total: 7' in output
+    assert max(map(len, output.splitlines())) <= width
+    assert '█' in output
+
+
+def test_chronological_chart_selects_latest_sorted_buckets():
+    output = plain(DistributionChart('TIME', {'10:03': 3, '10:01': 1, '10:02': 2}, chronological=True, limit=2), 80)
+    assert '10:01' not in output
+    assert output.index('10:02') < output.index('10:03')

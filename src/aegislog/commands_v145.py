@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from rich import box
 from rich.align import Align
 from rich.console import Group, RenderableType
-from rich.panel import Panel
+from .terminal_charts import TerminalPanel as Panel
 from rich.table import Table
 from rich.text import Text
 
 from . import commands_v144 as legacy
-from .theme import ACCENT, ACCENT_SOFT, DIM, MUTED, NEUTRAL, SUCCESS
+from .config import CONFIG_DIR
+from .theme import SURFACE, ACCENT, ACCENT_SOFT, DIM, MUTED, NEUTRAL, SUCCESS
 
 _LEGACY_INLINE_COMMAND = legacy._run_inline_command
 _NARROW_BREAKPOINT = 72
@@ -62,11 +65,12 @@ def _brand_lockup(compact: bool = False, *, screen_width: int | None = None) -> 
         Align.center(Text("DEFENSIVE LOG INVESTIGATION", style=f"bold {NEUTRAL}")),
         Align.center(Text("MADE BY HR-PRESENTS", style=f"bold {ACCENT}")),
         Align.center(Text("LOCAL-FIRST  |  READ-ONLY  |  DETERMINISTIC", style=MUTED)),
+        Align.center(Text(datetime.now(timezone.utc).strftime("%H:%M:%S UTC  /  %d %b %Y"), style=SUCCESS)),
     )
 
 
 def _header(screen_width: int | None = None) -> RenderableType:
-    return Panel(_brand_lockup(screen_width=screen_width), box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=_frame_width(screen_width))
+    return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=_brand_lockup(screen_width=screen_width), box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=_frame_width(screen_width))
 
 
 def _operation_header(title: str, subtitle: str, accent: str = ACCENT, *, screen_width: int | None = None) -> RenderableType:
@@ -75,7 +79,7 @@ def _operation_header(title: str, subtitle: str, accent: str = ACCENT, *, screen
     heading.append("AEGISLOG", style=f"bold {NEUTRAL}")
     heading.append("  //  ", style=MUTED)
     heading.append(title.upper(), style=f"bold {accent}")
-    return Panel(Group(heading, Text(subtitle, style=NEUTRAL, overflow="fold"), Text("LOCAL / READ-ONLY / DETERMINISTIC", style=MUTED), Text("MADE BY HR-PRESENTS", style=f"bold {ACCENT}")), title=Text(" ACTIVE WORKSPACE ", style=f"bold {accent}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(0, 1), width=width)
+    return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(heading, Text(subtitle, style=NEUTRAL, overflow="fold"), Text("LOCAL / READ-ONLY / DETERMINISTIC", style=MUTED), Text("MADE BY HR-PRESENTS", style=f"bold {ACCENT}")), title=Text(" ACTIVE WORKSPACE ", style=f"bold {accent}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(0, 1), width=width)
 
 
 def _input_panel(title: str, lines: list[tuple[str, str]], accent: str = ACCENT, *, screen_width: int | None = None, primary_label: str | None = None) -> RenderableType:
@@ -87,7 +91,7 @@ def _input_panel(title: str, lines: list[tuple[str, str]], accent: str = ACCENT,
     for label, value in lines:
         primary = primary_label is not None and label == primary_label
         grid.add_row(Text(label.upper(), style=f"bold {accent}" if primary else MUTED), Text(value, style=NEUTRAL if primary else MUTED, overflow="fold"))
-    return Panel(grid, title=Text(f" {title.upper()} ", style=f"bold {accent}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(0, 1), width=width)
+    return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=grid, title=Text(f" {title.upper()} ", style=f"bold {accent}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(0, 1), width=width)
 
 
 def _action_line(key: str, label: str, description: str, *, primary: bool = False) -> Text:
@@ -100,17 +104,17 @@ def _action_line(key: str, label: str, description: str, *, primary: bool = Fals
 
 def _primary_panel(width: int) -> Panel:
     body = Group(_action_line("01", "ANALYZE LOG", "Investigate a log file and create a report", primary=True), Text("     Deterministic findings, incidents and evidence", style=MUTED, no_wrap=True, overflow="crop"))
-    return Panel(body, title=Text(" INVESTIGATE ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT, padding=(1, 1), width=width, height=8)
+    return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=body, title=Text(" INVESTIGATE ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT, padding=(1, 1), width=width, height=8)
 
 
 def _tools_panel(width: int) -> Panel:
     rows = (("02", "LIVE MONITOR", "Watch one log source"), ("03", "MULTI-SOURCE", "Correlate live sources"), ("04", "NATIVE LOGS", "Inspect native telemetry"), ("05", "NATIVE MONITOR", "Watch native telemetry"), ("06", "INCIDENTS", "Review evidence chains"))
-    return Panel(Group(*[_action_line(*row) for row in rows]), title=Text(" MONITOR & INVESTIGATE ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
+    return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*[_action_line(*row) for row in rows]), title=Text(" MONITOR & INVESTIGATE ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
 
 
 def _utility_panel(width: int) -> Panel:
     rows = (("07", "DEMO", "Quick start dataset"), ("08", "HEALTH", "Engine diagnostics"), ("09", "HELP", "Command reference"))
-    return Panel(Group(*[_action_line(*row) for row in rows]), title=Text(" UTILITIES ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
+    return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*[_action_line(*row) for row in rows]), title=Text(" UTILITIES ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
 
 
 def _status_panel(width: int) -> Panel:
@@ -121,23 +125,23 @@ def _status_panel(width: int) -> Panel:
     grid.add_row(Text("MODE", style=MUTED), Text("LOCAL", style=NEUTRAL))
     grid.add_row(Text("DATA", style=MUTED), Text("READ-ONLY", style=NEUTRAL))
     grid.add_row(Text("ENGINE", style=MUTED), Text("DETERMINISTIC", style=NEUTRAL))
-    return Panel(grid, title=Text(" SYSTEM ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
+    return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=grid, title=Text(" SYSTEM ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
 
 
 def _quick_info_panel(width: int) -> Panel:
     grid = Table.grid(expand=True, padding=(0, 1))
     grid.add_column(width=9, no_wrap=True)
     grid.add_column(ratio=1, no_wrap=True, overflow="crop")
-    for label, value in (("REPORTS", "./reports/"), ("CONFIG", "./config/"), ("PROJECT", "HR-Presents/AegisLog-AI"), ("OWNER", "HR-PRESENTS")):
+    for label, value in (("REPORTS", "./aegislog-reports/"), ("CONFIG", str(CONFIG_DIR)), ("PROJECT", "HR-Presents/AegisLog-AI"), ("OWNER", "HR-PRESENTS")):
         grid.add_row(Text(label, style=MUTED), Text(value, style=ACCENT if label != "OWNER" else NEUTRAL, no_wrap=True, overflow="crop"))
-    return Panel(grid, title=Text(" QUICK INFO ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width, height=9)
+    return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=grid, title=Text(" QUICK INFO ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width, height=9)
 
 
 def _menu(screen_width: int | None = None) -> RenderableType:
     width = _frame_width(screen_width)
     if width < _NARROW_BREAKPOINT:
         rows = [("01", "ANALYZE LOG", "Investigate a log"), ("02", "LIVE MONITOR", "Watch a source"), ("03", "MULTI-SOURCE", "Correlate sources"), ("04", "NATIVE LOGS", "Inspect telemetry"), ("05", "NATIVE MONITOR", "Watch telemetry"), ("06", "INCIDENTS", "Review evidence"), ("07", "DEMO", "Quick start"), ("08", "HEALTH", "Diagnostics"), ("09", "HELP", "Reference")]
-        return Group(_status_panel(width), Text(""), Panel(Group(*[_action_line(*row) for row in rows]), title=Text(" COMMAND CENTER ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width))
+        return Group(_status_panel(width), Text(""), Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*[_action_line(*row) for row in rows]), title=Text(" COMMAND CENTER ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width))
 
     if width >= _WIDE_BREAKPOINT:
         gap = 2

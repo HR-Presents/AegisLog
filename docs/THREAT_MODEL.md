@@ -1,26 +1,24 @@
 # Threat model
 
-## Assets
+## Assets and inputs
 
-Production logs, credentials accidentally embedded in logs, investigation reports, local configuration, and any future AI-provider credentials.
+Source logs, credentials accidentally embedded in telemetry, local investigation reports, SQLite case history, and user configuration. Untrusted input includes log content, paths, collector output, and installed declarative rule packs.
 
-## Primary risks
+## Implemented mitigations
 
-- sensitive data disclosure through reports or future external AI calls
-- malicious or misleading log text influencing AI explanations
-- false positives causing unsafe administrator actions
-- very large or malformed logs exhausting local resources
-- terminal escape/control characters embedded in untrusted logs
+- Deterministic local processing; no supported public AI/provider workflow or automatic remediation.
+- Common-secret redaction and terminal escape/control sanitization for normal evidence paths.
+- HTML escaping of log-derived report fields.
+- Bounded file-line ingestion, retained dashboard samples, live reads/windows, and detection/correlation state.
+- Read-only native collection with fixed argument lists, validated channel names, timeouts, and bounded requested record counts.
+- Parameterized database queries and explicit local persistence.
+- Regression tests for malformed telemetry, terminal safety, timestamp handling, streaming, and evidence reporting.
+- Dependency auditing, hashed toolchain locks, package and Windows builds, and guarded release workflows.
 
-## Current mitigations
+## Residual risks
 
-- local-first processing
-- common-secret redaction
-- bounded output and AI-context sizes
-- evidence-oriented wording and explicit uncertainty
-- no automatic remediation actions
-- API secrets excluded from normal configuration
+Redaction is best effort; restrict report/database access and use sanitized data in public issues. Files or sources outside the analyzed retention window can contain missed evidence. Some legacy commands load complete files. Native collector subprocess output can still contain large individual messages. Trusted custom regular expressions can hang on pathological input; do not install untrusted rule packs.
 
-## Planned mitigations
+Synthetic regression accuracy is not independent real-world validation. Analysts must validate findings against source evidence and operational context before acting.
 
-Normalize terminal control characters, streaming size limits, configurable allow/deny patterns, stronger structured redaction, provider isolation, explicit consent before remote processing, and fuzz/property tests for parsers.
+The Windows release is unsigned. Check release SHA-256 and provenance; successful builds and terminal-width tests do not replace real Windows runtime and visual review.

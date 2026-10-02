@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .sanitize import redact_sensitive
+from .ingestion import iter_bounded_lines
 from .windows_security import parse_windows_security_line, signal_for_event
 
 
@@ -392,7 +393,6 @@ def analyze_file(
 ) -> tuple[int, list[Finding]]:
     state = AnalysisState(auth_window_seconds=auth_window_seconds, timestamp_year_hint=timestamp_year_hint)
     count = 0
-    with path.open("r", encoding="utf-8", errors="replace") as handle:
-        for count, line in enumerate(handle, 1):
-            state.process(line)
+    for count, item in enumerate(iter_bounded_lines(path), 1):
+        state.process(item.text)
     return count, state.findings()

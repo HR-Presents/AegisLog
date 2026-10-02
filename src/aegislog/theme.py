@@ -2,21 +2,22 @@ from __future__ import annotations
 
 from rich.text import Text
 
-# AegisLog visual system: one controlled blue identity accent over cool neutral
-# text. Semantic colors are deliberately reserved for real state and severity.
-ACCENT = "#5B8CFF"
-ACCENT_SOFT = "#385784"
-MUTED = "#8391A6"
-SUCCESS = "#62B38F"
-INFO = "#8BA8C7"
-WARNING = "#D2A65A"
-HIGH = "#D56C73"
-CRITICAL = "bold #EF747B"
-INCIDENT = "#A0AEC0"
-ANOMALY = "#91A0B5"
-NEUTRAL = "#E8EDF5"
-DIM = "#526177"
-SURFACE = "#101722"
+# Reference terminal palette: cyan headings, mint status, neutral borders and
+# warm severity accents. All panels paint a dark surface independent of terminal defaults.
+ACCENT = "#22C5DA"
+ACCENT_SOFT = "#A0A0A0"
+MUTED = "#A6A6A6"
+SUCCESS = "#64FFDA"
+INFO = "#22C5DA"
+WARNING = "#FF981F"
+HIGH = "#FF6268"
+CRITICAL = "bold #FF3030"
+INCIDENT = "#E5E5E5"
+ANOMALY = "#FF981F"
+NEUTRAL = "#E5E5E5"
+DIM = "#454545"
+SURFACE = "#080808"
+TRACK = "#173F35"
 
 SEVERITY_STYLES = {
     "CRITICAL": CRITICAL,

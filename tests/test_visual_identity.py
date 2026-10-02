@@ -40,10 +40,10 @@ def test_workspace_keeps_compact_brand_signature() -> None:
     assert "MADE BY HR-PRESENTS" in text
 
 
-def test_palette_uses_controlled_blue_identity() -> None:
-    assert ACCENT == "#5B8CFF"
-    assert NEUTRAL == "#E8EDF5"
-    assert MUTED == "#8391A6"
+def test_palette_matches_terminal_reference() -> None:
+    assert ACCENT == "#22C5DA"
+    assert NEUTRAL == "#E5E5E5"
+    assert MUTED == "#A6A6A6"
 
 
 def test_readme_uses_strong_capabilities_and_product_identity() -> None:

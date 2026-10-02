@@ -5,10 +5,13 @@ from collections import deque
 from dataclasses import dataclass, field
 
 from rich import box
+from rich.console import Group
+from .terminal_charts import TerminalPanel as Panel
 from rich.table import Table
 from rich.text import Text
 
-from .theme import ACCENT, INFO, SUCCESS, WARNING
+from .theme import ACCENT, ACCENT_SOFT, HIGH, INFO, NEUTRAL, SURFACE, SUCCESS, WARNING
+from .terminal_charts import Sparkline
 
 
 @dataclass(frozen=True)
@@ -27,6 +30,7 @@ class TrendSnapshot:
     errors_per_minute: float
     firewall_blocks_per_minute: float
     metrics: tuple[TrendMetric, ...]
+    series: tuple[tuple[str, tuple[int, ...]], ...] = ()
 
     @property
     def spike_count(self) -> int:
@@ -135,8 +139,20 @@ class TrendTracker:
             current["Errors"],
             current["Firewall blocks"],
             tuple(metrics),
+            self._series(stamp),
         )
         return self._latest
+
+    def _series(self, now: float) -> tuple[tuple[str, tuple[int, ...]], ...]:
+        bucket_count = 12
+        bucket_seconds = self.window_seconds / bucket_count
+        values = [[0] * bucket_count for _ in range(3)]
+        start = now - self.window_seconds
+        for stamp, failed, errors, firewall in self._events:
+            index = min(bucket_count - 1, max(0, int((stamp - start) / bucket_seconds)))
+            for target, count in zip(values, (failed, errors, firewall)):
+                target[index] += count
+        return tuple((name, tuple(counts)) for name, counts in zip(("Failed logins", "Errors", "Firewall blocks"), values))
 
     def _rates(self) -> dict[str, float]:
         scale = 60.0 / float(self.window_seconds)
@@ -166,6 +182,7 @@ class TrendTracker:
             current["Errors"],
             current["Firewall blocks"],
             tuple(metrics),
+            self._series(stamp),
         )
 
 
@@ -177,9 +194,9 @@ def _state_style(state: str) -> str:
     return SUCCESS
 
 
-def render_trends(snapshot: TrendSnapshot, metric_names: tuple[str, ...] | None = None) -> Table:
+def render_trends(snapshot: TrendSnapshot, metric_names: tuple[str, ...] | None = None) -> Group:
     title = f"RATE & BASELINE INTELLIGENCE  [{snapshot.window_seconds}s]"
-    table = Table(title=title, expand=True, box=box.ASCII, border_style=ACCENT, padding=(0, 1))
+    table = Table(title=title, expand=True, box=box.ASCII, border_style=ACCENT_SOFT, style=f"{NEUTRAL} on {SURFACE}", padding=(0, 1))
     table.add_column("Signal", min_width=10, ratio=3, style=ACCENT, overflow="fold")
     table.add_column("Current", min_width=7, max_width=10, justify="right", style=INFO, no_wrap=True)
     table.add_column("Baseline", min_width=7, max_width=10, justify="right", no_wrap=True)
@@ -199,4 +216,10 @@ def render_trends(snapshot: TrendSnapshot, metric_names: tuple[str, ...] | None 
         )
     if not metrics:
         table.add_row("No profile metrics", "0.0/m", "0.0/m", "1.0x", Text("NORMAL", style=SUCCESS))
-    return table
+    history = [Sparkline(name, values, style=HIGH if name == "Errors" else ACCENT)
+               for name, values in snapshot.series if not allowed or name in allowed]
+    if not history:
+        return Group(table)
+    return Group(table, Panel(Group(*history), title=Text(f" SIGNAL SPARKLINES / {snapshot.window_seconds / 12:g}s BUCKETS ", style=ACCENT),
+                              title_align="left", box=box.ASCII, border_style=ACCENT_SOFT,
+                              style=f"{NEUTRAL} on {SURFACE}", padding=(0, 1)))

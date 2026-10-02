@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .engine import AnalysisState, Finding
+from .ingestion import iter_bounded_lines
 
 
 @dataclass(frozen=True)
@@ -47,16 +48,12 @@ def analyze_stream(
         max_findings=max_findings,
         timestamp_year_hint=timestamp_year_hint,
     )
-    with path.open("r", encoding="utf-8", errors="replace") as handle:
-        for line in handle:
-            total += 1
-            if (total - 1) % chunk_size == 0:
-                chunks += 1
-            encoded = line.encode("utf-8", errors="replace")
-            if len(encoded) > max_line_bytes:
-                line = encoded[:max_line_bytes].decode("utf-8", errors="ignore") + " [TRUNCATED]"
-                truncated_lines += 1
-            state.process(line)
+    for item in iter_bounded_lines(path, max_line_bytes):
+        total += 1
+        if (total - 1) % chunk_size == 0:
+            chunks += 1
+        truncated_lines += int(item.truncated)
+        state.process(item.text)
     all_findings = state.findings()
     kept = all_findings[:max_findings]
     return StreamSummary(
