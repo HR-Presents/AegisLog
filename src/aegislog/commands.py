@@ -15,11 +15,16 @@ from .commands_v17 import native_analyze, native_sources
 from .commands_v18 import native_live
 from .commands_v19 import explain
 from .commands_v145 import start
+from .commands_security import security, replay, integrity_record, integrity_check
 
 
 def register_commands(app: Typer) -> None:
     """Register the supported deterministic CLI command surface on ``app``."""
     replace_analyze_command(app)
+    app.command("security")(security)
+    app.command("replay")(replay)
+    app.command("integrity-record")(integrity_record)
+    app.command("integrity-check")(integrity_check)
     app.command("start")(start)
     app.command("dashboard")(dashboard)
     app.command("live")(live_dashboard)

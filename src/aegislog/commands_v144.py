@@ -669,6 +669,14 @@ def start() -> None:
                 )
                 console.print()
                 commands_reference()
+            elif lowered in {"s", "security", "workbench"}:
+                from .commands_security import run_workbench
+                path = _choose_single_file_workspace("SECURITY WORKBENCH", "Filter and review security evidence.", output_note="HTML reports / redacted JSON / integrity baselines")
+                if path is not None:
+                    run_workbench(path)
+            elif lowered in {"p", "replay"}:
+                from .commands_security import replay
+                replay(None, interval=0.2, limit=150)
             elif lowered == "c":
                 console.print(
                     _operation_header(

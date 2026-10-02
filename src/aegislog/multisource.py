@@ -12,6 +12,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from .collector_health import CollectorHealth
 from . import __version__
 from .anomaly import score_events
 from .engine import Finding, analyze_lines
@@ -45,6 +46,7 @@ class MultiSourceState:
     max_arrival_buckets: int = 4096
     max_seen_fingerprints: int = 4096
     started_at: float = field(default_factory=time.monotonic)
+    collector_health: dict[str, CollectorHealth] = field(default_factory=dict)
     total_lines: int = 0
     total_bytes: int = 0
     trend_tracker: TrendTracker = field(default_factory=TrendTracker)
@@ -106,6 +108,12 @@ class MultiSourceState:
         raw = [line for _, line in self._lines]
         self._events_cache = [parse_line(line) for line in raw]
         self._findings_cache = analyze_lines(raw)
+        from .security_workbench import Tuning, extra_signals, make_record
+        by_source = {}
+        for n, (source, line) in enumerate(self._lines, 1):
+            by_source.setdefault(source, []).append(make_record(n, line))
+        for records in by_source.values():
+            self._findings_cache.extend(s.finding for s in extra_signals(records, Tuning(), set()))
 
     def _expire_seen(self, now: float) -> None:
         cutoff = now - max(self.alert_ttl_seconds, 1)
@@ -202,24 +210,36 @@ def initial_cursors(paths: tuple[Path, ...], from_start: bool) -> dict[Path, Fil
 
 
 def poll_sources(
-    paths: tuple[Path, ...], cursors: dict[Path, FileCursor] | dict[Path, int]
+    paths: tuple[Path, ...], cursors: dict[Path, FileCursor] | dict[Path, int],
+    health: dict[str, CollectorHealth] | None = None,
 ) -> tuple[list[tuple[Path, list[str]]], dict[Path, FileCursor] | dict[Path, int]]:
     batches: list[tuple[Path, list[str]]] = []
     updated = dict(cursors)
     legacy = all(isinstance(value, int) for value in updated.values())
     for path in paths:
+        item = health.setdefault(str(path), CollectorHealth()) if health is not None else None
         if not path.exists() or not path.is_file():
+            if item:
+                item.failure("Source missing or inaccessible")
             continue
-        if legacy:
-            offset = int(updated.get(path, 0))
-            lines, offset = read_new_lines(path, offset)
-            updated[path] = offset
-        else:
-            cursor = updated.get(path)
-            if not isinstance(cursor, FileCursor):
-                cursor = initial_cursor(path, from_start=True)
-            lines, cursor = read_new_lines_cursor(path, cursor)
-            updated[path] = cursor
+        try:
+            if legacy:
+                offset = int(updated.get(path, 0))
+                lines, offset = read_new_lines(path, offset)
+                updated[path] = offset
+            else:
+                cursor = updated.get(path)
+                if not isinstance(cursor, FileCursor):
+                    cursor = initial_cursor(path, from_start=True)
+                lines, cursor = read_new_lines_cursor(path, cursor)
+                updated[path] = cursor
+        except OSError as exc:
+            if item is None:
+                raise
+            item.failure(exc)
+            continue
+        if item:
+            item.success(len(lines))
         if lines:
             batches.append((path, lines))
     return batches, updated

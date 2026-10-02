@@ -1,0 +1,4 @@
+# Synthetic documentation-only indicators, not threat intelligence
+203.0.113.88
+198.51.100.50
+example.test

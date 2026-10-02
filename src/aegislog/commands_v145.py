@@ -175,8 +175,8 @@ def _footer(screen_width: int | None = None) -> Text:
     footer.append("   |   [Q Exit]", style=MUTED)
     if width >= 48:
         footer.append("   |   type a command", style=NEUTRAL)
-    if width >= 100:
-        footer.append("   |   Ctrl+C stops live views", style=MUTED)
+    if width >= 72:
+        footer.append("   |   S Security workbench / P Replay", style=ACCENT)
     return footer
 
 
@@ -184,7 +184,7 @@ def _home(screen_width: int | None = None) -> RenderableType:
     frame_width = _frame_width(screen_width)
     available = _screen_width(screen_width)
     content = Group(_header(screen_width), Text(""), _menu(screen_width), Text(""), _rule(frame_width), _footer(screen_width))
-    return Align.center(content, width=available, pad=False)
+    return Align.center(Group(content, Text("[S Security workbench] [P Demo replay]", style=ACCENT)), width=available, pad=False)
 
 
 def _run_inline_command(raw: str) -> None:
@@ -208,7 +208,7 @@ def _read_home_choice() -> str:
                 # Keep navigation visible when the full home exceeds the viewport.
                 title = Text("AEGISLOG / DEFENSIVE LOG INVESTIGATION", style=f"bold {ACCENT}")
                 clock = Text(datetime.now(timezone.utc).strftime("%H:%M:%S UTC / %d %b %Y"), style=SUCCESS)
-                actions = Text("01 Analyze   02 Live   03 Multi-source\n04 Native logs   05 Native monitor   06 Incidents\n07 Demo   08 Health   09 Help\n[Q Exit] Type a number or command, then Enter", style=NEUTRAL)
+                actions = Text("01 Analyze   02 Live   03 Multi-source\n04 Native logs   05 Native monitor   06 Incidents\n07 Demo   08 Health   09 Help\n[S Security workbench] [P Replay]\n[Q Exit] Type a number or command, then Enter", style=NEUTRAL)
                 return Group(title, clock, Text("MADE BY HR-PRESENTS / LOCAL / READ-ONLY", style=MUTED), Text(""), actions, Text(""), prompt)
             return Group(_home(size.width), prompt)
         legacy.console.clear()

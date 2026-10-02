@@ -15,6 +15,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from .collector_health import CollectorHealth
 from . import __version__
 from .anomaly import score_events
 from .engine import Finding, analyze_lines
@@ -105,6 +106,7 @@ class RealtimeState:
     max_window_bytes: int = 5_000_000
     max_line_bytes: int = 1_000_000
     started_at: float = field(default_factory=time.monotonic)
+    collector_health: dict[str, CollectorHealth] = field(default_factory=dict)
     total_lines: int = 0
     total_bytes: int = 0
     last_activity_at: float | None = None
@@ -178,6 +180,9 @@ class RealtimeState:
         raw = list(self._lines)
         self._events_cache = [parse_line(line) for line in raw]
         self._findings_cache = analyze_lines(raw)
+        from .security_workbench import Tuning, extra_signals, make_record
+        records = [make_record(n, line) for n, line in enumerate(raw, 1)]
+        self._findings_cache.extend(s.finding for s in extra_signals(records, Tuning(), set()))
 
     def _expire_seen(self, now: float) -> None:
         cutoff = now - max(self.alert_ttl_seconds, 1)

@@ -1,0 +1,26 @@
+2026-10-02T12:00:00Z INFO api: request completed status=200
+2026-10-02T12:00:01Z INFO api: request completed status=200
+2026-10-02T12:00:02Z INFO api: request completed status=200
+2026-10-02T12:00:03Z INFO api: request completed status=200
+2026-10-02T12:00:04Z INFO api: request completed status=200
+2026-10-02T12:00:05Z INFO api: request completed status=200
+2026-10-02T12:00:06Z INFO api: request completed status=200
+2026-10-02T12:00:07Z INFO api: request completed status=200
+2026-10-02T12:00:08Z INFO api: request completed status=200
+2026-10-02T12:00:09Z INFO api: request completed status=200
+2026-10-02T12:01:00Z sshd: Failed password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:01:01Z sshd: Failed password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:01:02Z sshd: Failed password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:01:03Z sshd: Failed password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:01:04Z sshd: Failed password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:01:05Z sshd: Failed password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:01:06Z sshd: Failed password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:01:07Z sshd: Failed password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:01:20Z sshd: Accepted password for demo-user from 203.0.113.88 host=demo01
+2026-10-02T12:02:00Z Microsoft-Windows-Security-Auditing[4720]: INFO A user account was created. Account Name: demo-admin
+2026-10-02T12:02:01Z Microsoft-Windows-Security-Auditing[4732]: INFO A member was added to Administrators. Account Name: demo-admin
+2026-10-02T12:02:02Z Microsoft-Windows-Security-Auditing[4672]: INFO Special privileges assigned. Account Name: demo-admin
+2026-10-02T12:02:03Z Microsoft-Windows-Security-Auditing[4688]: INFO Account Name: demo-admin New Process Name: powershell.exe Command Line: powershell.exe -EncodedCommand DEMO_ONLY
+2026-10-02T12:02:04Z firewall: WARN firewall deny src=198.51.100.50 dst=192.0.2.10
+2026-10-02T12:03:00Z api: ERROR upstream timeout token=DEMO_ONLY
+2026-10-02T12:03:01Z Microsoft-Windows-Security-Auditing[1102]: INFO The audit log was cleared. Account Name: demo-admin
