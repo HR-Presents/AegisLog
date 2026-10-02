@@ -91,7 +91,7 @@ def _input_panel(title: str, lines: list[tuple[str, str]], accent: str = ACCENT,
 
 
 def _action_line(key: str, label: str, description: str, *, primary: bool = False) -> Text:
-    line = Text(no_wrap=True, overflow="crop")
+    line = Text(overflow="fold")
     line.append(f"[{key}] ", style=f"bold {ACCENT}")
     line.append(f"{label:<16}", style=f"bold {NEUTRAL}")
     line.append(description, style=NEUTRAL if primary else MUTED)
@@ -100,7 +100,7 @@ def _action_line(key: str, label: str, description: str, *, primary: bool = Fals
 
 def _primary_panel(width: int) -> Panel:
     body = Group(_action_line("01", "ANALYZE LOG", "Investigate a log file and create a report", primary=True), Text("     Deterministic findings, incidents and evidence", style=MUTED, no_wrap=True, overflow="crop"))
-    return Panel(body, title=Text(" INVESTIGATE ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT, padding=(1, 1), width=width)
+    return Panel(body, title=Text(" INVESTIGATE ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT, padding=(1, 1), width=width, height=8)
 
 
 def _tools_panel(width: int) -> Panel:
@@ -130,7 +130,7 @@ def _quick_info_panel(width: int) -> Panel:
     grid.add_column(ratio=1, no_wrap=True, overflow="crop")
     for label, value in (("REPORTS", "./reports/"), ("CONFIG", "./config/"), ("PROJECT", "HR-Presents/AegisLog-AI"), ("OWNER", "HR-PRESENTS")):
         grid.add_row(Text(label, style=MUTED), Text(value, style=ACCENT if label != "OWNER" else NEUTRAL, no_wrap=True, overflow="crop"))
-    return Panel(grid, title=Text(" QUICK INFO ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
+    return Panel(grid, title=Text(" QUICK INFO ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width, height=9)
 
 
 def _menu(screen_width: int | None = None) -> RenderableType:
@@ -146,14 +146,15 @@ def _menu(screen_width: int | None = None) -> RenderableType:
         # investigation area remains dominant while status/info fill the right.
         left_width = max(64, int((width - gap) * 0.64))
         right_width = width - gap - left_width
-        left = Group(_primary_panel(left_width), Text(""), _tools_panel(left_width), Text(""), _utility_panel(left_width))
-        right = Group(_status_panel(right_width), Text(""), _quick_info_panel(right_width))
         layout = Table.grid(padding=0)
         layout.add_column(width=left_width)
         layout.add_column(width=gap)
         layout.add_column(width=right_width)
-        layout.add_row(left, Text(""), right)
-        return layout
+        # Separate rows prevent one tall column leaving an empty bottom quadrant.
+        layout.add_row(_primary_panel(left_width), Text(""), _status_panel(right_width))
+        layout.add_row(Text(""), Text(""), Text(""))
+        layout.add_row(_tools_panel(left_width), Text(""), _quick_info_panel(right_width))
+        return Group(layout, Text(""), _utility_panel(width))
 
     return Group(_primary_panel(width), Text(""), _tools_panel(width), Text(""), _utility_panel(width), Text(""), _status_panel(width))
 

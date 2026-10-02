@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+from collections import Counter
+import re
 
 from rich import box
 from rich.align import Align
@@ -10,6 +12,7 @@ from rich.table import Table
 from rich.text import Text
 
 from .dashboard import DashboardData, analyze_dashboard
+from .terminal_charts import DistributionChart
 from .theme import ACCENT, ACCENT_SOFT, INCIDENT, MUTED, NEUTRAL, SUCCESS, severity_style
 
 _MAX_WIDTH = 144
@@ -121,12 +124,28 @@ def _next(data: DashboardData) -> Panel:
 
 
 def render_dashboard(data: DashboardData, *, screen_width: int | None = None) -> RenderableType:
-    width = min(max(70, screen_width or 100), _MAX_WIDTH)
+    width = min(max(1, screen_width or 100), _MAX_WIDTH)
     body: list[RenderableType] = [_header(data, width), Text(""), _source_block(data), Text("")]
+    activity = Counter()
+    for line in data.raw_lines:
+        match = re.match(r"^(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}|[A-Z][a-z]{2}\s+\d{1,2}\s+\d{2}:\d{2})", line)
+        if match:
+            activity[match.group(1)] += 1
+    charts = [DistributionChart("SEVERITY DISTRIBUTION", data.severities, semantic=True), DistributionChart("SERVICE ACTIVITY", data.services)]
+    if width >= 104:
+        chart_row = Table.grid(expand=True, padding=(0, 1))
+        chart_row.add_column(ratio=1)
+        chart_row.add_column(ratio=1)
+        chart_row.add_row(*charts)
+        body.extend((chart_row, Text("")))
+    else:
+        body.extend((charts[0], Text(""), charts[1], Text("")))
+    if activity:
+        body.extend((DistributionChart("EVENT ACTIVITY / RECENT MINUTE BUCKETS", activity, chronological=True), Text("")))
     if width >= 104:
         layout = Table.grid(expand=True, padding=(0, 2))
+        layout.add_column(ratio=3)
         layout.add_column(ratio=2)
-        layout.add_column(ratio=1)
         layout.add_row(_top_findings(data), Group(_analyst_focus(data), Text(""), _next(data)))
         body.append(layout)
     else:
