@@ -88,9 +88,10 @@ def parse_line(line: str) -> Event:
         try:
             obj = json.loads(stripped)
             message = str(obj.get("MESSAGE") or obj.get("message") or stripped)
-            service = obj.get("SYSLOG_IDENTIFIER") or obj.get("_SYSTEMD_UNIT") or obj.get("service")
+            service_value = obj.get("SYSLOG_IDENTIFIER") or obj.get("_SYSTEMD_UNIT") or obj.get("service")
+            service = str(service_value)[:128] if isinstance(service_value, (str, int, float)) else None
             priority = str(obj.get("PRIORITY") or "")
-            level_value = str(obj.get("level") or "").lower()
+            level_value = str(obj.get("level") or "").lower()[:32]
             level = PRIORITY_LEVELS.get(priority) or level_value or _infer_level(message)
             return Event(raw=raw, source="json/journald", level=level or None, service=service, message=message)
         except json.JSONDecodeError:

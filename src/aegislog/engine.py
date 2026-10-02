@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .sanitize import redact_sensitive
+from .ingestion import iter_bounded_lines
 from .windows_security import parse_windows_security_line, signal_for_event
 
 
@@ -114,7 +115,7 @@ def _first_match(patterns, line: str, group: str) -> str | None:
     for pattern in patterns:
         match = pattern.search(line)
         if match:
-            return match.group(group).strip(".,;[]")
+            return match.group(group).strip(".,;[]")[:256]
     return None
 
 
@@ -331,15 +332,15 @@ class AnalysisState:
                     AuthEvent(
                         windows_timestamp,
                         _valid_ip(windows_event.source_ip),
-                        windows_event.account,
-                        windows_event.workstation,
+                        windows_event.account[:256] if windows_event.account else None,
+                        windows_event.workstation[:256] if windows_event.workstation else None,
                         line[:500],
                     )
                 )
                 return
             if signal is not None:
                 self._append_finding(
-                    Finding(signal.severity, signal.category, signal.title, signal.evidence, signal.recommendation)
+                    Finding(signal.severity, signal.category, signal.title, signal.evidence[:500], signal.recommendation)
                 )
                 return
         severity, category, pattern, title, recommendation = PRIVILEGE_RULE
@@ -392,7 +393,6 @@ def analyze_file(
 ) -> tuple[int, list[Finding]]:
     state = AnalysisState(auth_window_seconds=auth_window_seconds, timestamp_year_hint=timestamp_year_hint)
     count = 0
-    with path.open("r", encoding="utf-8", errors="replace") as handle:
-        for count, line in enumerate(handle, 1):
-            state.process(line)
+    for count, item in enumerate(iter_bounded_lines(path), 1):
+        state.process(item.text)
     return count, state.findings()

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import shlex
 import sys
-from collections import Counter
+from collections import Counter, deque
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -15,8 +15,9 @@ from rich.text import Text
 
 from . import __version__
 from .anomaly import Anomaly, score_events
-from .engine import Finding, analyze_lines
+from .engine import Finding, AnalysisState
 from .incidents import Incident, correlate
+from .ingestion import iter_bounded_lines
 from .parsers import Event, parse_line
 from .theme import (
     ACCENT,
@@ -57,35 +58,64 @@ class DashboardData:
     severities: dict[str, int]
     events: tuple[Event, ...] = ()
     raw_lines: tuple[str, ...] = ()
+    timestamp_year_hint: int | None = None
+    sampled_lines: int = 0
+    truncated_lines: int = 0
+    dropped_findings: int = 0
+    dropped_auth_events: int = 0
+
+    @property
+    def retention_note(self) -> str:
+        return (
+            f"Retained {len(self.raw_lines):,}/{self.lines:,} event lines for activity and anomalies; "
+            f"{self.truncated_lines:,} oversized lines truncated; {self.dropped_findings:,} findings omitted; "
+            f"{self.dropped_auth_events:,} authentication events evicted by correlation limits."
+        )
 
 
-def analyze_dashboard(path: Path, *, timestamp_year_hint: int | None = None) -> DashboardData:
-    """Build one complete, local-only analysis snapshot for terminal rendering."""
-    with path.open("r", encoding="utf-8", errors="replace") as handle:
-        lines = handle.readlines()
-
-    events: list[Event] = [parse_line(line) for line in lines]
-    findings = analyze_lines(lines, timestamp_year_hint=timestamp_year_hint)
-    anomalies = score_events(events)
-    incidents = correlate(findings)
-
-    level_counts = Counter((event.level or "unknown").upper() for event in events if event.message)
-    service_counts = Counter(event.service or "unknown" for event in events if event.message)
-    category_counts = Counter(item.category for item in findings)
-    severity_counts = Counter(item.severity for item in findings)
-
+def analyze_dashboard(
+    path: Path, *, timestamp_year_hint: int | None = None,
+    max_retained_lines: int = 10_000, max_retained_bytes: int = 8_000_000,
+    max_line_bytes: int = 1_000_000,
+) -> DashboardData:
+    """Analyze every bounded line, retaining a capped recent sample for visualization."""
+    if max_retained_lines < 1 or max_retained_bytes < 1:
+        raise ValueError("dashboard retention limits must be positive")
+    retained: deque[tuple[str, Event, int]] = deque()
+    retained_bytes = total = truncated = 0
+    state = AnalysisState(timestamp_year_hint=timestamp_year_hint)
+    level_counts: Counter[str] = Counter()
+    service_counts: Counter[str] = Counter()
+    for item in iter_bounded_lines(path, max_line_bytes):
+        total += 1
+        truncated += int(item.truncated)
+        state.process(item.text)
+        event = parse_line(item.text)
+        if event.message:
+            level = (event.level or "unknown").upper()[:32]
+            if level not in level_counts and len(level_counts) >= 32:
+                level = "OTHER LEVELS (RETENTION LIMIT)"
+            level_counts[level] += 1
+            service = (event.service or "unknown")[:128]
+            if service not in service_counts and len(service_counts) >= 2048:
+                service = "other services (retention limit)"
+            service_counts[service] += 1
+        size = len(item.text.encode("utf-8"))
+        retained.append((item.text, event, size))
+        retained_bytes += size
+        while len(retained) > max_retained_lines or retained_bytes > max_retained_bytes:
+            retained_bytes -= retained.popleft()[2]
+    events = [entry[1] for entry in retained]
+    findings = state.findings()
     return DashboardData(
-        source=str(path),
-        lines=len(lines),
-        findings=tuple(findings),
-        anomalies=tuple(anomalies),
-        incidents=tuple(incidents),
-        levels=dict(level_counts),
-        services=dict(service_counts),
-        categories=dict(category_counts),
-        severities=dict(severity_counts),
-        events=tuple(events),
-        raw_lines=tuple(line.rstrip("\n") for line in lines),
+        source=str(path), lines=total, findings=tuple(findings),
+        anomalies=tuple(score_events(events)), incidents=tuple(correlate(findings)),
+        levels=dict(level_counts), services=dict(service_counts),
+        categories=dict(Counter(item.category for item in findings)),
+        severities=dict(Counter(item.severity for item in findings)),
+        events=tuple(events), raw_lines=tuple(entry[0] for entry in retained),
+        timestamp_year_hint=timestamp_year_hint, sampled_lines=total - len(retained), truncated_lines=truncated,
+        dropped_findings=state.dropped_findings, dropped_auth_events=state.dropped_auth_events,
     )
 
 
