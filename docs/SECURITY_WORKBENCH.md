@@ -8,6 +8,7 @@ Development feature; no new stable version is implied. Open the terminal shell w
 |---|---|
 | F | Select severity, finding category, service, source format/filename, and time range |
 | X | Clear all filters |
+| D | Inspect trigger evidence, source excerpts, recommendations and suppressions (first 20 selected signals) |
 | V | Show scope, retention, active filters and documented suppressions |
 | O | Generate the filtered HTML report and open it locally in a browser |
 | E | Create a redacted JSON evidence export; existing files are never overwritten |
@@ -67,3 +68,18 @@ Workbench input prefixes are capped at 16 KiB per line; retained evidence is cap
 Reports and exports are local output artifacts. No accounts, firewall settings, services, source logs or host security policy are modified. Actual Windows keyboard, browser-opening, Unicode, colour and resize acceptance still requires the packaged build.
 
 The default interactive view preserves the earlier analysis dashboard, beginning with its original header, metrics and charts. Scope and suppression details are available through V; timelines remain behind T. The home layout keeps its previous panels, with security/replay shortcuts in the existing footer. Live collector details follow the existing dashboard rather than displacing its charts.
+
+## Complete demo walkthrough
+
+Use `docs/examples/security-demo.log` with `watchlist-demo.txt` and `tuning-demo.json` from the repository. From home, choose S and provide the demo log path.
+
+1. D: inspect the repeated-failure then success finding and its source references.
+2. T: inspect account creation, privilege changes, process execution and audit clearing.
+3. W: load the supplied watchlist; D shows exact indicator matches.
+4. F: select HIGH severity, inspect D again, then X restores all evidence.
+5. C: load the demo tuning file; V shows thresholds and documented suppressions.
+6. E: create a new JSON export; O opens the filtered HTML report.
+7. P: replay recorded events in the labelled demo monitor; B stops replay.
+8. R refreshes the same source; B returns home and Q quits.
+
+Collector health distinguishes successful polls returning events from successful polls returning none, unavailable collection, and waiting for the first poll. Counts describe collector returns; they do not claim every returned event is new.

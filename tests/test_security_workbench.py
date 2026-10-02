@@ -294,3 +294,30 @@ def test_default_view_preserves_previous_dashboard_before_controls(demo,monkeypa
     assert actual.startswith(original.export_text())
     assert 'SECURITY WORKBENCH / SAVED FILE' not in actual
     assert '[V Scope]' in actual
+
+
+def test_finding_details_show_evidence_recommendation_and_filter_scope(demo):
+    from aegislog.commands_security import finding_details
+    investigation = investigate_file(demo)
+    console = Console(file=StringIO(), width=120, record=True)
+    console.print(finding_details(investigation, Filters()))
+    output = console.export_text()
+    assert 'Next investigation:' in output and 'Source line references:' in output
+    assert 'Verify account ownership' in output and 'Line ' in output
+    console.print(finding_details(investigation, Filters(category='does-not-exist')))
+    assert 'No findings match' in console.export_text()
+
+
+def test_collector_health_distinguishes_empty_success_and_failure():
+    from aegislog.collector_health import render_collector_health
+    health = CollectorHealth()
+    console = Console(file=StringIO(), width=120, record=True)
+    health.success(0)
+    console.print(render_collector_health({'demo': health}))
+    assert 'no events returned' in console.export_text()
+    health.success(2)
+    console.print(render_collector_health({'demo': health}))
+    assert 'events returned' in console.export_text()
+    health.failure(OSError('source missing'))
+    console.print(render_collector_health({'demo': health}))
+    assert 'collection unavailable' in console.export_text()
