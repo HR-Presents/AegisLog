@@ -32,7 +32,7 @@ def guide_view():
 def report_candidates(root):
     if not root.exists():
         return []
-    return sorted((p for p in root.glob('*.html') if p.is_file()),
+    return sorted((p for p in root.glob('*.html') if p.is_file() and not p.name.endswith('-appendix.html')),
                   key=lambda p: p.stat().st_mtime_ns, reverse=True)[:20]
 
 

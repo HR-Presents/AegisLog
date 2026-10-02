@@ -222,3 +222,45 @@ def test_incident_queue_links_evidence_once_and_preserves_unmatched_excerpt():
     assert html.count("Grouping basis:") == 1
     single = build_html_report(replace(data, incidents=(replace(incident, count=1),)))
     assert "Single signal; validate context" in single
+
+
+def test_short_report_groups_repetitions_and_preserves_all_evidence_in_appendix(tmp_path):
+    from aegislog.reporting import build_summary_report
+    data = _data()
+    findings = tuple(replace(data.findings[0], evidence=f"unique evidence {index}") for index in range(44))
+    data = replace(data, findings=findings)
+    summary = build_summary_report(data, "full-appendix.html")
+    assert summary.count('class="summary-finding"') == 1
+    assert '44 finding(s)' in summary
+    assert summary.count('Review authentication history &amp; rotate exposed credentials.') == 1
+    target = write_html_report(data, tmp_path)
+    appendix = target.with_name(target.stem + '-appendix.html')
+    assert appendix.name in target.read_text()
+    text = appendix.read_text()
+    assert target.name in text and 'Back to summary' in text
+    for index in range(44):
+        assert f'unique evidence {index}<' in text
+    assert text.count('id="finding-') == 44
+
+
+def test_short_report_discloses_omitted_groups_and_links_to_full_incidents():
+    from aegislog.reporting import build_summary_report
+    data = _data()
+    findings = tuple(replace(data.findings[0], title=f"Distinct finding {index}") for index in range(9))
+    data = replace(data, findings=findings)
+    summary = build_summary_report(data, "case-appendix.html")
+    assert summary.count('class="summary-finding"') == 6
+    assert 'Showing 6 highest-priority groups' in summary
+    assert summary.count('Review authentication history &amp; rotate exposed credentials.') == 1
+    assert 'Same next action as group 1' in summary
+    assert '#incident-abcdef123456' in summary
+    assert 'id="incident-abcdef123456"' in build_html_report(data)
+
+
+def test_report_pair_cannot_overwrite_source(tmp_path):
+    import pytest
+    source = tmp_path / 'prod-aegislog-report-appendix.html'
+    source.write_text('original')
+    with pytest.raises(ValueError, match='overwrite source'):
+        write_html_report(_data(str(source)), tmp_path, filename='prod-aegislog-report.html')
+    assert source.read_text() == 'original'

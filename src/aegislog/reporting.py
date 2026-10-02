@@ -183,7 +183,7 @@ def _incident_records(data: DashboardData) -> str:
                         for value in unmatched)
         basis = "Single signal; validate context" if item.count == 1 else "Grouped signals; validate shared cause"
         rows.append(
-            f'<tr><td><strong>INC-{escape(item.id.upper()[:8])}</strong></td>'
+            f'<tr id="incident-{escape(item.id)}"><td><strong>INC-{escape(item.id.upper()[:8])}</strong></td>'
             f'<td><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span></td>'
             f'<td><strong>{escape(item.title)}</strong><br>{escape(item.category)} · {basis}</td>'
             f'<td>{item.count}</td><td>{links}{extra}</td></tr>'
@@ -267,10 +267,76 @@ def build_html_report(data: DashboardData) -> str:
 <div class="footer">AEGISLOG v{escape(__version__)} · {escape(case_id)} · Defensive security analysis · Generated locally · Presented and maintained by HR-Presents</div></div></main></body></html>'''
 
 
-def write_html_report(data: DashboardData, output_dir: Path | None = None) -> Path:
+def _finding_groups(data: DashboardData):
+    """Presentation groups only: no new incident or shared-cause inference."""
+    groups = {}
+    for index, item in enumerate(_ordered_findings(data), 1):
+        key = (item.severity, item.category, item.title, _recommendation(item))
+        groups.setdefault(key, []).append((index, item))
+    return list(groups.items())
+
+
+def build_summary_report(data: DashboardData, appendix_href: str) -> str:
+    groups = _finding_groups(data)
+    rows = []
+    seen_actions = {}
+    for group_number, ((severity, category, title, recommendation), members) in enumerate(groups[:6], 1):
+        index, example = members[0]
+        excerpt = example.evidence[:160]
+        if len(example.evidence) > 160:
+            excerpt += "..."
+        if recommendation in seen_actions:
+            action = f'<a href="#action-{seen_actions[recommendation]}">Same next action as group {seen_actions[recommendation]}</a>'
+        else:
+            seen_actions[recommendation] = group_number
+            action = f'<span id="action-{group_number}">{escape(recommendation)}</span>'
+        rows.append(
+            f'<article class="summary-finding"><div class="record-head"><span class="pill {_risk_class(severity)}">{escape(severity)}</span>'
+            f'<strong>{escape(title)}</strong><span class="record-meta">{len(members)} finding(s) · {escape(category)}</span></div>'
+            f'<code class="evidence">{escape(excerpt)}</code><p class="action-text"><strong>Next action:</strong> {action}</p>'
+            f'<a class="evidence-link" href="{escape(appendix_href)}#finding-{index:03d}">Full evidence in appendix → F-{index:03d}</a></article>'
+        )
+    group_note = (f'{len(data.findings)} retained findings in {len(groups)} presentation groups. '
+                  f'Showing {min(6, len(groups))} highest-priority groups; every finding is in the appendix. '
+                  'Matching labels and recommendations are grouped for readability, not proof of a common cause.')
+    incident_rows = "".join(
+        f'<tr><td><a href="{escape(appendix_href)}#incident-{escape(item.id)}">INC-{escape(item.id.upper()[:8])}</a></td>'
+        f'<td><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span></td>'
+        f'<td>{escape(item.title)}</td><td>{item.count}</td></tr>'
+        for item in _ordered_incidents(data)[:5]
+    )
+    incident_content = ('<table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
+                        + incident_rows + '</tbody></table>') if incident_rows else '<p>No correlated incidents were recorded.</p>'
+    anomaly_content = "".join(f'<li><strong>{item.score:.1f}/100</strong> · {escape(item.key)}</li>'
+                              for item in sorted(data.anomalies, key=lambda item: -item.score)[:3])
+    risk = _risk(data)
+    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Summary - {escape(Path(data.source).name)}</title><style>{_REPORT_STYLE}
+.summary .masthead{{padding:22px 26px 24px}}.summary .brandline{{margin-bottom:22px}}.summary .cover-meta{{margin-top:12px}}.summary .section{{padding:22px}}.summary-finding{{padding:14px 0;border-bottom:1px solid var(--line)}}.summary-finding:last-child{{border:0}}.summary-finding .evidence{{margin:6px 0 9px}}.evidence-link{{font-size:12px;color:#245ea8}}.summary .section-note{{margin-bottom:14px}}.summary-chart-grid{{display:grid;grid-template-columns:1fr 1fr;gap:24px}}.summary-chart-grid h3{{font-size:15px}}.summary .metric{{min-height:100px;padding:18px}}.summary .assessment h3{{display:block}}.summary .assessment p{{border:0;padding:0}}.summary .chart{{max-width:510px}}.summary .scope{{font-size:12px}}.summary ul{{margin:8px 0;padding-left:18px}}
+@media(max-width:600px){{.summary-chart-grid{{grid-template-columns:1fr}}}}
+@media print{{.summary .masthead{{padding:14px 18px 18px}}.summary .brandline{{margin-bottom:18px}}.summary h1{{font-size:28px}}.summary .metric{{min-height:74px;padding:14px}}.summary .section{{padding:16px;margin-bottom:14px}}.summary-finding{{break-inside:avoid;padding:10px 0}}.summary .section-note,.summary .scope{{font-size:10px}}.summary #incidents{{break-inside:avoid}}.summary.has-findings #findings{{break-before:page}}.summary .summary-chart-grid{{display:grid;grid-template-columns:1fr 1fr;gap:18px}}.summary-chart-grid{{break-inside:avoid}}.summary .severity-row{{grid-template-columns:65px 22px 1fr;gap:6px}}.summary .chart text{{font-size:12px}}}}
+</style></head><body><main class="report summary{' has-findings' if data.findings else ''}"><header class="masthead"><div class="brandline"><div class="brand-name">AEGISLOG</div><div class="brand-sub">PRESENTED BY HR-PRESENTS</div></div><h1>Investigation Summary</h1><p class="subtitle">{escape(Path(data.source).name)}</p><div class="cover-meta">Case {_case_id(data)} · {generated}<br>LOCAL / READ-ONLY / DETERMINISTIC</div></header>
+<nav class="toolbar"><a href="#findings">Top findings</a><a href="#incidents">Incidents</a><a href="{escape(appendix_href)}">Open full evidence appendix</a><span class="spacer"></span><button type="button" onclick="window.print()">Print summary / Save PDF</button></nav><p class="print-help">This print button exports the short summary. Open the appendix to print full evidence separately. For PDF, turn off browser Headers and footers.</p><div class="content"><section class="metrics">{_metric("Events", f"{data.lines:,}")}{_metric("Findings", str(len(data.findings)))}{_metric("Incidents", str(len(data.incidents)))}{_metric("Disposition", _disposition(risk), _risk_class(risk))}</section>
+<section class="section" id="executive"><div class="section-head"><h2>What needs attention</h2></div><div class="assessment"><p>{escape(_assessment(data, risk))}</p></div><p class="caveat">Findings are investigation leads, not proof of compromise.</p><div class="summary-chart-grid"><div><h3>Severity distribution</h3>{_severity_overview(data)}</div><div><h3>Service activity</h3>{_bar_chart(data.services, "Service activity")}</div></div></section>
+<section class="section" id="findings"><div class="section-head"><h2>Top findings &amp; next actions</h2></div><p class="section-note">{escape(group_note)}</p>{"".join(rows) or '<p>No rule-backed findings were recorded.</p>'}</section>
+<section class="section" id="incidents"><div class="section-head"><h2>Priority incidents</h2></div><p class="section-note">Showing {min(5, len(data.incidents))} of {len(data.incidents)} retained incident(s). Single signals are leads; validate time proximity and shared cause. All groups are in the appendix.</p>{incident_content}</section>
+<section class="section" id="scope"><div class="section-head"><h2>Scope &amp; evidence</h2></div><div class="scope"><p>{escape(data.retention_note)}</p>{'<p>Top rarity signals:</p><ul>' + anomaly_content + '</ul>' if anomaly_content else ''}<p>Rarity scores describe this sample, not attack probability. Analysis is deterministic and local. Original telemetry remains the authority.</p><a href="{escape(appendix_href)}">Open full evidence appendix: findings, incidents, anomalies, source details and method</a></div></section>
+<div class="footer">AEGISLOG v{escape(__version__)} · {_case_id(data)} · Presented and maintained by HR-Presents</div></div></main></body></html>'''
+
+
+def write_html_report(data: DashboardData, output_dir: Path | None = None, *,
+                      filename: str | None = None, appendix_extra: str = "") -> Path:
     destination = output_dir or (Path.cwd() / "aegislog-reports")
     destination.mkdir(parents=True, exist_ok=True)
     stem = _safe_name(Path(data.source).stem)
-    target = destination / f"{stem}-aegislog-report.html"
-    target.write_text(build_html_report(data), encoding="utf-8")
+    target = destination / (filename or f"{stem}-aegislog-report.html")
+    appendix = target.with_name(target.stem + "-appendix.html")
+    if Path(data.source).resolve() in {target.resolve(), appendix.resolve()}:
+        raise ValueError("Report cannot overwrite source")
+    full = build_html_report(data).replace('<h1>Security Investigation Report</h1>', '<h1>Evidence Appendix</h1>')
+    full = full.replace('<nav class="toolbar">', f'<nav class="toolbar"><a href="{escape(target.name)}">Back to summary</a>')
+    if appendix_extra:
+        full = full.replace('<div class="footer">', appendix_extra + '<div class="footer">')
+    appendix.write_text(full, encoding="utf-8")
+    target.write_text(build_summary_report(data, appendix.name), encoding="utf-8")
     return target

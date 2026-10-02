@@ -26,3 +26,11 @@ def test_guide_explains_workflows_and_controls():
     text = console.export_text()
     assert '01 Analyze' in text and 'R Reports' in text
     assert 'B/Escape stops' in text and 'Q quits' in text
+
+
+def test_report_picker_excludes_evidence_appendices(tmp_path):
+    from aegislog.report_browser import report_candidates
+    summary = tmp_path / 'case-report.html'
+    summary.write_text('summary')
+    (tmp_path / 'case-report-appendix.html').write_text('full evidence')
+    assert report_candidates(tmp_path) == [summary]
