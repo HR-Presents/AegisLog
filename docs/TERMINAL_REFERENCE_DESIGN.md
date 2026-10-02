@@ -29,3 +29,5 @@ Input workspaces accept `b`/`back` to return and `q`/`quit` to close, including 
 File, multi-source, and native live monitors accept B or Escape to stop/back, Q to quit, and Ctrl+C to stop safely. A terminal keyboard is required for single-key controls; redirected input retains Ctrl+C handling. Live views refresh their clock and telemetry at the configured polling interval; new findings depend on newly collected events. No source file or host setting is changed.
 
 Keyboard checks cover editing, choice-prompt cancellation, immediate monitor interruption, and static refresh. Actual Windows font, colour, keyboard and resizing acceptance still requires the packaged build.
+
+The home fills the terminal width and reduces panel padding below 40 rows. Its live view uses the alternate screen so clock refreshes do not accumulate in scrollback. The layout responds to terminal dimensions on laptops and external monitors; very small windows retain page scrolling.

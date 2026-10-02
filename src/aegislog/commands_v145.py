@@ -29,7 +29,7 @@ def _screen_width(screen_width: int | None = None) -> int:
 
 
 def _frame_width(screen_width: int | None = None) -> int:
-    return min(_screen_width(screen_width), _MAX_HOME_WIDTH)
+    return _screen_width(screen_width)
 
 
 def _rule(width: int) -> Text:
@@ -181,10 +181,27 @@ def _footer(screen_width: int | None = None) -> Text:
     return footer
 
 
-def _home(screen_width: int | None = None) -> RenderableType:
+def _home(screen_width: int | None = None, screen_height: int | None = None) -> RenderableType:
     frame_width = _frame_width(screen_width)
     available = _screen_width(screen_width)
-    content = Group(_header(screen_width), Text(""), _menu(screen_width), Text(""), _rule(frame_width), _footer(screen_width))
+    header, menu = _header(screen_width), _menu(screen_width)
+    dense = screen_height is not None and screen_height < 40
+    if dense:
+        def tighten(renderable):
+            if isinstance(renderable, Panel):
+                renderable.padding = (0, 1)
+                renderable.height = None
+            elif isinstance(renderable, Group):
+                for child in renderable.renderables:
+                    tighten(child)
+            elif isinstance(renderable, Table):
+                for column in renderable.columns:
+                    for child in column._cells:
+                        tighten(child)
+        tighten(header)
+        tighten(menu)
+    spacer = [] if dense else [Text("")]
+    content = Group(header, *spacer, menu, *spacer, _rule(frame_width), _footer(screen_width))
     return Align.center(content, width=available, pad=False)
 
 
@@ -201,7 +218,7 @@ class _HomeViewport:
         self.width, self.height, self.offset = width, max(1, height), offset
 
     def __rich_console__(self, console, options):
-        lines = console.render_lines(_home(self.width), options.update(width=self.width), pad=False)
+        lines = console.render_lines(_home(self.width, self.height), options.update(width=self.width), pad=False)
         start = min(max(0, self.offset), max(0, len(lines) - self.height))
         for line in lines[start:start + self.height]:
             yield from line
@@ -221,9 +238,8 @@ def _read_home_choice() -> str:
             size = legacy.console.size
             prompt.append("  [PgUp/PgDn scroll]", style=MUTED)
             return Group(_HomeViewport(size.width, size.height - 1, offset), prompt)
-        legacy.console.clear()
         with Live(frame(), console=legacy.console, auto_refresh=False,
-                  screen=False, transient=True, vertical_overflow="crop") as live:
+                  screen=True, transient=True, vertical_overflow="crop") as live:
             next_refresh = time.monotonic()
             previous_size = legacy.console.size
             while True:
