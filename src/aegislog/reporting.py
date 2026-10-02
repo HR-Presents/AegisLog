@@ -7,6 +7,7 @@ from pathlib import Path
 
 from . import __version__
 from .dashboard import DashboardData
+from .incidents import _correlation_key
 
 _SEVERITY_RANK = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1, "INFO": 0}
 
@@ -41,7 +42,22 @@ code{color:#8EB9F0;font:10.5px "Cascadia Mono",Consolas,monospace}.evidence{disp
 @media(max-width:900px){.case-strip{grid-template-columns:1fr 1fr}.case-strip>div:nth-child(2){border-right:0}.case-strip>div:nth-child(-n+2){border-bottom:1px solid var(--line)}.metrics{grid-template-columns:1fr 1fr}.executive-grid,.method-grid,.telemetry-grid{grid-template-columns:1fr}}
 @media(max-width:680px){body{background:#090D14}.report{width:100%;margin:0;border:0;border-radius:0;box-shadow:none}.masthead{padding:24px 18px}.brandline,.title-grid,.section-head{align-items:flex-start}.title-grid,.section-head{display:block}.posture{min-width:0;margin-top:16px;text-align:left}.toolbar{overflow-x:auto}.toolbar .local-note{display:none}.content{padding:18px}.metrics{grid-template-columns:1fr 1fr}.record-body{grid-template-columns:1fr}.record-cell+.record-cell{border-left:0;border-top:1px solid var(--line-soft)}.section-note{margin-top:5px;text-align:left}}
 @media(max-width:430px){.case-strip,.metrics{grid-template-columns:1fr}.case-strip>div,.metric{border-right:0;border-bottom:1px solid var(--line)}.record-head{grid-template-columns:1fr}.record-meta{text-align:left}.triage-item{grid-template-columns:1fr}}
-@media print{@page{margin:11mm}body{background:#fff;color:#111827;font-size:9.5px}.report{width:100%;margin:0;border:0;box-shadow:none;background:#fff}.masthead{padding:16px 18px;background:#111827!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.brandline{margin-bottom:12px}.toolbar{display:none}.content{padding:12px 0 0;background:#fff}.metrics{grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}.metric{padding:8px 9px;box-shadow:none}.metric strong{font-size:18px}.section{padding:12px 0}.record,.assessment,.priority-box,.decision,.severity-block,.method-card,.table-wrap,.telemetry-card{break-inside:avoid}.record{box-shadow:none}thead{display:table-header-group}tr{break-inside:avoid}}
+ .print-help{padding:10px 16px;color:var(--ink-soft);font-size:12px}.chart{width:100%;height:auto;display:block}.chart text{fill:var(--ink-soft)}
+@media print{
+@page{size:A4;margin:12mm}
+:root{--ink:#111827;--ink-soft:#334155;--muted:#475569;--paper:#fff;--line:#94a3b8;--line-soft:#cbd5e1;--mono:#f8fafc}
+html{color-scheme:light}body{background:#fff;color:#111827;font-size:11px;line-height:1.4}
+.report{width:100%;margin:0;border:0;border-radius:0;box-shadow:none;background:#fff}
+.masthead{padding:18px;background:#111827!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.brandline{margin-bottom:12px}h1{font-size:30px}.toolbar,.print-help{display:none}
+.content{padding:10px 0 0;background:#fff}.metrics{grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}.metric{padding:8px;box-shadow:none}.metric strong{font-size:18px}
+.section{padding:10px 0}.section-head{break-after:avoid;margin-bottom:8px}.section-head h2{font-size:19px}
+.executive-grid{display:block}.priority-box{margin-top:10px}.method-grid{display:block}.method-card{margin-bottom:8px}.telemetry-grid{display:block}.telemetry-card{margin-bottom:8px}.section-head{display:block}.section-note{text-align:left;margin-top:4px}.method-grid+.table-wrap{break-inside:avoid}#method{break-inside:avoid}
+.record,.decision,.severity-block,.telemetry-card{break-inside:avoid}.assessment,.priority-box,.table-wrap{break-inside:auto}.record-list{gap:8px}.record-head{padding:9px 11px}.record-cell{padding:10px}.evidence{padding:8px;font-size:10px}.record{box-shadow:none}.record-body{grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr)}
+.case-strip,.metric,.assessment,.priority-box,.decision,.record,.record-head,.record-cell,.record-cell+.record-cell,.table-wrap,.telemetry-card,.method-card,.chip,thead th,.severity-row{background:#fff!important}
+.content *, .case-strip *{color:#1f2937!important}.content code{color:#172554!important}.content .pill{border-color:#64748b;color:#334155!important;background:#fff!important}.masthead .classification,.masthead .brand-sub,.masthead .posture small{color:#cbd5e1}.case-strip strong{font-size:11px}.section-note{max-width:240px;font-size:10px}.action-text,.method-card p{font-size:11px}
+th,td{padding:8px}.chart text{fill:#334155}.chart{break-inside:avoid}thead{display:table-header-group}tr{break-inside:avoid}.footer{position:fixed;bottom:0;left:0;right:0;margin:0;padding-top:4px;font-size:8px}
+}
+
 """
 
 
@@ -131,11 +147,11 @@ def _metric(label: str, value: str, modifier: str = "") -> str:
 def _severity_overview(data: DashboardData) -> str:
     total = max(sum(data.severities.values()), 1)
     rows = []
-    for severity in ("CRITICAL", "HIGH", "MEDIUM", "LOW"):
+    for severity in ("CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"):
         count = data.severities.get(severity, 0)
         percent = min(100.0, (count / total) * 100.0)
         rows.append(
-            f'<div class="severity-row {_risk_class(severity)}"><small>{severity}</small><strong>{count}</strong><div class="track"><i style="width:{percent:.1f}%"></i></div></div>'
+            f'<div class="severity-row {_risk_class(severity)}"><small>{severity}</small><strong>{count}</strong><svg width="100%" height="8" role="img" aria-label="{severity}: {count}"><rect width="100%" height="8" fill="#cbd5e1"/><rect width="{percent:.1f}%" height="8" fill="#397dcc"/></svg></div>'
         )
     return "".join(rows)
 
@@ -166,7 +182,7 @@ def _triage_actions(data: DashboardData) -> str:
             f'<div class="triage-item"><span class="pill {_risk_class(incident.severity)}">{escape(incident.severity)}</span><div><strong>INC-{escape(incident.id.upper()[:8])} · {escape(incident.title)}</strong><p>Validate the grouped evidence and surrounding source, identity, host, and network context.</p></div></div>'
         )
     for item in _ordered_findings(data):
-        rec = item.recommendation.strip()
+        rec = _recommendation(item).strip()
         if not rec or rec in seen:
             continue
         seen.add(rec)
@@ -185,16 +201,47 @@ def _incident_records(data: DashboardData) -> str:
             f'<li><code class="evidence">{escape(v)}</code></li>' for v in item.evidence
         )
         records.append(
-            f'<article class="record"><div class="record-head"><span class="record-id">INC-{escape(item.id.upper()[:8])}</span><span class="record-title">{escape(item.title)}</span><span class="record-meta"><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span> &nbsp; {escape(item.category)} · {item.count} signal(s)</span></div><div class="record-body"><div class="record-cell"><span class="cell-label">Evidence chain</span><ul class="evidence-list">{evidence}</ul></div><div class="record-cell"><span class="cell-label">Analyst handling</span><p class="action-text">Validate the grouped signals against original telemetry and surrounding host, identity, and network context. Escalate only when the evidence and operational context support that decision.</p></div></div></article>'
+            f'<article class="record"><div class="record-head"><span class="record-id">INC-{escape(item.id.upper()[:8])}</span><span class="record-title">{escape(item.title)}</span><span class="record-meta"><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span> &nbsp; {escape(item.category)} · {item.count} signal(s)</span></div><div class="record-body"><div class="record-cell"><span class="cell-label">Evidence chain</span><ul class="evidence-list">{evidence}</ul></div><div class="record-cell"><span class="cell-label">Analyst handling</span><p class="action-text">{escape(_grouping_note(item, data.findings))}</p><p class="action-text">Validate the grouped signals against original telemetry and surrounding host, identity, and network context. Escalate only when the evidence and operational context support that decision.</p></div></div></article>'
         )
     return "".join(records) if records else '<div class="empty">No correlated incidents were recorded.</div>'
+
+
+def _recommendation(item) -> str:
+    evidence = item.evidence.lower()
+    if item.category == "error" and "service control manager[7011]" in evidence:
+        return "Check the named service's own logs and dependencies around this timeout; compare restart history, CPU, memory and disk pressure. Validate the cause before changing service settings."
+    if item.category == "error" and "distributedcom[10010]" in evidence:
+        return "Identify the application associated with the recorded CLSID, check its startup and related service logs, and establish user impact. This timeout alone does not justify changing DCOM permissions."
+    return item.recommendation
+
+
+def _grouping_note(item, findings) -> str:
+    members = [finding for finding in findings if _correlation_key(finding)[0] == item.category.lower()
+               and finding.title == item.title]
+    contexts = {_correlation_key(finding)[2:] for finding in members}
+    if contexts == {( "", "")}:
+        return "Grouping basis: category-level fallback because structured service/source context was not resolved. This grouping has no time-window constraint and does not establish a common cause. Validate timestamps and component identity before treating these signals as one incident."
+    return "Grouping basis: detector category/title with extracted service or source context where available. Grouping has no time-window constraint; validate time proximity and common cause against original telemetry."
+
+
+def _bar_chart(values: dict[str, int], label: str) -> str:
+    items = sorted(values.items(), key=lambda pair: (-pair[1], str(pair[0])))[:8]
+    if not items:
+        return '<p class="empty">No retained observations.</p>'
+    maximum = max(value for _, value in items) or 1
+    rows = []
+    for index, (name, value) in enumerate(items):
+        y = index * 26 + 16
+        short = str(name) if len(str(name)) < 39 else str(name)[:35] + "..."
+        rows.append(f'<text x="0" y="{y}" font-size="11">{escape(short)}</text><rect x="260" y="{y-10}" width="{180*value/maximum:.1f}" height="12" fill="#397dcc"/><text x="452" y="{y}" font-size="11">{value:,}</text>')
+    return f'<svg class="chart" width="510" height="{len(items)*26+8}" viewBox="0 0 510 {len(items)*26+8}" role="img" aria-label="{escape(label)}"><title>{escape(label)}; largest bar = {maximum}; top {len(items)} of {len(values)} classes</title>{"".join(rows)}</svg><p class="caveat">Top {len(items)} of {len(values)} classes; retained total {sum(values.values()):,}. Largest bar = {maximum:,}.</p>'
 
 
 def _finding_records(data: DashboardData) -> str:
     records = []
     for index, item in enumerate(_ordered_findings(data), start=1):
         records.append(
-            f'<article class="record"><div class="record-head"><span class="record-id">F-{index:03d}</span><span class="record-title">{escape(item.title)}</span><span class="record-meta"><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span> &nbsp; {escape(item.category)}</span></div><div class="record-body"><div class="record-cell"><span class="cell-label">Retained evidence</span><code class="evidence">{escape(item.evidence)}</code></div><div class="record-cell"><span class="cell-label">Recommended action</span><p class="action-text">{escape(item.recommendation)}</p></div></div></article>'
+            f'<article class="record"><div class="record-head"><span class="record-id">F-{index:03d}</span><span class="record-title">{escape(item.title)}</span><span class="record-meta"><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span> &nbsp; {escape(item.category)}</span></div><div class="record-body"><div class="record-cell"><span class="cell-label">Retained evidence</span><code class="evidence">{escape(item.evidence)}</code></div><div class="record-cell"><span class="cell-label">Recommended action</span><p class="action-text">{escape(_recommendation(item))}</p></div></div></article>'
         )
     return "".join(records) if records else '<div class="empty">No rule-backed findings were recorded.</div>'
 
@@ -226,12 +273,12 @@ def build_html_report(data: DashboardData) -> str:
 <header class="masthead" id="cover"><div class="brandline"><div class="brand"><div class="brand-mark">{brand_mark}</div><div><div class="brand-name">AEGIS<span>LOG</span></div><div class="brand-sub">Defensive log investigation</div></div></div><div class="classification">Local-first · read-only<br>Investigation record</div></div><div class="title-grid"><div><div class="eyebrow">Case {escape(case_id)}</div><h1>Security Investigation Report</h1><p class="subtitle">Analyst-ready summary and retained evidence for <strong>{escape(source_name)}</strong>.</p></div><div class="posture {_risk_class(risk)}"><small>Current posture</small><strong>{escape(risk)}</strong></div></div></header>
 <section class="case-strip"><div><small>Source</small><strong>{escape(source_name)}</strong></div><div><small>Case ID</small><strong>{escape(case_id)}</strong></div><div><small>Generated</small><strong>{generated}</strong></div><div><small>Processing</small><strong>LOCAL / READ-ONLY</strong></div></section>
 <nav class="toolbar"><a href="#executive">Summary</a><a href="#incidents">Incidents</a><a href="#findings">Findings</a><a href="#telemetry">Telemetry</a><a href="#anomalies">Anomalies</a><a href="#method">Method</a><span class="spacer"></span><span class="local-note">DETERMINISTIC ANALYSIS</span><button type="button" onclick="window.print()">Print / Save PDF</button></nav>
-<div class="content"><section class="metrics">{_metric("Events", f"{data.lines:,}")}{_metric("Findings", str(len(data.findings)))}{_metric("Incidents", str(len(data.incidents)))}{_metric("Disposition", _disposition(risk), _risk_class(risk))}</section>
+<p class="print-help">PDF export: use A4 and turn off browser Headers and footers in the print dialog to remove the local file URL. Background graphics are optional; charts and evidence remain readable.</p><div class="content"><section class="metrics">{_metric("Events", f"{data.lines:,}")}{_metric("Findings", str(len(data.findings)))}{_metric("Incidents", str(len(data.incidents)))}{_metric("Disposition", _disposition(risk), _risk_class(risk))}</section>
 <section class="section" id="executive"><div class="section-head"><div><div class="section-label">Executive summary</div><h2>What needs attention</h2></div><div class="section-note">Start here. Supporting evidence follows below.</div></div><div class="executive-grid"><div class="assessment"><h3>Assessment</h3><p>{escape(_assessment(data, risk))}</p>{_primary_decision(data)}<p class="caveat">Analyzed <strong>{data.lines:,}</strong> event line(s), retained <strong>{len(data.findings)}</strong> finding(s), <strong>{len(data.incidents)}</strong> incident(s), and <strong>{len(data.anomalies)}</strong> anomaly signal(s). Findings are investigative evidence, not proof of compromise.</p><div class="section-label" style="margin-top:16px;margin-bottom:8px">Severity distribution</div><div class="severity-block">{_severity_overview(data)}</div></div><div class="priority-box"><h3>Recommended triage</h3>{_triage_actions(data)}</div></div></section>
-<section class="section" id="incidents"><div class="section-head"><div><div class="section-label">Correlation</div><h2>Incident Queue</h2></div><div class="section-note">Only genuinely correlated evidence should appear here.</div></div><div class="record-list">{_incident_records(data)}</div></section>
+<section class="section" id="incidents"><div class="section-head"><div><div class="section-label">Correlation</div><h2>Incident Queue</h2></div><div class="section-note">Grouped signals; validate shared cause and timing.</div></div><div class="record-list">{_incident_records(data)}</div></section>
 <section class="section" id="findings"><div class="section-head"><div><div class="section-label">Detection</div><h2>Findings</h2></div><div class="section-note">Rule-backed detections with retained evidence and next action.</div></div><div class="record-list">{_finding_records(data)}</div></section>
-<section class="section" id="telemetry"><div class="section-head"><div><div class="section-label">Telemetry</div><h2>Observed Distribution</h2></div><div class="section-note">A compact view of the parsed source.</div></div><div class="telemetry-grid"><div class="telemetry-card"><h3>Categories</h3><div class="chips">{_telemetry_chips(data.categories)}</div></div><div class="telemetry-card"><h3>Log levels</h3><div class="chips">{_telemetry_chips(data.levels)}</div></div><div class="telemetry-card"><h3>Services</h3><div class="chips">{_telemetry_chips(data.services)}</div></div></section>
-<section class="section" id="anomalies"><div class="section-head"><div><div class="section-label">Behavior</div><h2>Anomaly Signals</h2></div><div class="section-note">Supporting signals only; anomaly scores are not verdicts.</div></div><div class="table-wrap"><table><thead><tr><th>Score</th><th>Event class</th><th>Reason</th></tr></thead><tbody>{_anomaly_rows(data)}</tbody></table></div></section>
+<section class="section" id="telemetry"><div class="section-head"><div><div class="section-label">Telemetry</div><h2>Observed Distribution</h2></div><div class="section-note">A compact view of the parsed source.</div></div><div class="telemetry-grid"><div class="telemetry-card"><h3>Categories</h3><div class="chips">{_telemetry_chips(data.categories)}</div></div><div class="telemetry-card"><h3>Log levels</h3><div class="chips">{_bar_chart(data.levels, "Log levels")}</div></div><div class="telemetry-card"><h3>Services</h3><div class="chips">{_bar_chart(data.services, "Service activity")}{_telemetry_chips(data.services)}</div></div></section>
+<section class="section" id="anomalies"><div class="section-head"><div><div class="section-label">Behavior</div><h2>Anomaly Signals</h2></div><div class="section-note">Rarity scores (0-100), not attack probability.</div></div><p class="caveat">Scores describe rare concerning event classes within this retained sample. A score of 100 does not mean 100% attack probability, severity, or confidence. No trained machine-learning model is used.</p><div class="table-wrap"><table><thead><tr><th>Rarity score / 100</th><th>Event class</th><th>Reason</th></tr></thead><tbody>{_anomaly_rows(data)}</tbody></table></div></section>
 <section class="section" id="method"><div class="section-head"><div><div class="section-label">Method and scope</div><h2>Analysis Profile</h2></div><div class="section-note">How the report was produced and how to interpret it.</div></div><div class="method-grid"><div class="method-card"><h3>Processing model</h3><p>AegisLog v{escape(__version__)} performed local deterministic detection, incident correlation, and anomaly scoring. The source was handled read-only.</p></div><div class="method-card"><h3>Evidence limitations</h3><p>{escape(data.retention_note)} This report contains retained derived evidence rather than a complete copy of the raw log. Missing detections do not prove malicious activity is absent. Preserve original telemetry when incident-response, retention, or chain-of-custody procedures require it.</p></div></div><div class="table-wrap" style="margin-top:14px"><table><tr><th>Source path</th><td>{escape(data.source)}</td></tr><tr><th>Source file</th><td>{escape(source_name)}</td></tr><tr><th>Event lines</th><td>{data.lines:,}</td></tr><tr><th>AegisLog version</th><td>{escape(__version__)}</td></tr><tr><th>Generated</th><td>{generated}</td></tr><tr><th>Analysis model</th><td>Deterministic local processing</td></tr></table></div></section>
 <div class="footer">AEGISLOG v{escape(__version__)} · {escape(case_id)} · Defensive security analysis · Generated locally</div></div></main></body></html>'''
 
