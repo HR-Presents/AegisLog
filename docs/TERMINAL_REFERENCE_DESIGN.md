@@ -31,3 +31,5 @@ File, multi-source, and native live monitors accept B or Escape to stop/back, Q 
 Keyboard checks cover editing, choice-prompt cancellation, immediate monitor interruption, and static refresh. Actual Windows font, colour, keyboard and resizing acceptance still requires the packaged build.
 
 The home fills the terminal width and reduces panel padding below 40 rows. Its live view uses the alternate screen so clock refreshes do not accumulate in scrollback. The layout responds to terminal dimensions on laptops and external monitors; very small windows retain page scrolling.
+
+A pinned control row shows the visible row range when scrolling is needed, or All panels visible when the page fits. Home/End jump to either end. Scroll offsets are clamped on every refresh and resize. Help and Quit stay visible beside the command input; long typed commands display their editable tail.

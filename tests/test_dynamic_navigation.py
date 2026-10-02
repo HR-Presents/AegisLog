@@ -58,10 +58,8 @@ def test_home_redraws_while_typing_and_preserves_input(monkeypatch):
     monkeypatch.setattr(commands_v145, 'KeyboardReader', Reader)
     monkeypatch.setattr(commands_v145, 'Live', Live)
     monkeypatch.setattr(commands_v145.time, 'sleep', lambda _: None)
-    redraws = []
-    monkeypatch.setattr(commands_v145, '_HomeViewport', lambda width, height, offset: redraws.append(width) or 'clock')
     assert commands_v145._read_home_choice() == '01'
-    assert len(redraws) >= 5
+    assert len(frames) >= 5
 
 
 def test_refresh_reanalyzes_same_source_then_back(monkeypatch):
@@ -96,3 +94,16 @@ def test_short_laptop_layout_fits_all_panels_without_losing_brand():
     assert len(lines) <= 35
     for label in ("DEFENSIVE LOG INVESTIGATION", "SYSTEM", "QUICK INFO", "UTILITIES", "Q Exit"):
         assert label in output
+
+
+def test_scroll_clamps_after_bottom_and_resize():
+    console = Console(file=StringIO(), width=140, height=14)
+    view = commands_v145._HomeViewport(140, 12, 1000000).prepare(console, console.options)
+    assert view.offset == view.maximum > 0
+    previous = view.offset
+    view.offset -= 1
+    view.prepare(console, console.options)
+    assert view.offset == previous - 1
+    view.height = 100
+    view.prepare(console, console.options)
+    assert view.offset == view.maximum == 0

@@ -20,7 +20,6 @@ from .theme import SURFACE, ACCENT, ACCENT_SOFT, DIM, MUTED, NEUTRAL, SUCCESS
 _LEGACY_INLINE_COMMAND = legacy._run_inline_command
 _NARROW_BREAKPOINT = 72
 _WIDE_BREAKPOINT = 96
-_MAX_HOME_WIDTH = 144
 
 
 def _screen_width(screen_width: int | None = None) -> int:
@@ -217,9 +216,16 @@ class _HomeViewport:
     def __init__(self, width, height, offset=0):
         self.width, self.height, self.offset = width, max(1, height), offset
 
+    def prepare(self, console, options):
+        self.lines = console.render_lines(_home(self.width, self.height), options.update(width=self.width), pad=False)
+        self.maximum = max(0, len(self.lines) - self.height)
+        self.offset = min(max(0, self.offset), self.maximum)
+        return self
+
     def __rich_console__(self, console, options):
-        lines = console.render_lines(_home(self.width, self.height), options.update(width=self.width), pad=False)
-        start = min(max(0, self.offset), max(0, len(lines) - self.height))
+        self.prepare(console, options)
+        lines = self.lines
+        start = self.offset
         for line in lines[start:start + self.height]:
             yield from line
             yield Segment.line()
@@ -233,11 +239,20 @@ def _read_home_choice() -> str:
         value = ""
         offset = 0
         def frame():
-            prompt = Text("aegis@console > ", style=f"bold {ACCENT}")
-            prompt.append(value, style=NEUTRAL)
+            nonlocal offset
             size = legacy.console.size
-            prompt.append("  [PgUp/PgDn scroll]", style=MUTED)
-            return Group(_HomeViewport(size.width, size.height - 1, offset), prompt)
+            viewport = _HomeViewport(size.width, max(1, size.height - 2), offset)
+            viewport.prepare(legacy.console, legacy.console.options)
+            offset = viewport.offset
+            if viewport.maximum:
+                position = f"Rows {offset + 1}-{min(offset + viewport.height, len(viewport.lines))}/{len(viewport.lines)} | PgUp/PgDn | Home/End"
+            else:
+                position = "All panels visible"
+            controls = Text(position + " | 09 Help | Q Quit", style=MUTED, no_wrap=True, overflow="crop")
+            prompt = Text("aegis@console > ", style=f"bold {ACCENT}", no_wrap=True, overflow="crop")
+            available = max(1, size.width - len(prompt.plain) - 1)
+            prompt.append(value[-available:], style=NEUTRAL)
+            return Group(viewport, controls, prompt)
         with Live(frame(), console=legacy.console, auto_refresh=False,
                   screen=True, transient=True, vertical_overflow="crop") as live:
             next_refresh = time.monotonic()
@@ -246,6 +261,8 @@ def _read_home_choice() -> str:
                 key = keys.poll()
                 if key in {"UP", "PAGEUP", "HOME"}:
                     offset = 0 if key == "HOME" else max(0, offset - (1 if key == "UP" else max(1, legacy.console.size.height - 3)))
+                elif key == "END":
+                    offset = 1000000
                 elif key in {"DOWN", "PAGEDOWN"}:
                     offset += 1 if key == "DOWN" else max(1, legacy.console.size.height - 3)
                 elif key in {"\r", "\n"}:
