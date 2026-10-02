@@ -90,12 +90,20 @@ class KeyboardReader:
                 return None
             char = self.windows.getwch()
             if char in {"\x00", "\xe0"}:
-                self.windows.getwch()
-                return None
+                special = self.windows.getwch()
+                return {"H": "UP", "P": "DOWN", "I": "PAGEUP", "Q": "PAGEDOWN", "G": "HOME"}.get(special)
             return char
         import select
         if select.select([self.fd], [], [], 0)[0]:
-            return os.read(self.fd, 1).decode("utf-8", errors="replace")
+            char = os.read(self.fd, 1).decode("utf-8", errors="replace")
+            if char == "\x1b":
+                sequence = ""
+                while len(sequence) < 5 and select.select([self.fd], [], [], 0.01)[0]:
+                    sequence += os.read(self.fd, 1).decode("utf-8", errors="replace")
+                    if sequence[-1:].isalpha() or sequence.endswith("~"):
+                        break
+                return {"[A": "UP", "[B": "DOWN", "[5~": "PAGEUP", "[6~": "PAGEDOWN", "[H": "HOME"}.get(sequence, char)
+            return char
         return None
 
 

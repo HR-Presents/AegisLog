@@ -22,7 +22,7 @@ These images render the actual Rich output using a synthetic QA fixture. They ar
 
 ## Interactive navigation
 
-The `start` shell redraws its UTC clock every second while preserving typed menu input. Short terminals use a compact home so input controls stay visible; resizing redraws the layout. Select a menu number or command and press Enter.
+The `start` shell redraws its UTC clock every second while preserving typed menu input. Short terminals scroll through the same full home with Up/Down or PageUp/PageDown; the logo and panel layout are never replaced. Home returns to the top, and resizing redraws the visible portion. Input stays visible below the page. Select a menu number or command and press Enter.
 
 Input workspaces accept `b`/`back` to return and `q`/`quit` to close, including profile and native-source choice prompts. Completed pages show Back and Quit controls. File analysis offers `r`/`refresh` to reread the source and regenerate its HTML report. Saved-file charts show recorded event times and do not invent new activity.
 

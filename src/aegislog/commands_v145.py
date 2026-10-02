@@ -9,6 +9,7 @@ from rich.console import Group, RenderableType
 from .terminal_charts import TerminalPanel as Panel
 from rich.table import Table
 from rich.text import Text
+from rich.segment import Segment
 from rich.live import Live
 
 from . import commands_v144 as legacy
@@ -194,23 +195,32 @@ def _run_inline_command(raw: str) -> None:
     _LEGACY_INLINE_COMMAND(raw)
 
 
+class _HomeViewport:
+    """Scroll the original home without replacing its panels or logo."""
+    def __init__(self, width, height, offset=0):
+        self.width, self.height, self.offset = width, max(1, height), offset
+
+    def __rich_console__(self, console, options):
+        lines = console.render_lines(_home(self.width), options.update(width=self.width), pad=False)
+        start = min(max(0, self.offset), max(0, len(lines) - self.height))
+        for line in lines[start:start + self.height]:
+            yield from line
+            yield Segment.line()
+
+
 def _read_home_choice() -> str:
     with KeyboardReader() as keys:
         if not keys.enabled or not legacy.console.is_terminal:
             legacy.console.print(_home(legacy.console.size.width))
             return legacy.console.input(f"[bold {ACCENT}]aegis@console > [/bold {ACCENT}]")
         value = ""
+        offset = 0
         def frame():
             prompt = Text("aegis@console > ", style=f"bold {ACCENT}")
             prompt.append(value, style=NEUTRAL)
             size = legacy.console.size
-            if size.height < 44:
-                # Keep navigation visible when the full home exceeds the viewport.
-                title = Text("AEGISLOG / DEFENSIVE LOG INVESTIGATION", style=f"bold {ACCENT}")
-                clock = Text(datetime.now(timezone.utc).strftime("%H:%M:%S UTC / %d %b %Y"), style=SUCCESS)
-                actions = Text("01 Analyze   02 Live   03 Multi-source\n04 Native logs   05 Native monitor   06 Incidents\n07 Demo   08 Health   09 Help\n[Q Exit] Type a number or command, then Enter", style=NEUTRAL)
-                return Group(title, clock, Text("MADE BY HR-PRESENTS / LOCAL / READ-ONLY", style=MUTED), Text(""), actions, Text(""), prompt)
-            return Group(_home(size.width), prompt)
+            prompt.append("  [PgUp/PgDn scroll]", style=MUTED)
+            return Group(_HomeViewport(size.width, size.height - 1, offset), prompt)
         legacy.console.clear()
         with Live(frame(), console=legacy.console, auto_refresh=False,
                   screen=False, transient=True, vertical_overflow="crop") as live:
@@ -218,13 +228,17 @@ def _read_home_choice() -> str:
             previous_size = legacy.console.size
             while True:
                 key = keys.poll()
-                if key in {"\r", "\n"}:
+                if key in {"UP", "PAGEUP", "HOME"}:
+                    offset = 0 if key == "HOME" else max(0, offset - (1 if key == "UP" else max(1, legacy.console.size.height - 3)))
+                elif key in {"DOWN", "PAGEDOWN"}:
+                    offset += 1 if key == "DOWN" else max(1, legacy.console.size.height - 3)
+                elif key in {"\r", "\n"}:
                     return value
                 if key in {"\x03", "\x04"}:
                     raise KeyboardInterrupt()
                 if key in {"\x08", "\x7f"}:
                     value = value[:-1]
-                elif key and key.isprintable() and len(value) < 4096:
+                elif key and len(key) == 1 and key.isprintable() and len(value) < 4096:
                     value += key
                 size = legacy.console.size
                 if key or time.monotonic() >= next_refresh or size != previous_size:
