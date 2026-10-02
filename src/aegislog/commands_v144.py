@@ -4,7 +4,7 @@ from pathlib import Path
 
 from rich.console import Console, Group, RenderableType
 from rich.panel import Panel
-from rich.prompt import Prompt
+from .navigation import Prompt, WorkspaceBack, WorkspaceQuit
 from rich.table import Table
 from rich.text import Text
 
@@ -247,7 +247,9 @@ def _home(screen_width: int | None = None) -> RenderableType:
 
 def _pause_for_menu() -> None:
     try:
-        console.input(f"\n[{MUTED}]press Enter to return to console[/{MUTED}]")
+        value = console.input(f"\n[{MUTED}][Enter / B Back] [Q Quit][/{MUTED}]")
+        if value.strip().lower() in {"q", "quit", "exit"}:
+            raise WorkspaceQuit()
     except (KeyboardInterrupt, EOFError):
         pass
 
@@ -403,7 +405,11 @@ def _run_analysis_workspace(path: Path, title: str, subtitle: str, accent: str =
         )
     )
     console.print()
-    dashboard(path, timestamp_year=None)
+    while True:
+        dashboard(path, timestamp_year=None)
+        action = Prompt.ask("[R Refresh file]", choices=["r", "refresh"], default="b")
+        if action in {"r", "refresh"}:
+            console.clear()
 
 
 def _launch_live_file(path: Path, profile: str) -> None:
@@ -538,20 +544,24 @@ def _incident_workspace() -> None:
     explain(path, incident_id)
 
 
+def _read_home_choice() -> str:
+    console.clear()
+    console.print(_home(console.size.width))
+    console.print()
+    return console.input(f"[bold {ACCENT}]aegis@console > [/bold {ACCENT}]")
+
+
 def start() -> None:
     while True:
-        console.clear()
-        console.print(_home(console.size.width))
-        console.print()
         try:
-            raw_choice = console.input(f"[bold {ACCENT}]aegis@console > [/bold {ACCENT}]")
+            raw_choice = _read_home_choice()
             choice = raw_choice.strip() or "1"
         except (KeyboardInterrupt, EOFError):
             console.print()
             console.print(Text("AegisLog closed safely.", style=SUCCESS))
             return
         lowered = choice.lower()
-        if lowered == "q":
+        if lowered in {"q", "quit", "exit"}:
             console.print(Text("AegisLog closed safely.", style=SUCCESS))
             return
         console.clear()
@@ -681,8 +691,17 @@ def start() -> None:
                 commands_reference()
             else:
                 _run_inline_command(choice)
+        except WorkspaceQuit:
+            console.print(Text("AegisLog closed safely.", style=SUCCESS))
+            return
+        except WorkspaceBack:
+            continue
         except KeyboardInterrupt:
             console.print()
             console.print(Text("Stopped - returning to Mission Control.", style=WARNING))
             continue
-        _pause_for_menu()
+        try:
+            _pause_for_menu()
+        except WorkspaceQuit:
+            console.print(Text("AegisLog closed safely.", style=SUCCESS))
+            return

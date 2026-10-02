@@ -6,6 +6,7 @@ import shutil
 import time
 from collections import Counter, deque
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 
 from rich.align import Align
@@ -354,7 +355,8 @@ def render_realtime(state: RealtimeState) -> RenderableType:
     header_text.append(state.source, style=ACCENT_SOFT)
     header_text.append("\nPROFILE: ", style=MUTED)
     header_text.append(profile.label.upper(), style=f"bold {ACCENT}")
-    subtitle = "Ctrl+C to stop" if screen_width < _NARROW_BREAKPOINT else f"{profile.description} | Ctrl+C to stop"
+    header_text.append("\n" + datetime.now(timezone.utc).strftime("LIVE CLOCK %H:%M:%S UTC"), style=SUCCESS)
+    subtitle = "[B Back / Stop] [Q Quit] Ctrl+C to stop" if screen_width < _NARROW_BREAKPOINT else f"{profile.description} | [B Back / Stop] [Q Quit] Ctrl+C to stop"
     header = Panel(Align.center(header_text), border_style=ACCENT, subtitle=subtitle, subtitle_align="right")
 
     risk = _risk(severities)

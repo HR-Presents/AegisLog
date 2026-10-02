@@ -5,6 +5,8 @@ import time
 import typer
 from rich.console import Console
 from rich.live import Live
+
+from .navigation import KeyboardReader, wait_for_navigation
 from rich.text import Text
 
 from .live_ux import live_initial_status, live_startup_panel, live_stopped_status
@@ -74,27 +76,28 @@ def native_live(
         console.print(live_initial_status("native", prefix="Initial native scan complete."))
 
     try:
-        with Live(
-            _view(state),
-            console=console,
-            refresh_per_second=max(1, int(round(1 / refresh))),
-            screen=False,
-            transient=False,
-        ) as live:
-            while True:
-                try:
-                    lines = poller.poll()
-                    if lines:
-                        state.ingest(lines)
-                except CollectorError as exc:
+        with KeyboardReader() as keys:
+            with Live(
+                _view(state),
+                console=console,
+                refresh_per_second=max(1, int(round(1 / refresh))),
+                screen=False,
+                transient=False,
+            ) as live:
+                while True:
+                    try:
+                        lines = poller.poll()
+                        if lines:
+                            state.ingest(lines)
+                    except CollectorError as exc:
+                        live.update(_view(state), refresh=True)
+                        warning = Text("Native source temporarily unavailable: ", style=f"bold {WARNING}")
+                        warning.append(str(exc))
+                        console.print(warning)
+                        console.print(failure_guidance(normalized, str(exc)))
+                        wait_for_navigation(keys, refresh, sleep=time.sleep)
+                        continue
                     live.update(_view(state), refresh=True)
-                    warning = Text("Native source temporarily unavailable: ", style=f"bold {WARNING}")
-                    warning.append(str(exc))
-                    console.print(warning)
-                    console.print(failure_guidance(normalized, str(exc)))
-                    time.sleep(refresh)
-                    continue
-                live.update(_view(state), refresh=True)
-                time.sleep(refresh)
+                    wait_for_navigation(keys, refresh, sleep=time.sleep)
     except KeyboardInterrupt:
         console.print(live_stopped_status("Native"))
