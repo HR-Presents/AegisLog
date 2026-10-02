@@ -1,3 +1,4 @@
+from pathlib import Path
 import hashlib
 import json
 from dataclasses import replace
@@ -321,3 +322,16 @@ def test_collector_health_distinguishes_empty_success_and_failure():
     health.failure(OSError('source missing'))
     console.print(render_collector_health({'demo': health}))
     assert 'collection unavailable' in console.export_text()
+
+
+def test_fingerprint_uses_handle_metadata_for_path_recheck(demo, monkeypatch):
+    from aegislog.security_workbench import fingerprint
+    original = Path.stat
+    def divergent_stat(path, *args, **kwargs):
+        from types import SimpleNamespace
+        result = original(path, *args, **kwargs)
+        if path == demo:
+            return SimpleNamespace(st_size=result.st_size, st_mtime_ns=result.st_mtime_ns, st_ctime_ns=result.st_ctime_ns + 1, st_ino=0)
+        return result
+    monkeypatch.setattr(Path, 'stat', divergent_stat)
+    assert fingerprint(demo)['sha256'] == hashlib.sha256(demo.read_bytes()).hexdigest()

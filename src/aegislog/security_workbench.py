@@ -320,7 +320,10 @@ def fingerprint(path: Path):
         for block in iter(lambda: handle.read(65536), b""):
             digest.update(block)
         after = os.fstat(handle.fileno())
-    current = path.stat()
+    # Compare metadata from the same API: Windows path.stat() and fstat()
+    # can expose different file identifiers/timestamps for the same stable file.
+    with path.open("rb") as current_handle:
+        current = os.fstat(current_handle.fileno())
     def metadata(item):
         return item.st_size, item.st_mtime_ns, item.st_ctime_ns, item.st_ino
     if metadata(before) != metadata(after) or metadata(after) != metadata(current):
