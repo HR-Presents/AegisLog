@@ -11,15 +11,15 @@ py -m pip install --user pipx
 py -m pipx ensurepath
 ```
 
-Reopen PowerShell, then install this review branch:
+Reopen PowerShell, then install the audited build:
 
 ```powershell
 cd $HOME
-py -m pipx install "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/codex/report-print-quality.zip"
+py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/3fa654012458ca91e38ca40dd31e25d016dec70a.zip"
 aegislog start
 ```
 
-Already installed? Use the same install command with `--force` to replace it with the current branch build. This is a review build, not a signed stable release. For reproducible deployment, use a reviewed full commit SHA in the archive URL rather than a moving branch. Linux/macOS users can prepare pipx using its official platform instructions and use the same install/launch commands.
+The command also updates an existing installation. Do not combine `--force` with `--pip-args="--force-reinstall"`; the uv backend rejects duplicate reinstall arguments. This is a review build, not a signed stable release. For reproducible deployment, use a reviewed full commit SHA in the archive URL rather than a moving branch. Linux/macOS users can prepare pipx using its official platform instructions and use the same install/launch commands.
 
 The Windows standalone ZIP is an alternative that does not require Python. Run its executable from a user-owned working directory so reports can be written. Verify its SHA-256 against the included checksum. See INSTALL.md and RELEASE_SECURITY.md for distribution and signing details.
 

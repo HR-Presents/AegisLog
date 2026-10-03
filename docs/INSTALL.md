@@ -4,7 +4,7 @@
 
 The recommended Windows installation is the one-file console application:
 
-1. Open the [v1.6.0 GitHub release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v1.6.0).
+1. Open the [published releases](https://github.com/HR-Presents/AegisLog-AI/releases).
 2. Download `AegisLog.exe`.
 3. Optionally download `AegisLog.exe.sha256` and verify the executable before running it.
 4. Run `AegisLog.exe` to open Mission Control.
@@ -18,7 +18,7 @@ Get-FileHash .\AegisLog.exe -Algorithm SHA256
 Get-Content .\AegisLog.exe.sha256
 ```
 
-Compare the two SHA-256 values exactly. Always use the checksum published beside the same release asset you downloaded. See [v1.6.0 release notes](RELEASE_V1.6.0.md) for stable-release details.
+Compare the two SHA-256 values exactly. Always use the checksum published beside the same release asset you downloaded. The published stable version is v2.1.3. The audited terminal/report updates are a newer development build; see [prepared release notes](RELEASE_V2.1.4.md) for its verified artifact and limitations.
 
 ## Install as a terminal command
 
@@ -35,13 +35,14 @@ py -m pipx ensurepath
 
 Close and reopen the terminal after `ensurepath` so Windows loads the updated PATH.
 
-### Install this report-update build
+### Install or update the audited build
 
 ```powershell
-pipx install "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/codex/report-print-quality.zip"
+cd $HOME
+py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/3fa654012458ca91e38ca40dd31e25d016dec70a.zip"
 ```
 
-This URL installs the current review branch. For a released version, use a published release tag or commit after release verification.
+This immutable URL installs the audited development build, currently reporting version 2.1.3; it does not install a published v2.1.4 release. `--force` also updates an existing installation. Do not add `--pip-args="--force-reinstall"`: with the uv backend that duplicates the reinstall option and fails. Python 3.10–3.13 are covered by CI; Python 3.14 is not yet part of that test matrix.
 
 ### Start, use, and exit
 
@@ -58,7 +59,7 @@ Check the installation with `aegislog --version` and `aegislog doctor`.
 Remove it with:
 
 ```powershell
-pipx uninstall aegislog-ai
+py -m pipx uninstall aegislog-ai
 ```
 
 On Linux/macOS, install pipx using its documented platform instructions, then use the same `pipx install` and `aegislog` commands.
@@ -75,3 +76,7 @@ pytest
 On Windows PowerShell activate with `.venv\Scripts\Activate.ps1`.
 
 The repository also includes `install.sh` and `install.ps1` helpers for source checkouts. Core processing is local, read-only and deterministic; no AI provider is required.
+
+## Windows Security channel
+
+For Security events only, open Start, search PowerShell, choose **Run as administrator**, approve the Windows prompt, then run `cd $HOME` and `aegislog start`. Choose C Check Computer and the readable Security source. Q returns to PowerShell. System/Application checks usually work without elevation.

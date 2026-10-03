@@ -78,7 +78,7 @@ The interactive shell uses the authoritative `aegis@console >` prompt. Windows S
 With Python 3.10+ and pipx installed:
 
 ```bash
-pipx install "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/codex/report-print-quality.zip"
+py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/3fa654012458ca91e38ca40dd31e25d016dec70a.zip"
 aegislog start
 ```
 
@@ -212,3 +212,7 @@ In `aegislog start`, choose **F Scan Folder** and enter a folder path. A bounded
 Choose **C Check Computer** for readable-source discovery and a bounded native-log investigation, or run `aegislog check-computer`. Native logs use the selected time window; discovered files use their full contents. All investigations run in the terminal and create local HTML reports. Sources are handled read-only.
 
 Folder scans now default to likely logs, offer identical-content deduplication, preserve relative source locations, and produce a searchable batch overview plus JSON manifest. B/Escape/Ctrl+C cancels while retaining completed reports. **O** opens completed reports and **F** opens their folder. **R** paginates all saved summaries and batch overviews; the terminal keeps **C/F/R/A** shortcuts visible beneath the scrollable home. Physical lines, records and recognized records are reported separately. Supported structured inputs and detection limits are listed in [compatibility](docs/COMPATIBILITY.md).
+
+### Audited terminal build and next release
+
+The terminal/report fixes at commit `3fa654012458ca91e38ca40dd31e25d016dec70a` passed 515 tests and all seven CI workflows. The D browser dashboard was removed; terminal panels remain. Windows native collection and report opening were also exercised by the owner. See [installation](docs/INSTALL.md), [final audit](docs/FINAL_AUDIT.md), and [prepared v2.1.4 release notes](docs/RELEASE_V2.1.4.md). This development artifact still reports 2.1.3; v2.1.4 has not been published.
