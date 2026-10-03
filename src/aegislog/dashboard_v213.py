@@ -13,7 +13,6 @@ from .dashboard import DashboardData, analyze_dashboard
 from .terminal_charts import DistributionChart, ActivityChart, Gauge, minute_activity
 from .theme import SURFACE, ACCENT, ACCENT_SOFT, INCIDENT, MUTED, NEUTRAL, SUCCESS, severity_style
 
-_MAX_WIDTH = 144
 _SEVERITY_RANK = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1, "INFO": 0}
 
 
@@ -27,7 +26,7 @@ def _risk(data: DashboardData) -> str:
     for name in ("CRITICAL", "HIGH", "MEDIUM", "LOW"):
         if name in severities:
             return "REVIEW" if name == "MEDIUM" else name
-    return "NO MATCHES"
+    return "INFORMATIONAL" if "INFO" in severities else "NO MATCHES"
 
 
 def _header(data: DashboardData, width: int) -> Panel:
@@ -56,12 +55,14 @@ def _metrics(data: DashboardData) -> Text:
 
 
 def _source_block(data: DashboardData) -> Panel:
-    source_name = Path(data.source).name or data.source
+    source_name = data.source_label or Path(data.source).name or data.source
     grid = Table.grid(expand=True, padding=(0, 1))
     grid.add_column(width=9, no_wrap=True)
     grid.add_column(ratio=1, overflow="fold")
     grid.add_row(Text("SOURCE", style=f"bold {ACCENT}"), Text(source_name, style=NEUTRAL))
     grid.add_row(Text("PATH", style=MUTED), Text(data.source, style=MUTED, overflow="fold"))
+    if data.collection_scope:
+        grid.add_row(Text("SCOPE", style=MUTED), Text(data.collection_scope, style=MUTED))
     grid.add_row(Text("METRICS", style=MUTED), _metrics(data))
     if data.record_count is not None:
         grid.add_row(Text("COVERAGE", style=MUTED), Text(f"{data.lines} physical lines / {data.recognized_records}/{data.records} recognized records / {data.coverage_status}", style=MUTED))
@@ -69,16 +70,19 @@ def _source_block(data: DashboardData) -> Panel:
 
 
 def _top_findings(data: DashboardData, limit: int = 3) -> Panel:
-    ordered = sorted(data.findings, key=lambda item: (-_rank(item.severity), item.category, item.title))
+    from .reporting import _finding_groups
+    ordered = _finding_groups(data)
     body: list[RenderableType] = []
     if not ordered:
         body.append(Text("No rule-backed findings retained.", style=SUCCESS))
-    for index, item in enumerate(ordered[:limit]):
+    for index, (_, members) in enumerate(ordered[:limit]):
+        item = members[0][1]
         if index:
             body.append(Text(""))
         line = Text()
         line.append(f"[{item.severity}] ", style=f"bold {severity_style(item.severity)}")
         line.append(item.title, style=f"bold {NEUTRAL}")
+        line.append(f" / {len(members)} occurrence(s)", style=MUTED)
         evidence = " ".join(item.evidence.split())
         if len(evidence) > 110:
             evidence = evidence[:107].rstrip() + "..."
@@ -86,7 +90,7 @@ def _top_findings(data: DashboardData, limit: int = 3) -> Panel:
         line.append(evidence, style=MUTED)
         body.append(line)
     if len(ordered) > limit:
-        body.append(Text(f"\n+ {len(ordered) - limit} more finding(s) in the local HTML report.", style=MUTED))
+        body.append(Text(f"\n+ {len(ordered) - limit} more finding group(s) in the local HTML report.", style=MUTED))
     return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*body), title=Text(" TOP FINDINGS ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(0, 1))
 
 
@@ -96,7 +100,7 @@ def _analyst_focus(data: DashboardData) -> Panel:
     grid = Table.grid(expand=True, padding=(0, 1))
     grid.add_column(width=9, no_wrap=True)
     grid.add_column(ratio=1, overflow="fold")
-    if incidents:
+    if incidents and _rank(incidents[0].severity) > 0:
         item = incidents[0]
         incident_id = f"INC-{item.id.upper()[:8]}"
         primary = Text(incident_id, style=f"bold {INCIDENT}")
@@ -124,7 +128,7 @@ def _next(data: DashboardData) -> Panel:
 
 
 def render_dashboard(data: DashboardData, *, screen_width: int | None = None) -> RenderableType:
-    width = min(max(1, screen_width or 100), _MAX_WIDTH)
+    width = max(1, (screen_width or 100) - 2)
     body: list[RenderableType] = [_header(data, width), Text(""), _source_block(data), Text("")]
     activity = minute_activity((event.raw for event in data.events) if data.events else data.raw_lines, data.timestamp_year_hint)
     charts = [DistributionChart("SEVERITY DISTRIBUTION", data.severities, semantic=True), DistributionChart("SERVICE ACTIVITY", data.services)]
@@ -136,7 +140,7 @@ def render_dashboard(data: DashboardData, *, screen_width: int | None = None) ->
         body.extend((chart_row, Text("")))
     else:
         body.extend((charts[0], Text(""), charts[1], Text("")))
-    body.append(Gauge("ELEVATED FINDING SHARE", sum(_rank(item.severity) >= 2 for item in data.findings), len(data.findings), style=severity_style("HIGH")))
+    body.append(Gauge("MEDIUM+ FINDING SHARE / NOT A COMPROMISE SCORE", sum(_rank(item.severity) >= 2 for item in data.findings), len(data.findings), style=severity_style("HIGH")))
     if activity:
         body.extend((ActivityChart(activity), Text("")))
     if width >= 104:

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+from copy import copy
 from pathlib import Path
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import replace
 
 import typer
 from rich import box
@@ -16,6 +20,17 @@ from .theme import ACCENT, ACCENT_SOFT, MUTED, SUCCESS, WARNING
 from .ui import bounded
 
 console = Console()
+last_report: Path | None = None
+_snapshot_context = ContextVar("snapshot_context", default=("", ""))
+
+
+@contextmanager
+def native_snapshot_context(label, scope):
+    token = _snapshot_context.set((label, scope))
+    try:
+        yield
+    finally:
+        _snapshot_context.reset(token)
 
 
 def _analysis_complete_line(data: DashboardData) -> Text:
@@ -31,6 +46,13 @@ def _analysis_complete_line(data: DashboardData) -> Text:
     return line
 
 
+class _ReportReadyPanel(Panel):
+    def __rich_console__(self, console, options):
+        panel = copy(self)
+        panel.width = max(1, options.max_width - 2)
+        yield from Panel.__rich_console__(panel, console, options)
+
+
 def _report_ready_panel(report_path: Path) -> Panel:
     """Render a concise, Windows-safe handoff after report generation."""
     body = Text()
@@ -40,7 +62,7 @@ def _report_ready_panel(report_path: Path) -> Panel:
     body.append("Generated locally / source unchanged", style=SUCCESS)
     body.append("\nNEXT      ", style=MUTED)
     body.append("Open in a browser for the complete evidence, timeline, and printable report.", style="white")
-    return Panel(
+    return _ReportReadyPanel(
         body,
         title=Text(" REPORT READY ", style=f"bold {SUCCESS}"),
         title_align="left",
@@ -62,6 +84,8 @@ def dashboard(
     ),
 ) -> None:
     """Open the compact terminal investigation summary for one log file."""
+    global last_report
+    last_report = None
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -70,6 +94,8 @@ def dashboard(
     ) as progress:
         task = progress.add_task(f"Analyzing {path.name}...", total=None)
         data = analyze_dashboard(path, timestamp_year_hint=timestamp_year)
+        label, scope = _snapshot_context.get()
+        data = replace(data, source_label=label, collection_scope=scope)
         progress.update(task, description="Building investigation summary...")
     console.print(_analysis_complete_line(data))
     console.print()
@@ -80,6 +106,7 @@ def dashboard(
         console.print(Text(f"Report could not be written: {exc}", style=WARNING))
     else:
         console.print()
+        last_report = report_path
         console.print(_report_ready_panel(report_path))
 
 

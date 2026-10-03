@@ -235,6 +235,9 @@ class _HomeViewport:
 
 
 def _read_home_choice() -> str:
+    if legacy.console.is_terminal:
+        # Clear the restored main buffer before entering the alternate home screen.
+        legacy.console.clear()
     with KeyboardReader() as keys:
         if not keys.enabled or not legacy.console.is_terminal:
             legacy.console.print(_home(legacy.console.size.width))

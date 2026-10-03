@@ -11,6 +11,7 @@ WINDOWS_SECURITY_EVENT = re.compile(
 )
 
 FIELD_PATTERNS = {
+    "subject_sid": (re.compile(r"\b(?:Security ID|SubjectUserSid):\s*(?P<value>S-\d+(?:-\d+)+)\b", re.I),),
     "account": (
         re.compile(r"\bAccount Name:\s*(?P<value>[^\s]+)", re.IGNORECASE),
         re.compile(r"\bTarget User Name:\s*(?P<value>[^\s]+)", re.IGNORECASE),
@@ -39,6 +40,7 @@ class WindowsSecurityEvent:
     source_ip: str | None = None
     workstation: str | None = None
     process: str | None = None
+    subject_sid: str | None = None
 
 
 @dataclass(frozen=True)
@@ -109,6 +111,7 @@ def parse_windows_security_line(line: str) -> WindowsSecurityEvent | None:
         source_ip=_field(message, "source_ip"),
         workstation=_field(message, "workstation"),
         process=_field(message, "process"),
+        subject_sid=(_field(message, "subject_sid") or "").upper() or None,
     )
 
 
@@ -117,7 +120,13 @@ def signal_for_event(event: WindowsSecurityEvent) -> SecuritySignal | None:
     if context is None:
         return None
     severity, category, title, recommendation = context
+    if event.event_id == 4672 and event.subject_sid in {"S-1-5-18", "S-1-5-19", "S-1-5-20"}:
+        severity = "INFO"
+        title = "Built-in service account privileged logon"
+        recommendation = "Retained baseline evidence for a built-in service SID. Review unexpected privileges and related logon/process activity; this event alone does not indicate compromise."
     parts = [f"Event ID {event.event_id}"]
+    if event.subject_sid:
+        parts.append(f"subject_sid={event.subject_sid}")
     if event.account:
         parts.append(f"account={event.account}")
     if event.source_ip:

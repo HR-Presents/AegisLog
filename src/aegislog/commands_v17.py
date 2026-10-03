@@ -8,7 +8,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 
-from .commands_v11 import dashboard
+from .commands_v11 import dashboard, native_snapshot_context
 from .native_collectors import CollectorError, collect, source_status
 from .native_diagnostics import failure_guidance, source_state
 from .theme import ACCENT, MUTED, SUCCESS, WARNING
@@ -48,7 +48,8 @@ def _dashboard_lines(lines: list[str], source: str) -> None:
             path = Path(handle.name)
         # Direct Python calls to Typer-decorated commands must pass concrete
         # defaults; otherwise Typer's OptionInfo object can leak into analysis.
-        dashboard(path, timestamp_year=None)
+        with native_snapshot_context(source, f"Bounded read-only snapshot: {len(lines):,} collected events; a count cap can exclude older events."):
+            dashboard(path, timestamp_year=None)
     finally:
         if path is not None:
             path.unlink(missing_ok=True)
@@ -75,4 +76,5 @@ def native_analyze(
     message.append(source, style=ACCENT)
     message.append(". Analyzing locally...", style=MUTED)
     console.print(message)
-    _dashboard_lines(lines, source)
+    label = f"Windows {channel} channel" if source == "windows" else f"Docker container {container}" if source == "docker" else "Linux journald"
+    _dashboard_lines(lines, label)
