@@ -8,7 +8,7 @@ Welcome to the AegisLog documentation hub. Start with the user guide for the com
 
 | Goal | Guide |
 |---|---|
-| Current release / upgrade | [v2.1.6 notes](RELEASE_V2.1.6.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
+| Current release / upgrade | [v2.1.7 notes](RELEASE_V2.1.7.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
 | Proposed improvements | [Roadmap](ROADMAP.md) |
 | Install AegisLog | [Installation](INSTALL.md) |
 | Run your first analysis | [Quick Start](QUICKSTART.md) |
@@ -65,9 +65,9 @@ Public screenshots should come from a verified build and sanitized or synthetic 
 
 ## Release status
 
-- **Published stable:** [v2.1.6 release notes](RELEASE_V2.1.6.md)
+- **Published stable:** [v2.1.7 release notes](RELEASE_V2.1.7.md)
 - **Build commit:** `e7af0798c731720690f298c093deec74f42fa56a`
-- **Downloads and matching checksums:** [v2.1.6 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.6)
+- **Downloads and matching checksums:** [v2.1.7 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.7)
 - **Upgrade:** [Installation](INSTALL.md#upgrade-and-verify) / [Upgrading](UPGRADING.md)
 - **History:** [Changelog](../CHANGELOG.md)
 
