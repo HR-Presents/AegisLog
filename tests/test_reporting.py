@@ -291,3 +291,12 @@ def test_full_evidence_groups_repeated_recommendations_without_losing_references
         assert f'id="finding-{index:03d}"' in findings_html
     assert 'href="summary.html">Back / Print Summary' in html
     assert 'Print Full Evidence / Save PDF' in html
+
+
+def test_body_text_is_larger_without_resizing_headings():
+    from aegislog.reporting import build_summary_report
+    for html in [build_html_report(_data()), build_summary_report(_data(), 'appendix.html')]:
+        assert 'font-size:16px!important;line-height:1.65' in html
+        assert 'font-size:13px!important;line-height:1.6' in html
+        assert 'h1{font-size:38px' in html
+        assert 'h2{font-size:23px' in html

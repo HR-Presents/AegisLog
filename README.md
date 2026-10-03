@@ -73,6 +73,17 @@ Public product screenshots should come from a verified build and should not be p
 
 The interactive shell uses the authoritative `aegis@console >` prompt. Windows SmartScreen or endpoint-security reputation warnings may appear because the executable is unsigned, even when the published checksum matches.
 
+### Install a terminal command
+
+With Python 3.10+ and pipx installed:
+
+```bash
+pipx install "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/codex/report-print-quality.zip"
+aegislog start
+```
+
+This installs the report-update review branch. Choose **04 Native logs** or **05 Native monitor** to use supported system telemetry without a supplied demo file. Press **Q** to return to your existing terminal. See [installation instructions](docs/INSTALL.md) for Windows pipx setup and uninstalling.
+
 ### Python 3.10+
 
 ```bash

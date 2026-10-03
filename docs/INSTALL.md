@@ -20,20 +20,50 @@ Get-Content .\AegisLog.exe.sha256
 
 Compare the two SHA-256 values exactly. Always use the checksum published beside the same release asset you downloaded. See [v1.6.0 release notes](RELEASE_V1.6.0.md) for stable-release details.
 
-## Python source installation
+## Install as a terminal command
 
-AegisLog requires Python 3.10 or newer when installed from source.
+AegisLog runs inside your existing PowerShell, Command Prompt, or Linux/macOS terminal. It does not replace your shell.
 
-### Recommended: pipx
+Requires Python 3.10+ and pipx. No Git checkout or supplied demo log is required for this installation route.
 
-```bash
-git clone https://github.com/HR-Presents/AegisLog-AI.git
-cd AegisLog-AI
-pipx install .
-aegislog doctor
+### Windows: prepare pipx once
+
+```powershell
+py -m pip install --user pipx
+py -m pipx ensurepath
 ```
 
-### Development installation
+Close and reopen the terminal after `ensurepath` so Windows loads the updated PATH.
+
+### Install this report-update build
+
+```powershell
+pipx install "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/codex/report-print-quality.zip"
+```
+
+This URL installs the current review branch. For a released version, use a published release tag or commit after release verification.
+
+### Start, use, and exit
+
+```powershell
+aegislog start
+```
+
+Choose **04 Native logs** to investigate your computer's supported telemetry without supplying a log file, or **05 Native monitor** to watch it. File analysis is also available when you have a log to investigate.
+
+Press **Q** to exit AegisLog and return to your normal terminal prompt. The installed command stays available; run `aegislog start` whenever you need it again.
+
+Check the installation with `aegislog --version` and `aegislog doctor`.
+
+Remove it with:
+
+```powershell
+pipx uninstall aegislog-ai
+```
+
+On Linux/macOS, install pipx using its documented platform instructions, then use the same `pipx install` and `aegislog` commands.
+
+## Development installation
 
 ```bash
 python -m venv .venv
@@ -44,14 +74,4 @@ pytest
 
 On Windows PowerShell activate with `.venv\Scripts\Activate.ps1`.
 
-The repository also includes `install.sh` and `install.ps1` helpers for source checkouts.
-
-## Optional AI providers
-
-Core analysis does not require an AI provider. The current `main` branch exposes optional AI Analyst support through Mission Control and `aegislog ai-analyst FILE`.
-
-- Local mode requires no model or network access.
-- Ollama uses a local provider endpoint.
-- OpenAI-compatible remote AI requires explicit opt-in before any provider request.
-
-See [AI Providers](AI_PROVIDERS.md) and [Remote AI](REMOTE_AI.md) for setup and privacy boundaries.
+The repository also includes `install.sh` and `install.ps1` helpers for source checkouts. Core processing is local, read-only and deterministic; no AI provider is required.
