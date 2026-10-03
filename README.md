@@ -6,7 +6,7 @@
 
 **Defensive Log Investigation & Evidence Analysis Platform**
 
-**Local-First · Read-Only · Deterministic · Evidence-Driven · Explainable**
+**LOCAL-FIRST · READ-ONLY · DETERMINISTIC · EVIDENCE-DRIVEN · EXPLAINABLE**
 
 [![CI](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/ci.yml)
 [![Security](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/security.yml/badge.svg)](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/security.yml)
@@ -72,7 +72,7 @@ Source sizes, retained excerpts, truncation, and collection limits affect the ev
 >
 > Severity, confidence, incident grouping, and rarity help prioritize review. They do not independently prove an attack, attribution, or a shared root cause.
 
-## Core Capabilities
+## Core capabilities
 
 | Area | AegisLog v2.1.6 |
 |---|---|
@@ -249,10 +249,10 @@ At `aegis@console >`, select a workflow or type a supported command.
 
 | Choice | Workflow |
 |---|---|
-| 01 | Analyze a log file or the built-in demo |
-| 02 / 03 | Live file / multi-source monitoring |
+| 01 | **ANALYZE** a log file or the built-in demo |
+| 02 / 03 | **LIVE MONITOR** / multi-source monitoring |
 | 04 / 05 | Native snapshot / native monitoring |
-| 06 | Review incident evidence |
+| 06 | **INCIDENTS**: review incident evidence |
 | 07 / P | Demo / recorded replay |
 | 08 / 09 | Health / command help |
 | C / F | Guided computer check / folder scan |
@@ -407,7 +407,7 @@ AegisLog is released under the [MIT License](LICENSE).
 
 **AegisLog v2.1.6**
 
-**Local-First · Read-Only · Deterministic · Evidence-Driven · Explainable**
+**LOCAL-FIRST · READ-ONLY · DETERMINISTIC · EVIDENCE-DRIVEN · EXPLAINABLE**
 
 Defensive Log Investigation · Native Telemetry · Monitoring · Evidence Reports
 
