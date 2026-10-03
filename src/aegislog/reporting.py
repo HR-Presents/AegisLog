@@ -150,6 +150,8 @@ _READING_LAYOUT_STYLE = """
 .report .metric.danger strong,.report .metric.warning strong,.report .metric.good strong{font-size:16px}
 .report .section{padding:14px 0;margin-bottom:10px;break-inside:auto}
 .report .section-head{break-after:avoid;margin-bottom:10px}
+.report:not(.summary) #findings{break-before:page}
+.report #source{break-inside:avoid}
 .report .section-head h2{font-size:19px}
 .report .content .section-note{font-size:12px!important}
 .report .summary-header{grid-template-columns:110px minmax(0,1fr)}
