@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.7 — 2026-10-03 (release preparation)
+
+- Fit terminal home actions into common laptop-sized viewports while retaining the original branding.
+- Add optional G Beginner synthetic investigation and report-opening walkthrough.
+- Use the approved terminal-mark PNG in README and offline reports, with packaged image data.
+- Expand the README project overview and workflow diagrams.
+
+
 ## Unreleased
 
 - No unreleased changes yet.
