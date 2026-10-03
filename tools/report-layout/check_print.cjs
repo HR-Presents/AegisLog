@@ -22,6 +22,12 @@ const path = require('path');
   await page.emulateMedia({media:'screen'});
   await page.getByRole('link',{name:'Print complete report / Save PDF'}).click();
   if (!page.url().includes('-appendix.html?print=1')) throw Error('Complete print action failed');
+  await page.waitForLoadState('load');
+  await page.getByRole('heading', {name:'Security Investigation Report', exact:true}).waitFor({state:'visible'});
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all([...document.images].map(img => img.decode()));
+  });
   await page.emulateMedia({media:'print'});
   await page.pdf({path:'report-layout-qa/demo-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
   await browser.close();
