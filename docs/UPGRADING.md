@@ -1,21 +1,15 @@
 # Install, upgrade, and uninstall
 
-Use an isolated `pipx` environment for normal terminal use.
+Use the published release wheel in an isolated pipx environment; see [installation](INSTALL.md#upgrade-and-verify) for setup and standalone executable upgrades.
 
-```bash
-pipx install aegislog-ai
-pipx upgrade aegislog-ai
-pipx uninstall aegislog-ai
+```cmd
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.6/aegislog_ai-2.1.6-py3-none-any.whl"
+aegislog --version
+python -m pipx uninstall aegislog-ai
 ```
 
-Until the first public package is published, replace the package name in the
-install command with the checked-out release directory.
+Do not assume the PyPI package name resolves to this release. Verify 2.1.6 after installation. Exit AegisLog before upgrading, then regenerate reports to use the updated layout. Preserve old reports and original sources as needed.
 
-Configuration, declarative rules, and the SQLite investigation database remain in
-`~/.config/aegislog` across upgrades and uninstall. Back up that directory before
-major upgrades. Remove it manually only when you intentionally want to erase all
-local AegisLog state.
+Configuration, declarative rules, and investigation state are separate from the installed executable/package. Back up your configured state directory before major upgrades; uninstalling the package is not a request to delete local evidence. Inspect `aegislog doctor` for the configuration location. Do not erase it unless you intentionally want to remove local state.
 
-V1 reads legacy unversioned configuration as schema version 0, retains recognized
-fields, and writes schema version 1 on the next `aegislog config` operation. Future
-unknown schemas fail closed to local-only defaults.
+The standalone executable does not update itself. Download the new copy and its matching checksum from the same release, verify the hash and run that copy. The executable is unsigned; checksums and build provenance are separate from publisher signing.

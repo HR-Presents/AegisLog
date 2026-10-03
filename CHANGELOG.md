@@ -4,6 +4,15 @@
 
 - No unreleased changes yet.
 
+## 2.1.6 - 2026-10-03
+
+- Published Windows ZIP/EXE and Python distributions with checksums.
+- Clarified summary-only and complete-report printing; labeled built-in synthetic demo data and unresolved timestamps.
+- Improved print metrics, dark readable body text and section pagination.
+- Included folder overview/deduplication coverage, grouped findings, native labels, responsive panels and current-report actions from the preceding patch work.
+- Kept the D browser dashboard removed and terminal investigation panels available.
+- Retained the unsigned Windows disclosure and synthetic-evaluation limitations.
+
 ## 2.1.3 - 2026-09-11
 
 - Replaced the generic Shield-A terminal mark with the approved front-facing Falcon identity based on real Windows acceptance feedback.

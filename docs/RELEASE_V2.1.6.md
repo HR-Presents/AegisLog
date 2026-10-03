@@ -11,4 +11,4 @@ This patch includes the latest report export and interpretation fixes.
 
 Regenerate existing reports after upgrading. Disable browser Headers and footers when saving PDFs to remove browser-added local file paths. Full evidence refers to retained derived evidence; preserve original telemetry separately. Synthetic regression evidence does not establish real-world detection accuracy. The user reported completing the Windows workflow checks; automated checks additionally validate commands and native System collection.
 
-The Windows executable is unsigned. Build provenance is separate from Authenticode signing. This workflow prepares a draft release with fresh checksums and preserves earlier releases.
+The Windows executable is unsigned. Build provenance is separate from Authenticode signing. v2.1.6 is published with fresh checksums and preserves earlier releases. Upgrade using the published wheel or replace the standalone executable; see [installation and upgrade instructions](INSTALL.md#upgrade-and-verify).

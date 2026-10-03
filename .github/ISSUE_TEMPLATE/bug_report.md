@@ -7,12 +7,13 @@ labels: bug
 
 ## AegisLog version or build
 
-Examples: `v1.6.0` or a commit SHA from `main`.
+Paste `aegislog --version` (current release: v2.1.6) and the exact release/commit used.
 
 ## Installation type
 
 - [ ] Windows `AegisLog.exe`
-- [ ] Python package / development install
+- [ ] pipx published wheel
+- [ ] Python source / development install
 - [ ] Other
 
 ## Environment
@@ -30,6 +31,10 @@ Paste the command or describe the menu option used. Remove secrets and private d
 ## Coverage and source status
 
 If relevant, include the source label, access status, selected window/event cap and retention note. Remove personal identifiers.
+
+## Diagnostics and report export
+
+Include sanitized `aegislog doctor` output where useful. For PDF issues: browser/version, Summary or Full Evidence action, A4/scale, Headers and footers setting, and a sanitized screenshot. State whether the source is real or synthetic. Never upload private evidence.
 
 ## Expected behavior
 

@@ -8,6 +8,8 @@ Welcome to the AegisLog documentation hub. Start with the user guide for the com
 
 | Goal | Guide |
 |---|---|
+| Current release / upgrade | [v2.1.6 notes](RELEASE_V2.1.6.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
+| Proposed improvements | [Roadmap](ROADMAP.md) |
 | Install AegisLog | [Installation](INSTALL.md) |
 | Run your first analysis | [Quick Start](QUICKSTART.md) |
 | Learn the complete workflow | [User Guide](USER_GUIDE.md) |
@@ -63,14 +65,13 @@ Public screenshots should come from a verified build and sanitized or synthetic 
 
 ## Release status
 
-- **Published stable:** [v2.1.3 release notes](RELEASE_V2.1.3.md)
-- **Release target commit:** `c01247b34a2dd54c863dd142c618f03e184af8f8`
-- **Windows EXE SHA-256:** `1ddda99e03fd36ba1816b1567a28b8cc23d410583f34771c1287f9e3c1a28155`
-- **Release history:** see the repository [CHANGELOG](../CHANGELOG.md) and [GitHub Releases](https://github.com/HR-Presents/AegisLog-AI/releases)
-- [Upgrading](UPGRADING.md)
-- [Latest GitHub release](https://github.com/HR-Presents/AegisLog-AI/releases/latest)
+- **Published stable:** [v2.1.6 release notes](RELEASE_V2.1.6.md)
+- **Build commit:** `e7af0798c731720690f298c093deec74f42fa56a`
+- **Downloads and matching checksums:** [v2.1.6 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.6)
+- **Upgrade:** [Installation](INSTALL.md#upgrade-and-verify) / [Upgrading](UPGRADING.md)
+- **History:** [Changelog](../CHANGELOG.md)
 
-The published v2.1.3 Windows UI did not pass later real-Windows visual acceptance, so no newer UI state should be described as accepted merely because a development build or CI render exists. Official customer downloads remain GitHub Release assets; CI artifacts are validation outputs rather than the permanent distribution channel.
+The Windows executable is unsigned. CI artifacts are validation outputs; published release assets are the customer distribution channel.
 
 ## Contributing
 
