@@ -336,6 +336,8 @@ At `aegis@console >`, select a workflow or type a supported command.
 | G | Optional beginner walkthrough with synthetic demo |
 | B / Q | Back / Quit |
 
+The G beginner walkthrough is available in the latest source; it is not included in the published v2.1.6 download.
+
 The D browser dashboard is removed. Terminal investigation panels remain; the CLI `dashboard` command renders a terminal investigation.
 
 ### Common Commands
