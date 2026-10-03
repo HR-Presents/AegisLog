@@ -246,9 +246,9 @@ def _fitted_home(screen_width: int, screen_height: int) -> RenderableType:
         menu.add_column(width=right)
         menu.add_row(Group(primary, monitoring, info), Text(""), Group(status, utility))
     else:
-        rows = [("01", "ANALYZE LOG"), *[(key, label) for key, label, _ in tools], *utilities,
-                ("S", "SECURITY WORKBENCH"), ("P", "REPLAY")]
-        menu = panel("COMMAND CENTER", [Text(f"[{key}] {label}", style=NEUTRAL) for key, label in rows], width)
+        rows = [("01", "ANALYZE LOG"), *[(key, label) for key, label, _ in tools], *utilities]
+        menu = panel("COMMAND CENTER", [*[Text(f"[{key}] {label}", style=NEUTRAL) for key, label in rows],
+                                        Text("[S] Workbench / [P] Replay", style=NEUTRAL)], width)
     introduction = Text("Investigate logs locally. Read-only sources; findings need review.", style=MUTED)
     return Align.center(Group(header, introduction, menu, _footer(screen_width)), width=_screen_width(screen_width), pad=False)
 
