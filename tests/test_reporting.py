@@ -300,3 +300,24 @@ def test_body_text_is_larger_without_resizing_headings():
         assert 'font-size:13px!important;line-height:1.6' in html
         assert 'h1{font-size:38px' in html
         assert 'h2{font-size:23px' in html
+
+
+def test_demo_context_and_timestamp_limits_are_explicit(tmp_path):
+    from aegislog.commands_v12 import _DEMO_LOG
+    from aegislog.dashboard import analyze_dashboard
+    from aegislog.reporting import build_summary_report
+    source = tmp_path / "arbitrary-name.log"
+    source.write_text(_DEMO_LOG)
+    data = analyze_dashboard(source)
+    for html in (build_html_report(data), build_summary_report(data, "full.html")):
+        assert "SYNTHETIC DEMO DATA" in html
+        assert "does not guess" in html
+        assert "Event-order correlation does not establish elapsed time" in html
+    summary = build_summary_report(data, "full.html")
+    assert "SUMMARY ONLY" in summary
+    assert 'href="full.html?print=1"' in summary
+    assert "break-before:page" not in summary
+    source.write_text("2026-10-03T12:00:00Z INFO app: real input")
+    real = analyze_dashboard(source)
+    assert "SYNTHETIC DEMO DATA" not in build_html_report(real)
+    assert "Timestamp limitations:" not in build_html_report(real)
