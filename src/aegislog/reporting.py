@@ -53,7 +53,7 @@ _SUMMARY_OPENING_STYLE = """
 .summary-header{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:center;gap:24px}
 .summary .summary-header .brandline{margin:0}
 .summary .summary-header .aegislog-report-logo{width:150px}
-.summary .summary-header .brand-sub{font-size:9px;letter-spacing:.1em;margin-top:6px}
+.summary .summary-header .brand-sub{font-size:9px;letter-spacing:.02em;margin-top:6px;white-space:nowrap}
 .summary .summary-header h1{margin:0 0 8px;font-size:32px;line-height:1.15}
 .summary-kicker{font-size:11px;font-weight:700;letter-spacing:.12em;color:#245ea8;margin:0 0 8px}
 .summary-status{font-size:12px;color:#47658a;margin:0}
@@ -71,6 +71,7 @@ _SUMMARY_OPENING_STYLE = """
 .summary-header{grid-template-columns:110px minmax(0,1fr);gap:20px}
 .summary .summary-header .aegislog-report-logo{width:110px}
 .summary .summary-header h1{font-size:28px}
+.summary .summary-header .brand-sub{font-size:7.5px}
 .summary-kicker,.summary-status,.summary-demo-label{font-size:10px}
 .summary-meta{grid-template-columns:1.2fr 1fr 1.2fr;gap:12px;margin:12px 0 0;padding-top:8px}
 .summary-meta dd{font-size:11px}.summary-meta dt{font-size:9px}
