@@ -204,8 +204,8 @@ _EDITORIAL_STYLE = """
 .report.summary .summary-finding{grid-template-columns:42px minmax(0,1fr);gap:12px;padding:14px 0;break-inside:avoid}
 .report.summary .finding-content .record-head strong{font-size:16px!important}
 .report.summary .finding-content .record-meta{font-size:10px!important}
-.report.summary .finding-content .evidence{font-size:11px!important;line-height:1.5;padding:8px 10px;margin:4px 0 8px}
-.report.summary .finding-content .action-text{font-size:12px!important;line-height:1.5}
+.report.summary .finding-content .evidence{font-size:12px!important;line-height:1.5;padding:8px 10px;margin:4px 0 8px}
+.report.summary .finding-content .action-text{font-size:13px!important;line-height:1.5}
 .report.summary .finding-content .cell-label{font-size:9px!important;margin-top:8px}
 .report.summary .summary-notes{padding:12px 0}
 .report.summary .summary-notes .context-notice,.report.summary #scope p{font-size:10px!important;line-height:1.5}
@@ -285,7 +285,7 @@ def _assessment(data: DashboardData, risk: str) -> str:
     if risk == "CRITICAL":
         return "Critical findings need prompt review. Check the evidence against the original logs and the affected system before taking action."
     if risk == "HIGH":
-        return "High-severity findings need review. Verify the activity and affected accounts before deciding whether to escalate."
+        return "High-severity findings need review. Verify the activity on the affected system before deciding whether to escalate."
     if risk == "REVIEW":
         return "Review the medium-severity findings. Check the affected component and surrounding logs before escalating."
     return "No elevated rule-backed findings were recorded in this input. Limited coverage means this is not a clean-system verdict."

@@ -196,7 +196,8 @@ def test_empty_report_has_clear_empty_states() -> None:
     assert "No correlated incidents were recorded." in html
     assert "No rule-backed findings were recorded." in html
     assert "No rare concerning event classes were recorded." in html
-    assert "No critical, high, or medium rule-backed findings were retained" in html
+    assert "No elevated rule-backed findings were recorded in this input" in html
+    assert "not a clean-system verdict" in html
     assert "No elevated rule-backed finding requires immediate action" in html
 
 
