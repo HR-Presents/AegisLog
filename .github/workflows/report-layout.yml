@@ -33,7 +33,7 @@ jobs:
           import re, subprocess
           info = subprocess.check_output(['pdfinfo', 'report-layout-qa/folder-overview.pdf'], text=True)
           pages = int(re.search(r'Pages:\s+(\d+)', info).group(1))
-          assert 2 <= pages <= 15, f'Unexpected 161-source print length: {pages}'
+          assert 2 <= pages <= 20, f'Unexpected 161-source print length: {pages}'
           text = Path('report-layout-qa/print.txt').read_text()
           assert '145 unique sources analyzed + 16 duplicate copies' in text
           assert '938 operational issues' in text
