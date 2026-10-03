@@ -106,6 +106,9 @@ _READING_LAYOUT_STYLE = """
 .report .telemetry-card{margin:0}
 .report .summary-header{grid-template-columns:120px minmax(0,1fr);gap:22px}
 .report .summary-header .aegislog-report-logo{width:120px}
+.report .summary-header .brand-sub{white-space:normal;font-size:8px;line-height:1.4;letter-spacing:.01em;text-align:center}
+.report .content .section-note{font-size:14px!important;line-height:1.5;max-width:none}
+.report #executive p{margin-top:8px;margin-bottom:8px}
 .report .summary-header h1{font-size:30px;margin-bottom:6px}
 .report .summary-meta{margin:12px 0 0;padding-top:10px}
 .report .summary-finding{padding:18px 0}
@@ -124,6 +127,7 @@ _READING_LAYOUT_STYLE = """
 .report .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
 .report .executive-grid,.report .telemetry-grid{grid-template-columns:1fr}
 .report .summary-chart-grid{grid-template-columns:1fr}
+.report.summary #incidents table{min-width:520px}
 }
 @media screen and (max-width:480px){
 .report{width:calc(100% - 28px);margin:16px auto}
@@ -145,6 +149,7 @@ _READING_LAYOUT_STYLE = """
 .report .section{padding:14px 0;margin-bottom:10px;break-inside:auto}
 .report .section-head{break-after:avoid;margin-bottom:10px}
 .report .section-head h2{font-size:19px}
+.report .content .section-note{font-size:12px!important}
 .report .summary-header{grid-template-columns:110px minmax(0,1fr)}
 .report .summary-header .aegislog-report-logo{width:110px}
 .report .summary-header h1{font-size:26px}
@@ -406,7 +411,7 @@ def build_html_report(data: DashboardData, summary_href: str | None = None) -> s
     summary_link = (f'<a class="report-button" href="{escape(summary_href)}">Back / Print Summary</a>'
                     if summary_href else '<a href="#executive">Back to overview</a>')
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Report - {escape(source_name)}</title><style>{_REPORT_STYLE}{_BODY_TEXT_STYLE}{_READING_LAYOUT_STYLE}</style></head><body><main class="report">
-<header class="masthead" id="cover"><div class="brandline">{_summary_brand()}</div><h1>Security Investigation Report</h1><p class="subtitle">{escape(source_name)} · Full evidence · Investigation record</p><div class="cover-meta">Case ID: {escape(case_id)}<br>Generated: {generated}<br>LOCAL / READ-ONLY / DETERMINISTIC</div>{_report_context(data)}<div class="posture {_risk_class(risk)}"><small>Current posture</small><strong>{escape(risk)}</strong></div></header>
+<header class="masthead" id="cover"><div class="brandline">{_summary_brand()}</div><h1>Security Investigation Report</h1><p class="subtitle">{escape(source_name)} · Full evidence · Investigation record</p><div class="cover-meta">Case ID: {escape(case_id)}<br>Generated: {generated}<br>LOCAL / READ-ONLY / DETERMINISTIC</div>{'<p class="summary-demo-label">SYNTHETIC DEMO · not a finding about your computer</p>' if 'SYNTHETIC DEMO DATA' in _report_context(data) else ''}<div class="posture {_risk_class(risk)}"><small>Current posture</small><strong>{escape(risk)}</strong></div></header>
 
 <nav class="toolbar">{summary_link}<a href="#executive">Overview</a><a href="#incidents">Incidents</a><a href="#findings">Findings</a><a href="#telemetry">Telemetry</a><a href="#anomalies">Anomalies</a><a href="#method">Method</a><span class="spacer"></span><span class="local-note">DETERMINISTIC ANALYSIS</span><button type="button" onclick="window.print()">Print Full Evidence / Save PDF</button></nav>
 <p class="print-help">PDF export: use A4 and turn off browser Headers and footers in the print dialog to remove the local file URL. Background graphics are optional; charts and evidence remain readable.</p><div class="content"><section class="metrics">{_metric("Records processed", f"{data.records:,}")}{_metric("Findings", str(len(data.findings)))}{_metric("Incidents", str(len(data.incidents)))}{_metric("Disposition", _disposition(risk), _risk_class(risk))}</section>
@@ -416,7 +421,7 @@ def build_html_report(data: DashboardData, summary_href: str | None = None) -> s
 <section class="section" id="source"><div class="section-head"><h2>Investigation Information</h2></div><div class="case-strip"><div><small>Source</small><strong>{escape(source_name)}</strong></div><div><small>Case ID</small><strong>{escape(case_id)}</strong></div><div><small>Status</small><strong>Analysis complete</strong></div><div><small>Generated</small><strong>{generated}</strong></div><div><small>Processing</small><strong>LOCAL / READ-ONLY / DETERMINISTIC</strong></div></div></section>
 <section class="section" id="telemetry"><div class="section-head"><div><div class="section-label">Telemetry</div><h2>Observed Distribution</h2></div><div class="section-note">A compact view of the parsed source.</div></div><div class="telemetry-grid"><div class="telemetry-card"><h3>Categories</h3><div class="chips">{_telemetry_chips(data.categories)}</div></div><div class="telemetry-card"><h3>Log levels</h3><div class="chips">{_bar_chart(data.levels, "Log levels")}</div></div><div class="telemetry-card"><h3>Services</h3><div class="chips">{_bar_chart(data.services, "Service activity")}{_telemetry_chips(data.services)}</div></div></section>
 <section class="section" id="anomalies"><div class="section-head"><div><div class="section-label">Behavior</div><h2>Anomaly Signals</h2></div><div class="section-note">Rarity scores (0-100), not attack probability.</div></div><p class="caveat">Scores describe rare concerning event classes within this retained sample. A score of 100 does not mean 100% attack probability, severity, or confidence. No trained machine-learning model is used.</p><div class="table-wrap"><table><thead><tr><th>Rarity score / 100</th><th>Event class</th><th>Reason</th></tr></thead><tbody>{_anomaly_rows(data)}</tbody></table></div></section>
-<section class="section" id="method"><div class="section-head"><div><div class="section-label">Method and scope</div><h2>Analysis Profile</h2></div><div class="section-note">How the report was produced and how to interpret it.</div></div><div class="method-grid"><div class="method-card"><h3>Processing model</h3><p>AegisLog v{escape(__version__)} performed local deterministic detection, incident correlation, and anomaly scoring. The source was handled read-only.</p></div><div class="method-card"><h3>Evidence limitations</h3><p>{escape(data.collection_scope)} {escape(data.retention_note)} {escape(data.coverage_note)} This report contains retained derived evidence rather than a complete copy of the raw log. Missing detections do not prove malicious activity is absent. Preserve original telemetry when incident-response, retention, or chain-of-custody procedures require it.</p></div></div><div class="table-wrap" style="margin-top:14px"><table><tr><th>Source path</th><td>{escape(data.source)}</td></tr><tr><th>Source file</th><td>{escape(source_name)}</td></tr><tr><th>Physical lines</th><td>{data.lines:,}</td></tr><tr><th>AegisLog version</th><td>{escape(__version__)}</td></tr><tr><th>Generated</th><td>{generated}</td></tr><tr><th>Analysis model</th><td>Deterministic local processing</td></tr></table></div></section>
+<section class="section" id="method"><div class="section-head"><div><div class="section-label">Method and scope</div><h2>Analysis Profile</h2></div><div class="section-note">How the report was produced and how to interpret it.</div></div>{_report_context(data)}<div class="method-grid"><div class="method-card"><h3>Processing model</h3><p>AegisLog v{escape(__version__)} performed local deterministic detection, incident correlation, and anomaly scoring. The source was handled read-only.</p></div><div class="method-card"><h3>Evidence limitations</h3><p>{escape(data.collection_scope)} {escape(data.retention_note)} {escape(data.coverage_note)} This report contains retained derived evidence rather than a complete copy of the raw log. Missing detections do not prove malicious activity is absent. Preserve original telemetry when incident-response, retention, or chain-of-custody procedures require it.</p></div></div><div class="table-wrap" style="margin-top:14px"><table><tr><th>Source path</th><td>{escape(data.source)}</td></tr><tr><th>Source file</th><td>{escape(source_name)}</td></tr><tr><th>Physical lines</th><td>{data.lines:,}</td></tr><tr><th>AegisLog version</th><td>{escape(__version__)}</td></tr><tr><th>Generated</th><td>{generated}</td></tr><tr><th>Analysis model</th><td>Deterministic local processing</td></tr></table></div></section>
 <div class="footer">AEGISLOG v{escape(__version__)} · {escape(case_id)} · Defensive security analysis · Generated locally · Presented and maintained by HR-Presents</div></div></main><script>if(new URLSearchParams(location.search).get("print")==="1"){{window.addEventListener("load",()=>window.print());}}</script></body></html>'''
 
 
@@ -484,8 +489,8 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
         f'<td>{escape(item.title)}</td><td>{item.count}</td></tr>'
         for item in _ordered_incidents(data)[:5]
     )
-    incident_content = ('<table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
-                        + incident_rows + '</tbody></table>') if incident_rows else '<p>No correlated incidents were recorded.</p>'
+    incident_content = ('<div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
+                        + incident_rows + '</tbody></table></div>') if incident_rows else '<p>No correlated incidents were recorded.</p>'
     anomaly_content = "".join(f'<li><strong>{item.score:.1f}/100</strong> · {escape(item.key)}</li>'
                               for item in sorted(data.anomalies, key=lambda item: -item.score)[:3])
     risk = _risk(data)
