@@ -86,7 +86,7 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
         assert anchor in html
 
     assert 'class="telemetry-grid"' in html
-    assert 'aria-label="AegisLog shield and telemetry logo"' in html
+    assert 'aria-label="AegisLog terminal mark logo"' in html
     assert "#287bff" in html
     assert 'content="light"' in html
     assert 'body{margin:0;background:#fff;color:var(--ink)' in html
@@ -269,9 +269,9 @@ def test_report_pair_cannot_overwrite_source(tmp_path):
 def test_summary_embeds_brand_logo_and_readable_print_colors():
     from aegislog.reporting import build_summary_report
     html = build_summary_report(_data(), "appendix.html")
-    assert 'aria-label="AegisLog shield and telemetry logo"' in html
-    assert 'M84 18 137 38' in html
-    assert 'AEGIS<span>LOG</span>' in html
+    assert 'aria-label="AegisLog terminal mark logo"' in html
+    assert 'data:image/png;base64,' in html
+    assert 'aegislog-report-logo' in html
     assert 'color:#245ea8!important' in html
     assert 'color:#a62b38!important' in html
     assert 'print-color-adjust:exact' in html

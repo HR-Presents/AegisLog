@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/aegislog-logo.svg" alt="AegisLog logo" width="720">
+<img src="src/aegislog/assets/aegislog-logo.png" alt="AegisLog logo" width="380">
 
 # AegisLog
 
@@ -481,7 +481,7 @@ AegisLog is released under the [MIT License](LICENSE).
 
 <div align="center">
 
-<img src="docs/assets/aegislog-logo.svg" alt="AegisLog logo" width="360">
+<img src="src/aegislog/assets/aegislog-logo.png" alt="AegisLog logo" width="220">
 
 **AegisLog**
 

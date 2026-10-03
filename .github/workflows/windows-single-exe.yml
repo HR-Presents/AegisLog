@@ -31,7 +31,7 @@ jobs:
       - name: Build AegisLog.exe
         shell: pwsh
         run: |
-          pyinstaller --noconfirm --clean --onefile --console --name AegisLog packaging/aegislog_onefile.py
+          pyinstaller --noconfirm --clean --onefile --console --collect-data aegislog --name AegisLog packaging/aegislog_onefile.py
 
       - name: Verify single executable and core command surface
         shell: pwsh
