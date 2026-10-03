@@ -207,6 +207,52 @@ def _home(screen_width: int | None = None, screen_height: int | None = None) -> 
     return Align.center(content, width=available, pad=False)
 
 
+def _fitted_home(screen_width: int, screen_height: int) -> RenderableType:
+    """Keep every action visible on ordinary laptop-sized terminal viewports."""
+    width = _frame_width(screen_width)
+    header = _header(screen_width)
+    header.padding = (0, 1)
+    if screen_height < 30:
+        header.renderable = Text(
+            "AEGISLOG / MADE BY HR-PRESENTS\nLOCAL-FIRST | READ-ONLY | DETERMINISTIC\n"
+            + datetime.now(timezone.utc).strftime("%H:%M:%S UTC / %d %b %Y"),
+            style=ACCENT, justify="center")
+
+    def panel(title, rows, panel_width):
+        return Panel(Group(*rows), title=Text(f" {title} ", style=f"bold {ACCENT}"),
+                     title_align="left", border_style=ACCENT_SOFT, box=box.ASCII,
+                     padding=(0, 1), width=panel_width, style=f"{NEUTRAL} on {SURFACE}")
+
+    tools = [("02", "LIVE MONITOR", "Watch a source"), ("03", "MULTI-SOURCE", "Compare sources"),
+             ("04", "NATIVE LOGS", "Inspect telemetry"), ("05", "NATIVE MONITOR", "Watch telemetry"),
+             ("06", "INCIDENTS", "Review evidence")]
+    utilities = [("07", "DEMO"), ("08", "HEALTH"), ("09", "HELP"), ("C", "CHECK COMPUTER"),
+                 ("F", "SCAN FOLDER"), ("R", "REPORTS"), ("A", "ABOUT / GUIDE"), ("G", "BEGINNER")]
+    if width >= 100:
+        left = int((width - 2) * .60)
+        right = width - left - 2
+        primary = panel("INVESTIGATE", [_action_line("01", "ANALYZE LOG", "Investigate a file", primary=True),
+                                       Text("     Findings, incidents and local reports", style=MUTED)], left)
+        monitoring = panel("MONITOR & INVESTIGATE", [_action_line(*row) for row in tools], left)
+        info = panel("QUICK INFO", [Text("REPORTS  R opens saved investigations", style=MUTED),
+                                    Text("CONFIG   08 Health shows the full path", style=MUTED),
+                                    Text("PROJECT  HR-Presents/AegisLog-AI", style=MUTED)], left)
+        status = _status_panel(right)
+        status.padding = (0, 1)
+        utility = panel("UTILITIES", [Text(f"[{key}] {label}", style=NEUTRAL) for key, label in utilities], right)
+        menu = Table.grid(padding=0)
+        menu.add_column(width=left)
+        menu.add_column(width=2)
+        menu.add_column(width=right)
+        menu.add_row(Group(primary, monitoring, info), Text(""), Group(status, utility))
+    else:
+        rows = [("01", "ANALYZE LOG"), *[(key, label) for key, label, _ in tools], *utilities]
+        menu = panel("COMMAND CENTER", [*[Text(f"[{key}] {label}", style=NEUTRAL) for key, label in rows],
+                                        Text("[S] Workbench / [P] Replay", style=NEUTRAL)], width)
+    introduction = Text("Investigate logs locally. Read-only sources; findings need review.", style=MUTED)
+    return Align.center(Group(header, introduction, menu, _footer(screen_width)), width=_screen_width(screen_width), pad=False)
+
+
 def _run_inline_command(raw: str) -> None:
     if raw.strip().lower() in {"a", "ai", "ai-analyst", "ask"}:
         legacy.console.print("AI Analyst is not part of AegisLog. Use deterministic investigation commands instead.", style=MUTED)
@@ -221,6 +267,10 @@ class _HomeViewport:
 
     def prepare(self, console, options):
         self.lines = console.render_lines(_home(self.width, self.height), options.update(width=self.width), pad=False)
+        if len(self.lines) > self.height and self.height >= 24:
+            fitted = console.render_lines(_fitted_home(self.width, self.height), options.update(width=self.width), pad=False)
+            if len(fitted) < len(self.lines):
+                self.lines = fitted
         self.maximum = max(0, len(self.lines) - self.height)
         self.offset = min(max(0, self.offset), self.maximum)
         return self
