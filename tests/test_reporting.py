@@ -196,7 +196,8 @@ def test_empty_report_has_clear_empty_states() -> None:
     assert "No correlated incidents were recorded." in html
     assert "No rule-backed findings were recorded." in html
     assert "No rare concerning event classes were recorded." in html
-    assert "No critical, high, or medium rule-backed findings were retained" in html
+    assert "No elevated rule-backed findings were recorded in this input" in html
+    assert "not a clean-system verdict" in html
     assert "No elevated rule-backed finding requires immediate action" in html
 
 
@@ -339,3 +340,23 @@ def test_summary_opens_with_results_and_keeps_context_grouped():
     assert 'Priority lead:' in html
     assert html.index('id="executive"') < html.index('id="findings"') < html.index('id="incidents"') < html.index('id="activity"') < html.index('<aside class="summary-notes"')
     assert 'width:110px' in html
+
+
+def test_summary_keeps_readable_evidence_and_exposes_collection_limits():
+    from html import escape
+    from aegislog.reporting import build_summary_report
+    evidence = 'Failed password for admin from 203.0.113.10; ' * 5 + 'session=complete <untrusted>'
+    data = _data()
+    data = replace(data, findings=(replace(data.findings[0], evidence=evidence),),
+                   record_count=42, recognized_records=40, format_counts={'syslog': 40},
+                   invalid_records=2, dropped_findings=3, dropped_auth_events=4, truncated_lines=1)
+    html = build_summary_report(data, 'full.html')
+    assert escape(evidence) in html
+    assert '<untrusted>' not in html
+    assert '40 / 42' in html
+    assert '2 invalid records' in html
+    assert '3 findings omitted' in html
+    assert '4 authentication events evicted' in html
+    assert '1 oversized lines truncated' in html
+    assert 'Formats: {' not in html
+    assert '#finding-001' in html
