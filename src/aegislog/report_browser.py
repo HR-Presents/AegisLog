@@ -50,7 +50,7 @@ def open_saved_reports(console, root=None):
         console.print(Text('No saved HTML reports here. Use 01 Analyze or S Workbench → O to generate one.', style=NEUTRAL))
         return
     for number, path in enumerate(reports, 1):
-        console.print(Text(f'{number:02d}  {path.name}', style=NEUTRAL))
+        console.print(Text(f'{number:02d}  SUMMARY  |  {path.name}', style=NEUTRAL))
     choice = Prompt.ask('Report number', choices=[str(n) for n in range(1, len(reports) + 1)], default='1', console=console)
     selected = reports[int(choice) - 1]
     console.print(Text(f'Opening {selected.name}', style=ACCENT))

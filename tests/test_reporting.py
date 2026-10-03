@@ -71,7 +71,7 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
         "Evidence limitations",
         "LOCAL / READ-ONLY",
         "DETERMINISTIC ANALYSIS",
-        "Print / Save PDF",
+        "Print Full Evidence / Save PDF",
     ):
         assert text in html
 
@@ -86,8 +86,8 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
         assert anchor in html
 
     assert 'class="telemetry-grid"' in html
-    assert '<svg viewBox="0 0 46 52"' in html
-    assert "#4C8DFF" in html
+    assert 'aria-label="AegisLog shield and telemetry logo"' in html
+    assert "#287bff" in html
     assert 'content="light"' in html
     assert 'body{margin:0;background:#fff;color:var(--ink)' in html
     assert 'Investigation Information' in html
@@ -221,7 +221,7 @@ def test_incident_queue_links_evidence_once_and_preserves_unmatched_excerpt():
     assert "unique incident excerpt" in queue
     assert html.count("Grouping basis:") == 1
     single = build_html_report(replace(data, incidents=(replace(incident, count=1),)))
-    assert "Single signal; validate context" in single
+    assert "Single-signal entries are leads" in single
 
 
 def test_short_report_groups_repetitions_and_preserves_all_evidence_in_appendix(tmp_path):
@@ -237,7 +237,7 @@ def test_short_report_groups_repetitions_and_preserves_all_evidence_in_appendix(
     appendix = target.with_name(target.stem + '-appendix.html')
     assert appendix.name in target.read_text()
     text = appendix.read_text()
-    assert target.name in text and 'Back to summary' in text
+    assert target.name in text and 'Back / Print Summary' in text
     for index in range(44):
         assert f'unique evidence {index}<' in text
     assert text.count('id="finding-') == 44
@@ -277,3 +277,17 @@ def test_summary_embeds_brand_logo_and_readable_print_colors():
     assert 'print-color-adjust:exact' in html
     assert 'class="summary-service-chart"' in html
     assert 'font-size="14"' in html
+
+
+def test_full_evidence_groups_repeated_recommendations_without_losing_references():
+    data = _data()
+    findings = tuple(replace(data.findings[0], evidence=f"evidence {index}") for index in range(44))
+    html = build_html_report(replace(data, findings=findings), summary_href='summary.html')
+    findings_html = html.split('id="findings"', 1)[1].split('id="telemetry"', 1)[0]
+    assert findings_html.count('class="finding-group"') == 1
+    assert findings_html.count('Review authentication history &amp; rotate exposed credentials.') == 1
+    assert findings_html.count('class="group-evidence"') == 44
+    for index in range(1, 45):
+        assert f'id="finding-{index:03d}"' in findings_html
+    assert 'href="summary.html">Back / Print Summary' in html
+    assert 'Print Full Evidence / Save PDF' in html
