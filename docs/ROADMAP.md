@@ -1,6 +1,10 @@
 # Roadmap
 
-Current published release: **v2.1.6**. This roadmap describes priorities, not delivery promises or features already available.
+AegisLog is currently released as **v2.1.6**. This roadmap describes priorities, not delivery promises or features already available.
+
+## v2.1.6 — current stable release
+
+Synthetic evaluations are not independently validated real-world effectiveness evidence.
 
 ## Released
 
@@ -27,3 +31,7 @@ The D browser dashboard is removed. The Windows executable is unsigned. Syntheti
 ## Feedback
 
 Open a feature request describing the user problem, supported source, expected result and a safe example. Issues do not imply scheduled implementation. No dates are committed here. Read-only defensive scope remains central; automatic remediation and host control are outside the current product direction.
+
+## History
+
+v2.1.0 established reliability and evidence foundations; v2.1.3 is an earlier presentation release. Historical checksum records remain with their original releases.
