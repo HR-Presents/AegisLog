@@ -258,7 +258,7 @@ def _read_home_choice() -> str:
             prompt = Text("aegis@console > ", style=f"bold {ACCENT}", no_wrap=True, overflow="crop")
             available = max(1, size.width - len(prompt.plain) - 1)
             prompt.append(value[-available:], style=NEUTRAL)
-            shortcuts = Text('[C Check] [F Folder] [R Reports] [A Guide] [Q Quit]' if size.width >= 65 else '[C] [F] [R] [A] [Q Quit]', style=ACCENT, no_wrap=True, overflow="crop")
+            shortcuts = Text('[C Check] [F Folder] [R Reports] [A Guide] [G Beginner] [Q Quit]' if size.width >= 80 else '[C] [F] [R] [A] [G] [Q Quit]', style=ACCENT, no_wrap=True, overflow="crop")
             return Group(viewport, controls, shortcuts, prompt)
         with Live(frame(), console=legacy.console, auto_refresh=False,
                   screen=True, transient=True, vertical_overflow="crop") as live:

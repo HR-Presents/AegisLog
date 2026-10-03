@@ -694,6 +694,9 @@ def start() -> None:
             elif lowered in {"r", "reports"}:
                 from .report_browser import open_saved_reports
                 open_saved_reports(console)
+            elif lowered in {"g", "beginner", "walkthrough"}:
+                from .onboarding import beginner_walkthrough
+                beginner_walkthrough(console)
             elif lowered in {"a", "about", "guide"}:
                 from .report_browser import guide_view
                 console.print(guide_view())

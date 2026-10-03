@@ -27,6 +27,7 @@ def guide_view():
                       'S Workbench: filter evidence, inspect D Details and T Timeline, export JSON, and open reports.\n'
                       'C Check Computer: native logs use a time window; known log files use their full contents.\n'
                       'F Scan Folder: select likely logs; skip identical content; open a searchable batch overview.\n'
+                      'G Beginner: optional guided synthetic demo and first-report walkthrough.\n'
                       'R Reports: browse all saved summaries and batches with N/P pages. O opens reports; F opens their folder.\n'
                       'Live views: B/Escape stops; Q quits. Home: PgUp/PgDn scroll; Home/End jump.\n'
                       'Unknown formats and zero findings do not establish a clean system. Findings and rarity scores require context; they do not prove an attack.', style=MUTED))

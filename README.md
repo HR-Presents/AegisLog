@@ -333,6 +333,7 @@ At `aegis@console >`, select a workflow or type a supported command.
 | C / F | Guided computer check / folder scan |
 | S | Security Workbench |
 | R / A | Saved reports / workflow explanation |
+| G | Optional beginner walkthrough with synthetic demo |
 | B / Q | Back / Quit |
 
 The D browser dashboard is removed. Terminal investigation panels remain; the CLI `dashboard` command renders a terminal investigation.
