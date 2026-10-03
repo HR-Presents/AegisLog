@@ -353,7 +353,7 @@ def _summary_brand() -> str:
     from .brand_logo import report_logo_uri
     return (
         '<style>.aegislog-report-logo{display:block;width:190px;max-width:100%;height:auto;'
-        'border-radius:8px;print-color-adjust:exact;-webkit-print-color-adjust:exact}'
+        'background:transparent;print-color-adjust:exact;-webkit-print-color-adjust:exact}'
         '@media print{.aegislog-report-logo{width:110px}}</style>'
         '<div class="summary-brand"><img class="aegislog-report-logo" '
         'alt="AegisLog terminal mark logo" aria-label="AegisLog terminal mark logo" '
