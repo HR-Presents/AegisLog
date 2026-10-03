@@ -346,7 +346,7 @@ AegisLog treats log-derived content as untrusted input. Normal presentation uses
 
 Analyze only sources you are authorized to access. Sanitize examples before sharing reports or filing public issues; redaction does not guarantee that every sensitive value has been removed. Install only trusted custom regex packs, which are local configuration rather than an execution-time sandbox.
 
-The supported public product uses deterministic local analysis. AI Analyst and remote model workflows are not part of its supported surface. There is no automatic remediation or host-control workflow.
+The supported public product uses deterministic local analysis. AI Analyst and remote model workflows are not part of the supported public product surface. There is no automatic remediation or host-control workflow.
 
 Read [Security](SECURITY.md), [Threat Model](docs/THREAT_MODEL.md), [Privacy](docs/PRIVACY.md), and [No Auto-Remediation](docs/NO_AUTOREMEDIATION.md). Report vulnerabilities through the private route described in the security policy.
 
