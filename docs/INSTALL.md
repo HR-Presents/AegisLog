@@ -35,14 +35,14 @@ py -m pipx ensurepath
 
 Close and reopen the terminal after `ensurepath` so Windows loads the updated PATH.
 
-### Install or update the audited build
+### Install or update the current candidate
 
 ```powershell
 cd $HOME
-py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/3fa654012458ca91e38ca40dd31e25d016dec70a.zip"
+py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/main.zip"
 ```
 
-This immutable URL installs the audited development build, currently reporting version 2.1.3; it does not install a published v2.1.4 release. `--force` also updates an existing installation. Do not add `--pip-args="--force-reinstall"`: with the uv backend that duplicates the reinstall option and fails. Python 3.10–3.13 are covered by CI; Python 3.14 is not yet part of that test matrix.
+This moving URL installs the current main development build (2.1.4 candidate); it does not install a published stable v2.1.4 release. For reproducible installation, replace `refs/heads/main` with the reviewed full commit SHA. `--force` also updates an existing installation. Do not add `--pip-args="--force-reinstall"`: with the uv backend that duplicates the reinstall option and fails. Python 3.10–3.13 are covered by CI; Python 3.14 is not yet part of that test matrix.
 
 ### Start, use, and exit
 
