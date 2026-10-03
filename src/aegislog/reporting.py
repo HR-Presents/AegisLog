@@ -316,8 +316,16 @@ def _finding_groups(data: DashboardData):
 
 
 def _summary_brand() -> str:
-    # Shield paths match docs/assets/aegislog-logo.svg, adapted for light paper.
-    return '<div class="summary-brand"><svg class="summary-logo" viewBox="0 0 168 176" role="img" aria-label="AegisLog shield and telemetry logo"><title>AegisLog</title><path d="M84 0 154 27v49c0 45-27 76-70 94C41 152 14 121 14 76V27L84 0Z" fill="#eef5ff" stroke="#c5d8f3" stroke-width="3"/><path d="M84 18 137 38v38c0 33-18 57-53 73-35-16-53-40-53-73V38L84 18Z" fill="none" stroke="#287bff" stroke-width="5"/><path d="M48 88h19l9-28 16 56 11-36 8 8h13" fill="none" stroke="#18345b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="124" cy="88" r="5" fill="#287bff"/></svg><div><div class="summary-wordmark">AEGIS<span>LOG</span></div><div class="summary-tagline">DEFENSIVE LOG INVESTIGATION</div></div></div><div class="brand-sub">PRESENTED BY HR-PRESENTS</div>'
+    from .brand_logo import report_logo_uri
+    return (
+        '<style>.aegislog-report-logo{display:block;width:190px;max-width:100%;height:auto;'
+        'border-radius:8px;print-color-adjust:exact;-webkit-print-color-adjust:exact}'
+        '@media print{.aegislog-report-logo{width:110px}}</style>'
+        '<div class="summary-brand"><img class="aegislog-report-logo" '
+        'alt="AegisLog terminal mark logo" aria-label="AegisLog terminal mark logo" '
+        f'src="{report_logo_uri()}"></div>'
+        '<div class="brand-sub">PRESENTED BY HR-PRESENTS</div>'
+    )
 
 
 def _summary_service_chart(values: dict[str, int]) -> str:

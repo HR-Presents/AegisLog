@@ -48,7 +48,7 @@ def test_palette_matches_terminal_reference() -> None:
 
 def test_readme_uses_strong_capabilities_and_product_identity() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "# AEGISLOG" in readme or "docs/assets/aegislog-logo.svg" in readme
+    assert "# AegisLog" in readme and "src/aegislog/assets/aegislog-logo.png" in readme
     assert "Core capabilities" in readme
     assert "**ANALYZE**" in readme
     assert "**LIVE MONITOR**" in readme
