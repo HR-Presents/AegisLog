@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'src/aegislog/folder_scan.py'
+      - 'src/aegislog/reporting.py'
       - 'tools/report-layout/**'
       - '.github/workflows/report-layout.yml'
   workflow_dispatch:
@@ -40,6 +41,14 @@ jobs:
           assert 'Source appendix' in text and 'Identical to' in text
           assert 'Filter sources' not in text and 'Open report' not in text
           assert 'duplicate-copy-015' in text, 'Last source missing from print'
+          for name in ['demo-summary', 'demo-complete']:
+              contents = subprocess.check_output(['pdftotext', f'report-layout-qa/{name}.pdf', '-'], text=True)
+              assert 'SYNTHETIC DEMO DATA' in contents
+              assert 'Timestamp limitations:' in contents
+              if name == 'demo-summary':
+                  assert 'SUMMARY ONLY' in contents
+              else:
+                  assert 'F-001' in contents and 'F-002' in contents
           print(f'Printed {pages} readable appendix pages for 161 long-path sources')
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

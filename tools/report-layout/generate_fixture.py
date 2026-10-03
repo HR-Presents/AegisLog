@@ -9,3 +9,9 @@ rows[15]['findings']=1;rows[15]['groups']=[dict(severity='MEDIUM',category='netw
 for i in range(16):
  rows.append(dict(source=f'Documents/Other course folders/duplicate-copy-{i:03d}.log',status='duplicate',duplicate_of=rows[i]['source'],report=rows[i]['report']))
 print(write_batch(root,Path('C:/Users/Demo/Documents'),rows,scan_mode='Other text/configuration included'))
+
+from aegislog.commands_v12 import _DEMO_LOG
+from aegislog.dashboard import analyze_dashboard
+from aegislog.reporting import write_html_report
+source=root/'demo_auth.log';source.write_text(_DEMO_LOG)
+write_html_report(analyze_dashboard(source),root)
