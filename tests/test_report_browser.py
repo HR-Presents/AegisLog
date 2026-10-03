@@ -34,3 +34,29 @@ def test_report_picker_excludes_evidence_appendices(tmp_path):
     summary.write_text('summary')
     (tmp_path / 'case-report-appendix.html').write_text('full evidence')
     assert report_candidates(tmp_path) == [summary]
+
+
+def test_older_report_is_reachable_after_first_page(tmp_path, monkeypatch):
+    from aegislog import report_browser, commands_security
+    for number in range(25):
+        (tmp_path / f'{number}.html').write_text('report')
+    reports = report_browser.report_candidates(tmp_path)
+    assert len(reports) == 25
+    replies = iter(['n', '25'])
+    opened = []
+    monkeypatch.setattr(report_browser.Prompt, 'ask', lambda *a, **kw: next(replies))
+    monkeypatch.setattr(commands_security, 'open_report', opened.append)
+    console = Console(file=StringIO(), record=True)
+    open_saved_reports(console, tmp_path)
+    assert opened == [reports[24]]
+    assert 'Page 2/2' in console.export_text()
+
+
+def test_report_actions_open_without_copying_path(tmp_path, monkeypatch):
+    from aegislog import report_browser, commands_security
+    replies = iter(['o', 'b'])
+    opened = []
+    monkeypatch.setattr(report_browser.Prompt, 'ask', lambda *a, **kw: next(replies))
+    monkeypatch.setattr(commands_security, 'open_report', opened.append)
+    report_browser.report_actions(Console(file=StringIO()), tmp_path / 'report.html')
+    assert opened == [tmp_path / 'report.html']

@@ -247,9 +247,15 @@ def _home(screen_width: int | None = None) -> RenderableType:
 
 def _pause_for_menu() -> None:
     try:
-        value = console.input(f"\n[{MUTED}][Enter / B Back] [Q Quit][/{MUTED}]")
-        if value.strip().lower() in {"q", "quit", "exit"}:
-            raise WorkspaceQuit()
+        while True:
+            value = console.input(f"\n[{MUTED}][Enter / B Back] [O Reports] [Q Quit][/{MUTED}]").strip().lower()
+            if value in {"q", "quit", "exit"}:
+                raise WorkspaceQuit()
+            if value == 'o':
+                from .report_browser import open_saved_reports
+                open_saved_reports(console)
+            else:
+                return
     except (KeyboardInterrupt, EOFError):
         pass
 

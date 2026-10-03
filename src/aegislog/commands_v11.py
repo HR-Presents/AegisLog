@@ -23,7 +23,7 @@ def _analysis_complete_line(data: DashboardData) -> Text:
     line = Text()
     line.append("ANALYSIS COMPLETE", style=f"bold {SUCCESS}")
     line.append("  /  ", style=MUTED)
-    line.append(f"{data.lines:,} events", style="white")
+    line.append(f"{data.records:,} records / {data.lines:,} physical lines" if data.record_count is not None else f"{data.lines:,} events", style="white")
     line.append("  /  ", style=MUTED)
     line.append(f"{len(data.findings)} findings", style=ACCENT)
     line.append("  /  ", style=MUTED)

@@ -4,7 +4,7 @@ import re
 import shlex
 import sys
 from collections import Counter, deque
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from rich import box
@@ -15,9 +15,9 @@ from rich.text import Text
 
 from . import __version__
 from .anomaly import Anomaly, score_events
-from .engine import Finding, AnalysisState
+from .engine import Finding, AnalysisState, redact
 from .incidents import Incident, correlate
-from .ingestion import iter_bounded_lines
+from .structured_input import Coverage, iter_records
 from .parsers import Event, parse_line
 from .theme import (
     ACCENT,
@@ -63,11 +63,24 @@ class DashboardData:
     truncated_lines: int = 0
     dropped_findings: int = 0
     dropped_auth_events: int = 0
+    record_count: int | None = None
+    recognized_records: int = 0
+    format_counts: dict[str, int] | None = None
+    coverage_status: str = "Legacy line analysis"
+    invalid_records: int = 0
+
+    @property
+    def records(self):
+        return self.lines if self.record_count is None else self.record_count
+
+    @property
+    def coverage_note(self):
+        return f"{self.coverage_status}. Recognized {self.recognized_records}/{self.records} records; {self.invalid_records} invalid records. Formats: {self.format_counts or {}}. No matching rules does not establish a clean system."
 
     @property
     def retention_note(self) -> str:
         return (
-            f"Retained {len(self.raw_lines):,}/{self.lines:,} event lines for activity and anomalies; "
+            f"Processed {self.lines:,} physical lines / {self.records:,} records; retained {len(self.raw_lines):,}/{self.records:,} record excerpts for activity and anomalies; "
             f"{self.truncated_lines:,} oversized lines truncated; {self.dropped_findings:,} findings omitted; "
             f"{self.dropped_auth_events:,} authentication events evicted by correlation limits."
         )
@@ -76,21 +89,21 @@ class DashboardData:
 def analyze_dashboard(
     path: Path, *, timestamp_year_hint: int | None = None,
     max_retained_lines: int = 10_000, max_retained_bytes: int = 8_000_000,
-    max_line_bytes: int = 1_000_000,
+    max_line_bytes: int = 1_000_000, cancel=None,
 ) -> DashboardData:
     """Analyze every bounded line, retaining a capped recent sample for visualization."""
     if max_retained_lines < 1 or max_retained_bytes < 1:
         raise ValueError("dashboard retention limits must be positive")
     retained: deque[tuple[str, Event, int]] = deque()
-    retained_bytes = total = truncated = 0
+    retained_bytes = total = 0
     state = AnalysisState(timestamp_year_hint=timestamp_year_hint)
     level_counts: Counter[str] = Counter()
     service_counts: Counter[str] = Counter()
-    for item in iter_bounded_lines(path, max_line_bytes):
+    coverage = Coverage()
+    for original, canonical, kind, known in iter_records(path, coverage, max_line_bytes, cancel):
         total += 1
-        truncated += int(item.truncated)
-        state.process(item.text)
-        event = parse_line(item.text)
+        state.process(canonical)
+        event = replace(parse_line(canonical), source=kind)
         if event.message:
             level = (event.level or "unknown").upper()[:32]
             if level not in level_counts and len(level_counts) >= 32:
@@ -100,22 +113,24 @@ def analyze_dashboard(
             if service not in service_counts and len(service_counts) >= 2048:
                 service = "other services (retention limit)"
             service_counts[service] += 1
-        size = len(item.text.encode("utf-8"))
-        retained.append((item.text, event, size))
+        size = len(original.encode("utf-8"))
+        retained.append((redact(original), event, size))
         retained_bytes += size
         while len(retained) > max_retained_lines or retained_bytes > max_retained_bytes:
             retained_bytes -= retained.popleft()[2]
     events = [entry[1] for entry in retained]
     findings = state.findings()
     return DashboardData(
-        source=str(path), lines=total, findings=tuple(findings),
+        source=str(path), lines=coverage.lines, findings=tuple(findings),
         anomalies=tuple(score_events(events)), incidents=tuple(correlate(findings)),
         levels=dict(level_counts), services=dict(service_counts),
         categories=dict(Counter(item.category for item in findings)),
         severities=dict(Counter(item.severity for item in findings)),
         events=tuple(events), raw_lines=tuple(entry[0] for entry in retained),
-        timestamp_year_hint=timestamp_year_hint, sampled_lines=total - len(retained), truncated_lines=truncated,
+        timestamp_year_hint=timestamp_year_hint, sampled_lines=total - len(retained), truncated_lines=coverage.truncated,
         dropped_findings=state.dropped_findings, dropped_auth_events=state.dropped_auth_events,
+        record_count=coverage.records, recognized_records=coverage.recognized, format_counts=dict(coverage.formats),
+        coverage_status=coverage.status, invalid_records=coverage.invalid,
     )
 
 
@@ -209,7 +224,7 @@ def _metric_cell(label: str, value: int | str, style: str, note: str = "") -> Te
 def _metric_strip(data: DashboardData, *, compact: bool = False) -> Panel:
     risk = _risk_state(data)
     metrics = (
-        ("EVENTS", f"{data.lines:,}", ACCENT, "parsed input"),
+        ("EVENTS" if data.recognized_records == data.records else "RECORDS", f"{data.records:,}", ACCENT, "processed records"),
         ("FINDINGS", len(data.findings), NEUTRAL, "rule-backed"),
         ("ELEVATED", _elevated_count(data), risk_style(risk), "medium+"),
         ("INCIDENTS", len(data.incidents), INCIDENT, "correlated"),

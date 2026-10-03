@@ -8,8 +8,11 @@
 | RFC3164/syslog text | Service/message extraction and supported time handling | Yearless timestamps need context; generic fallback for unmatched layouts |
 | ISO service logs | Recognized timestamp/level/service layouts | Arbitrary application conventions are not guaranteed |
 | Web access logs | Recognized common request/status patterns | Custom field layouts may fall back to generic text |
-| One JSON object per line | message/service fields and journald-style fields | Whole-file JSON arrays and vendor-specific schemas are not general importers |
-| CSV/TXT discovered in folders | Candidate text files scanned by existing line rules | CSV columns are not mapped by a dedicated schema importer |
+| JSON/JSONL | Scalar message/msg/MESSAGE records, JSON arrays or an events array | Whole-file containers capped at 8 MB; arbitrary vendor fields remain unrecognized |
+| Header-based CSV | Timestamp, message/msg, service and level columns; recognized network flow columns | Header is metadata, not an event; unmatched schemas show limited coverage |
+| Zeek conn TSV/JSON | ts, id.orig_h/id.resp_h and connection metadata | Connection states alone do not prove an attack; other Zeek schemas may be unrecognized |
+| Suricata EVE | Alert signature/severity mapped to an upstream IDS finding; flow telemetry preserved | Upstream alerts require validation; not independent packet inspection |
+| TXT and unknown structures | Generic line rules only | Not complete structured interpretation; zero findings does not mean clean |
 | EVTX, compressed archives, UTF-16 or binary data | Not supported by the guided file workflow | Export readable UTF-8 text first |
 | macOS | File investigations and local graphical interface | No macOS native log collector is provided |
 
@@ -20,3 +23,7 @@ Source discovery checks actual bounded read access and checks existing known Win
 The dashboard and guided check expose retained parser-format counts, generic fallback and retention notes. Generic parsing can still match rules but should not be interpreted as complete structured understanding. No findings is not evidence of complete coverage or absence of compromise.
 
 Detection regressions use the synthetic labeled fixture in evaluation/labeled_events.jsonl. Production-effectiveness claims require independent external evidence as described in EXTERNAL_DETECTION_EVIDENCE.md. No benchmark here is a claim of universal precision or recall.
+
+Folder scans default to likely log candidates. Include other text/configuration files explicitly when needed. Identical SHA-256 content can share one report while retaining every selected relative source path. A searchable batch overview and JSON manifest distinguish completed, duplicate, failed, cancelled and pending sources. B/Escape/Ctrl+C cancels safely; completed reports remain available. R lists all saved summaries and batch overviews in pages of 20. O opens a completed report; F opens its folder.
+
+Physical line counts, record counts and recognized record counts are separate. Coverage describes recognized structure, not detection recall. CSV headers and Zeek metadata are excluded from record totals. Malformed and truncated inputs are disclosed.

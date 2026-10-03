@@ -70,3 +70,7 @@ Uninstall with `py -m pipx uninstall aegislog-ai`. Locally generated reports are
 ## Launching from a protected directory
 
 AegisLog first tries `./aegislog-reports/`. If that location cannot be written (for example Windows System32), it falls back to `%LOCALAPPDATA%\AegisLog\reports` on Windows or `~/.aegislog/reports` elsewhere. R Reports searches both locations. You do not need administrator privileges merely to save reports. If both fail, a readable error is shown. An explicit output directory is honored and never silently redirected.
+
+### Folder and report controls
+
+F scans likely log candidates by default. Include other text/configuration files explicitly if needed, then choose file numbers or ALL. Identical content can share a report while retaining both locations in the batch overview. B/Escape/Ctrl+C cancels; completed reports remain. O opens the overview/report directly; F opens its folder. R lists every saved summary and overview with N/P pages. Review physical lines, records, recognized records and coverage before interpreting zero findings.

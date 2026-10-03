@@ -217,3 +217,5 @@ aegislog desktop
 ```
 
 The dashboard offers beginner/analyst views, keyboard-accessible controls, adjustable text size, finding explanations, severity counts, HTML reports and credential-redacted JSON. Quit or Ctrl+C returns to the shell. It uses the same local engine as the terminal and binds only to 127.0.0.1. Reports stay on disk. No automatic uploads or automatic remediation. See [Getting started](docs/GETTING_STARTED.md), [Compatibility](docs/COMPATIBILITY.md), and [Product readiness](docs/PRODUCT_READINESS.md).
+
+Folder scans now default to likely logs, offer identical-content deduplication, preserve relative source locations, and produce a searchable batch overview plus JSON manifest. B/Escape/Ctrl+C cancels while retaining completed reports. **O** opens completed reports and **F** opens their folder. **R** paginates all saved summaries and batch overviews; the terminal keeps **C/D/F/R/A** shortcuts visible beneath the scrollable home. Physical lines, records and recognized records are reported separately. Supported structured inputs and detection limits are listed in [compatibility](docs/COMPATIBILITY.md).

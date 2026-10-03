@@ -244,7 +244,7 @@ def _read_home_choice() -> str:
         def frame():
             nonlocal offset
             size = legacy.console.size
-            viewport = _HomeViewport(size.width, max(1, size.height - 2), offset)
+            viewport = _HomeViewport(size.width, max(1, size.height - 3), offset)
             viewport.prepare(legacy.console, legacy.console.options)
             offset = viewport.offset
             if viewport.maximum:
@@ -255,7 +255,8 @@ def _read_home_choice() -> str:
             prompt = Text("aegis@console > ", style=f"bold {ACCENT}", no_wrap=True, overflow="crop")
             available = max(1, size.width - len(prompt.plain) - 1)
             prompt.append(value[-available:], style=NEUTRAL)
-            return Group(viewport, controls, prompt)
+            shortcuts = Text('[C Check] [D Dashboard] [F Folder] [R Reports] [A Guide] [Q Quit]' if size.width >= 65 else '[C] Check [D] Dashboard [F] Folder [R] Reports [Q] Quit', style=ACCENT, no_wrap=True, overflow="crop")
+            return Group(viewport, controls, shortcuts, prompt)
         with Live(frame(), console=legacy.console, auto_refresh=False,
                   screen=True, transient=True, vertical_overflow="crop") as live:
             next_refresh = time.monotonic()

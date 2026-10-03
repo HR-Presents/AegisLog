@@ -105,9 +105,9 @@ def finish_investigation(data, output, scope='Selected file; activity charts use
         html = html_path.read_text(encoding='utf-8')
         html = html.replace('<div class="scope">', '<div class="scope">' + context, 1) if '<div class="scope">' in html else html.replace('<div class="footer">', context + '<div class="footer">', 1)
         html_path.write_text(html, encoding='utf-8')
-    payload = dict(source=data.source, events=data.lines, findings=[dict(**asdict(item), explanation=explain_finding(item)) for item in data.findings],
+    payload = dict(source=data.source, events=data.records, lines_processed=data.lines, recognized_records=data.recognized_records, findings=[dict(**asdict(item), explanation=explain_finding(item)) for item in data.findings],
                    incidents=[asdict(item) for item in data.incidents], severities=data.severities,
-                   coverage=dict(scope=scope, retention=data.retention_note, retained_formats=dict(formats),
+                   coverage=dict(scope=scope, status=data.coverage_status, format_counts=data.format_counts, recognized=data.recognized_records, invalid_records=data.invalid_records, note=data.coverage_note, retention=data.retention_note, retained_formats=dict(formats),
                                  generic_retained=sum(event.source == 'generic' for event in data.events),
                                  caveat='Format counts cover retained events. Generic parsing is fallback coverage, not proof that every field was understood. No findings does not establish a clean system.'),
                    summary=str(report.resolve()), evidence_report=str(report.with_name(report.stem + '-appendix.html').resolve()))
@@ -137,10 +137,22 @@ def guided_check(console):
     except (CollectorError, OSError, ValueError) as error:
         console.print(str(error), markup=False)
         return
-    console.print(f'{result["events"]} events / {len(result["findings"])} findings', markup=False)
+    console.print(f'{result["lines_processed"]} physical lines / {result["events"]} records / {result["recognized_records"]} recognized / {len(result["findings"])} findings', markup=False)
     console.print(result['coverage']['scope'])
     console.print(result['coverage']['retention'])
     console.print(f'Summary: {result["summary"]}', markup=False)
-    for item in result['findings'][:3]:
-        console.print(f'{item["severity"]}: {item["title"]}\n{item["explanation"]["classification"]}\nNext: {item["explanation"]["next_step"]}', markup=False)
-    Prompt.ask('Enter to return', default='', console=console)
+    console.print(result['coverage']['note'])
+    groups = {}
+    for item in result['findings']:
+        key = (item['severity'], item['title'], item['explanation']['classification'], item['explanation']['next_step'])
+        groups[key] = groups.get(key, 0) + 1
+    rank = {'CRITICAL': 5, 'HIGH': 4, 'MEDIUM': 3, 'LOW': 2, 'INFO': 1}
+    actions = set()
+    for (severity, title, classification, action), count in sorted(groups.items(), key=lambda entry: (-rank.get(entry[0][0], 0), -entry[1], entry[0][1]))[:3]:
+        console.print(f'{severity}: {title} / {count} occurrence(s) / {classification}', markup=False)
+        if action not in actions:
+            console.print(f'Next: {action}', markup=False)
+            actions.add(action)
+    console.print(f'Showing {min(3, len(groups))}/{len(groups)} finding groups; all retained findings remain in the reports.')
+    from .report_browser import report_actions
+    report_actions(console, Path(result['summary']))
