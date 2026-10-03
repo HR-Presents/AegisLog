@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .report_paths import default_report_dir
+
 import hashlib
 from datetime import datetime, timezone
 from html import escape
@@ -368,7 +370,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
 
 def write_html_report(data: DashboardData, output_dir: Path | None = None, *,
                       filename: str | None = None, appendix_extra: str = "") -> Path:
-    destination = output_dir or (Path.cwd() / "aegislog-reports")
+    destination = output_dir or default_report_dir()
     destination.mkdir(parents=True, exist_ok=True)
     stem = _safe_name(Path(data.source).stem)
     target = destination / (filename or f"{stem}-aegislog-report.html")

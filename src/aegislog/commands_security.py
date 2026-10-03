@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .report_paths import default_report_dir
+
 import html
 import json
 import tempfile
@@ -86,7 +88,7 @@ def scope_view(investigation, filters):
 
 
 def write_security_report(investigation, filters, output_dir: Path | None = None):
-    root = output_dir or Path.cwd() / "aegislog-reports"
+    root = output_dir or default_report_dir()
     root.mkdir(parents=True, exist_ok=True)
     target = root / "security-workbench-report.html"
     if target.resolve() == investigation.path.resolve():

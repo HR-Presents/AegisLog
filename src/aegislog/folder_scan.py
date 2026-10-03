@@ -1,4 +1,5 @@
 """Bounded, read-only discovery and batch investigation of local log files."""
+from .report_paths import default_report_dir
 from pathlib import Path
 import os
 import tempfile
@@ -82,9 +83,13 @@ def run_folder_scan(console):
         except ValueError:
             console.print('Enter valid displayed numbers separated by commas, or ALL.', style='yellow')
     # Keep sources separate so findings retain their origin and unrelated events are not correlated.
-    batch_root = Path('aegislog-reports') / 'folder-scan'
-    batch_root.mkdir(parents=True, exist_ok=True)
-    destination = Path(tempfile.mkdtemp(prefix='batch-', dir=batch_root))
+    try:
+        batch_root = default_report_dir() / 'folder-scan'
+        batch_root.mkdir(parents=True, exist_ok=True)
+        destination = Path(tempfile.mkdtemp(prefix='batch-', dir=batch_root))
+    except OSError as error:
+        console.print(f'Could not create reports: {error}', markup=False)
+        return
     completed = 0
     for index, path in enumerate(selected, 1):
         try:

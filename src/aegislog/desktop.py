@@ -1,4 +1,5 @@
 """Optional browser interface served only on authenticated IPv4 loopback."""
+from .report_paths import default_report_dir
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 import hmac
@@ -147,7 +148,11 @@ def create_server(output_root, token=None):
 
 def desktop():
     """Open the optional local graphical dashboard; Ctrl+C or Quit returns to the shell."""
-    server = create_server(Path('aegislog-reports') / 'desktop')
+    try:
+        server = create_server(default_report_dir() / 'desktop')
+    except OSError as error:
+        print(f'Could not start the local dashboard: {error}')
+        return
     url = f'http://127.0.0.1:{server.server_port}/#{server.session_token}'
     print('AegisLog local dashboard. Ctrl+C or Quit stops it and returns to your shell.')
     print(url)

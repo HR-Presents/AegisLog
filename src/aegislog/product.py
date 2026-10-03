@@ -1,4 +1,5 @@
 """Guided local investigations shared by the terminal and browser interface."""
+from .report_paths import default_report_dir
 from dataclasses import asdict, replace
 from pathlib import Path
 import json
@@ -128,10 +129,10 @@ def guided_check(console):
         return
     row = ready[Prompt.ask('Source number', choices=list(ready), console=console)]
     minutes = int(Prompt.ask('Time window in minutes', choices=['60', '1440', '10080'], default='1440', console=console)) if row['source'] != 'file' else None
-    root = Path('aegislog-reports') / 'computer-checks'
-    root.mkdir(parents=True, exist_ok=True)
-    output = Path(tempfile.mkdtemp(prefix='check-', dir=root))
     try:
+        root = default_report_dir() / 'computer-checks'
+        root.mkdir(parents=True, exist_ok=True)
+        output = Path(tempfile.mkdtemp(prefix='check-', dir=root))
         result = investigate_path(row['path'], output) if row['source'] == 'file' else check_computer(row['source'], row['channel'], minutes, 300, output)
     except (CollectorError, OSError, ValueError) as error:
         console.print(str(error), markup=False)

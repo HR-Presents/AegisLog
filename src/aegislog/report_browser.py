@@ -5,6 +5,7 @@ from rich.console import Group
 from rich.text import Text
 
 from .navigation import Prompt
+from .report_paths import report_search_roots
 from .theme import ACCENT, MUTED, NEUTRAL
 
 INTRODUCTION = (
@@ -41,19 +42,21 @@ def report_candidates(root):
 
 def open_saved_reports(console, root=None):
     from .commands_security import open_report
-    root = root or Path.cwd() / 'aegislog-reports'
-    try:
-        reports = report_candidates(root)
-    except OSError as exc:
-        console.print(Text(f'Could not list reports: {exc}', style=MUTED))
-        return
+    roots = [Path(root)] if root is not None else report_search_roots()
+    reports = []
+    for directory in roots:
+        try:
+            reports.extend(report_candidates(directory))
+        except OSError as exc:
+            console.print(Text(f'Could not list reports in {directory}: {exc}', style=MUTED))
+    reports = sorted(reports, key=lambda path: path.stat().st_mtime_ns, reverse=True)[:20]
     console.print(Text('SAVED REPORTS / newest first', style=f'bold {ACCENT}'))
-    console.print(Text(str(root.resolve()), style=MUTED))
+    console.print(Text(' / '.join(str(directory) for directory in roots), style=MUTED))
     if not reports:
         console.print(Text('No saved HTML reports here. Use 01 Analyze or S Workbench → O to generate one.', style=NEUTRAL))
         return
     for number, path in enumerate(reports, 1):
-        console.print(Text(f'{number:02d}  SUMMARY  |  {path.relative_to(root)}', style=NEUTRAL))
+        console.print(Text(f'{number:02d}  SUMMARY  |  {path}', style=NEUTRAL))
     choice = Prompt.ask('Report number', choices=[str(n) for n in range(1, len(reports) + 1)], default='1', console=console)
     selected = reports[int(choice) - 1]
     console.print(Text(f'Opening {selected.name}', style=ACCENT))
