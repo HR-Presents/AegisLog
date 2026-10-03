@@ -1,25 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="240" viewBox="0 0 960 240" role="img" aria-labelledby="title desc">
   <title id="title">AegisLog</title>
-  <desc id="desc">AegisLog angular shield and telemetry signal identity</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#080D14"/><stop offset="1" stop-color="#101927"/>
-    </linearGradient>
-    <linearGradient id="signal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#78A8FF"/><stop offset="1" stop-color="#3E7CE8"/>
-    </linearGradient>
-  </defs>
-  <rect width="960" height="240" rx="28" fill="url(#bg)"/>
-  <g transform="translate(58 36)">
-    <path d="M84 0 154 27v49c0 45-27 76-70 94C41 152 14 121 14 76V27L84 0Z" fill="#0D1623" stroke="#26364C" stroke-width="3"/>
-    <path d="M84 18 137 38v38c0 33-18 57-53 73-35-16-53-40-53-73V38L84 18Z" fill="none" stroke="url(#signal)" stroke-width="5"/>
-    <path d="M48 88h19l9-28 16 56 11-36 8 8h13" fill="none" stroke="#E7EDF6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="124" cy="88" r="5" fill="#4C8DFF"/>
+  <desc id="desc">Blue shield with log records and a clear AegisLog wordmark. DEFENSIVE LOG INVESTIGATION. LOCAL-FIRST, READ-ONLY, DETERMINISTIC.</desc>
+  <rect width="960" height="240" rx="24" fill="#080D14"/>
+  <path d="M116 36 184 61v56c0 39-25 66-68 88-43-22-68-49-68-88V61Z" fill="#101E33" stroke="#4C8DFF" stroke-width="6" stroke-linejoin="round"/>
+  <g fill="#8AB4FF">
+    <rect x="81" y="82" width="13" height="13" rx="3"/>
+    <rect x="81" y="109" width="13" height="13" rx="3"/>
+    <rect x="81" y="136" width="13" height="13" rx="3"/>
   </g>
-  <g transform="translate(260 68)">
-    <text x="0" y="62" fill="#E7EDF6" font-family="Segoe UI,Inter,Arial,sans-serif" font-size="72" font-weight="750" letter-spacing="5">AEGIS<tspan fill="#5B93F5">LOG</tspan></text>
-    <text x="4" y="104" fill="#718096" font-family="Segoe UI,Inter,Arial,sans-serif" font-size="17" font-weight="600" letter-spacing="5">DEFENSIVE LOG INVESTIGATION</text>
-    <path d="M4 127H604" stroke="#26364C"/>
-    <text x="4" y="154" fill="#53657E" font-family="Segoe UI,Inter,Arial,sans-serif" font-size="13" font-weight="600" letter-spacing="3">LOCAL-FIRST  /  READ-ONLY  /  DETERMINISTIC</text>
+  <g stroke="#E7EDF6" stroke-width="7" stroke-linecap="round">
+    <path d="M108 88h42M108 115h42M108 142h27"/>
   </g>
+  <text x="225" y="131" fill="#E7EDF6" font-family="Segoe UI,Arial,sans-serif" font-size="82" font-weight="700" letter-spacing="2">AEGIS<tspan fill="#4C8DFF">LOG</tspan></text>
+  <text x="230" y="175" fill="#A9BBD4" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="600" letter-spacing="3">DEFENSIVE LOG INVESTIGATION</text>
 </svg>

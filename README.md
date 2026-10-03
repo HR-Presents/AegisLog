@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/assets/aegislog-logo.svg" alt="AegisLog logo" width="120">
+<img src="docs/assets/aegislog-logo.svg" alt="AegisLog logo" width="720">
 
-# AegisLog v2.1.6
+# AegisLog
 
 **Defensive Log Investigation & Evidence Analysis Platform**
 
@@ -26,7 +26,7 @@
 
 ## Overview
 
-AegisLog v2.1.6 is a terminal-first defensive log investigation platform for local files, native telemetry, and live log streams.
+AegisLog is a terminal-first defensive log investigation platform for local files, native telemetry, and live log streams.
 
 It combines bounded ingestion, format recognition, deterministic rules, authentication correlation, incident grouping, rarity context, evidence review, and local HTML reporting. Users can investigate one file, scan a folder, inspect accessible computer logs, or monitor supported sources from their existing terminal.
 
@@ -45,6 +45,27 @@ Native collectors support Windows Event Logs, Linux journald, and Docker logs wh
 >
 > Findings come from supplied files or explicitly selected telemetry sources. Bundled demonstrations are synthetic. Recognizing a record format does not guarantee that every relevant threat has a matching detection rule.
 
+### What AegisLog Does
+
+AegisLog helps answer four practical questions: what happened in the available logs, which records deserve attention, how the retained evidence relates, and what to inspect next. It supports security investigation and everyday operational troubleshooting from the same terminal.
+
+A user can begin with an existing application log, inspect accessible operating-system events without preparing a file, scan a folder of logs, or watch new events arrive. The result is an evidence-based investigation with readable local reports and explicit coverage limits.
+
+### Choose an Investigation
+
+```mermaid
+flowchart TD
+    A[Choose an investigation] --> B[Existing files]
+    A --> C[Native telemetry]
+    A --> D[Live activity]
+    B --> E[Single file or folder scan]
+    C --> F[Accessible channel or container]
+    D --> G[File or multi-source monitor]
+    E --> H[Review evidence and reports]
+    F --> H
+    G --> H
+```
+
 ## Platform Architecture
 
 The investigation pipeline keeps evidence collection, analysis, and presentation separate.
@@ -58,6 +79,19 @@ flowchart TD
 ```
 
 Source sizes, retained excerpts, truncation, and collection limits affect the evidence available for analysis. Reports disclose these limits rather than presenting a bounded sample as a complete history.
+
+### Collection and Trust Boundaries
+
+```mermaid
+flowchart TD
+    A[Read-only source access] --> B[Bounded local analysis]
+    B --> C[Terminal evidence review]
+    B --> D[Local report files]
+    C --> E[Authorized human decision]
+    D --> E
+```
+
+AegisLog reads from selected sources and writes its own reports or requested investigation state. The analysis pipeline provides no automatic source-editing or host-remediation action.
 
 ### Evidence-to-Decision Workflow
 
@@ -74,7 +108,7 @@ Source sizes, retained excerpts, truncation, and collection limits affect the ev
 
 ## Core capabilities
 
-| Area | AegisLog v2.1.6 |
+| Area | AegisLog |
 |---|---|
 | File investigation | Static analysis of supported log layouts with disclosed parsing coverage |
 | Native telemetry | Windows System/Application/Security, Linux journald, and Docker collectors |
@@ -121,6 +155,21 @@ Activity charts show bounded retained timestamped evidence, including recent con
 >
 > A rare event may be benign. Zero findings may reflect limited rules, unsupported fields, missing evidence, or collection limits. It does not establish a clean system.
 
+### How Findings Gain Context
+
+```mermaid
+flowchart TD
+    A[Normalized retained evidence] --> B[Rule matches]
+    A --> C[Authentication correlation]
+    A --> D[Activity and rarity context]
+    B --> E[Explained findings and incident groups]
+    C --> E
+    D --> F[Analyst prioritization]
+    E --> F
+```
+
+Rule matches identify supported conditions. Correlation adds relationships, while activity and rarity describe the available sample. The analyst reviews these signals together with coverage and source context.
+
 ## Native Logs and Computer Checks
 
 Choose **C Check Computer** to discover readable sources, then select a source and time window. Native snapshots are bounded by both time and count; known file sources are analyzed as files rather than through that native time window.
@@ -149,6 +198,20 @@ The workflow:
 
 Discovery stops at 200 candidates or 10,000 entries. Choose a smaller folder when those limits prevent complete discovery. Matching a file extension does not guarantee complete parser support.
 
+### Folder-to-Report Workflow
+
+```mermaid
+flowchart TD
+    A[Bounded folder discovery] --> B[Select readable candidates]
+    B --> C[Optional identical-content deduplication]
+    C --> D[Analyze unique selected sources]
+    D --> E[Individual investigation reports]
+    D --> F[Batch overview and manifest]
+    F --> G[Review completed and incomplete outcomes]
+```
+
+Relative source paths remain visible even when identical content shares a report. Failed, cancelled, or pending items remain distinct from successfully analyzed evidence.
+
 ## Live Monitoring
 
 **02 Live Monitor** watches appended file events. **03 Multi-Source** compares supported live sources. **05 Native Monitor** watches supported native telemetry.
@@ -169,6 +232,18 @@ Each investigation provides a short summary and a separate full retained-evidenc
 | JSON exports/manifest | Supported machine-readable investigation and batch context |
 
 Use **R Reports** from the terminal to browse saved summaries and batch overviews. Completed workflows provide report/folder opening actions where supported.
+
+### Report Navigation
+
+```mermaid
+flowchart TD
+    A[Completed investigation] --> B[Summary report]
+    A --> C[Full retained-evidence report]
+    B --> D[Priority findings and coverage]
+    C --> E[Detailed findings and references]
+    B --> F[Print summary]
+    C --> G[Print complete report]
+```
 
 ### Printing and PDF
 
@@ -403,9 +478,9 @@ AegisLog is released under the [MIT License](LICENSE).
 
 <div align="center">
 
-<img src="docs/assets/aegislog-logo.svg" alt="AegisLog logo" width="72">
+<img src="docs/assets/aegislog-logo.svg" alt="AegisLog logo" width="360">
 
-**AegisLog v2.1.6**
+**AegisLog**
 
 **LOCAL-FIRST · READ-ONLY · DETERMINISTIC · EVIDENCE-DRIVEN · EXPLAINABLE**
 
