@@ -78,7 +78,7 @@ The interactive shell uses the authoritative `aegis@console >` prompt. Windows S
 With Python 3.10+ and pipx installed:
 
 ```bash
-py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/3fa654012458ca91e38ca40dd31e25d016dec70a.zip"
+py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/main.zip"
 aegislog start
 ```
 
@@ -215,4 +215,4 @@ Folder scans now default to likely logs, offer identical-content deduplication, 
 
 ### Audited terminal build and next release
 
-The terminal/report fixes at commit `3fa654012458ca91e38ca40dd31e25d016dec70a` passed 515 tests and all seven CI workflows. The D browser dashboard was removed; terminal panels remain. Windows native collection and report opening were also exercised by the owner. See [installation](docs/INSTALL.md), [final audit](docs/FINAL_AUDIT.md), and [prepared v2.1.4 release notes](docs/RELEASE_V2.1.4.md). This development artifact still reports 2.1.3; v2.1.4 has not been published.
+The terminal/report fixes at commit `3fa654012458ca91e38ca40dd31e25d016dec70a` passed 515 tests and all seven CI workflows. The D browser dashboard was removed; terminal panels remain. Windows native collection and report opening were also exercised by the owner. See [installation](docs/INSTALL.md), [final audit](docs/FINAL_AUDIT.md), and [prepared v2.1.4 release notes](docs/RELEASE_V2.1.4.md). The previous audited artifact reports 2.1.3. Main now prepares a 2.1.4 candidate with fresh versioned assets and a draft release; v2.1.4 has not been published.

@@ -1,6 +1,6 @@
 # AegisLog v2.1.4 — prepared release notes
 
-Status: prepared, not published. Existing v2.1.3 assets and tags must remain unchanged.
+Status: release candidate, not published. The versioned workflow prepares a draft on main after validation. Existing v2.1.3 assets and tags must remain unchanged.
 
 ## Changes
 
@@ -26,9 +26,11 @@ Executable SHA-256: `45c9430106f7843ef16ef44d2d499a666872ead6abedc5f703daa0c4e3d
 
 The ZIP contains the executable, matching checksum, quick start and three demo files. Both hashes were recomputed from the downloaded artifact. This artifact still reports 2.1.3 and is unsigned; it must not be relabeled as the v2.1.4 binary.
 
-## Remaining release preparation
+## Versioned build and draft release
 
-Before publishing v2.1.4, bump package/runtime version together, adapt the immutable versioned release workflow for the new tag, rerun validation and build new assets from that exact commit. Verify new hashes and provenance before attaching them to a draft release. Do not reuse the development hashes above for rebuilt assets.
+Package and runtime metadata are 2.1.4. The new workflow validates source, builds Python distributions and a Windows executable, checks its exact version, exercises native System collection, and generates fresh checksums. On main it creates an immutable **draft** release with Windows ZIP, executable, Python distributions, hashes and the exact build commit. It does not publish publicly or change the latest stable release. Existing tags/releases are never overwritten. A manual retry requires RELEASE-v2.1.4 and refuses an existing release/tag.
+
+The development hashes above apply only to the older audited 2.1.3 artifact. Fresh v2.1.4 hashes are attached by the draft workflow. The Windows executable remains unsigned; provenance attestation is separate from Authenticode signing.
 
 ## Scope
 

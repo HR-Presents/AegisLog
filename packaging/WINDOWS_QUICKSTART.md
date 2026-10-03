@@ -30,7 +30,7 @@ From home, P opens built-in demo replay immediately. This is recorded sample act
 
 Reports and exports are local. Rolling retention and displayed chart slices are labelled. Findings require investigation; they are not proof of compromise.
 
-This is a development build of version 2.1.3. Its build status and source commit are available in the linked GitHub workflow. The checksum file applies to `dist/AegisLog.exe`.
+This is a development build of version 2.1.4. Its build status and source commit are available in the linked GitHub workflow. The checksum file applies to `dist/AegisLog.exe`.
 
 ## Guided investigations
 

@@ -11,11 +11,11 @@ py -m pip install --user pipx
 py -m pipx ensurepath
 ```
 
-Reopen PowerShell, then install the audited build:
+Reopen PowerShell, then install the current main candidate:
 
 ```powershell
 cd $HOME
-py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/3fa654012458ca91e38ca40dd31e25d016dec70a.zip"
+py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/main.zip"
 aegislog start
 ```
 
