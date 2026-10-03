@@ -24,6 +24,7 @@ def guide_view():
                       '07 Demo / P Replay: explore synthetic or recorded activity.\n'
                       '08 Health: check runtime and collector availability. 09 Help: command reference.\n'
                       'S Workbench: filter evidence, inspect D Details and T Timeline, export JSON, and open reports.\n'
+                      'F Scan Folder: discover text logs and analyze selected files separately.\n'
                       'R Reports: open locally generated HTML reports in your browser.\n'
                       'Live views: B/Escape stops; Q quits. Home: PgUp/PgDn scroll; Home/End jump.\n'
                       'Findings and rarity scores require context; they do not prove an attack.', style=MUTED))
@@ -32,7 +33,7 @@ def guide_view():
 def report_candidates(root):
     if not root.exists():
         return []
-    return sorted((p for p in root.glob('*.html') if p.is_file() and not p.name.endswith('-appendix.html')),
+    return sorted((p for p in [*root.glob('*.html'), *root.glob('folder-scan/*/*/*.html')] if p.is_file() and not p.name.endswith('-appendix.html')),
                   key=lambda p: p.stat().st_mtime_ns, reverse=True)[:20]
 
 
@@ -50,7 +51,7 @@ def open_saved_reports(console, root=None):
         console.print(Text('No saved HTML reports here. Use 01 Analyze or S Workbench → O to generate one.', style=NEUTRAL))
         return
     for number, path in enumerate(reports, 1):
-        console.print(Text(f'{number:02d}  SUMMARY  |  {path.name}', style=NEUTRAL))
+        console.print(Text(f'{number:02d}  SUMMARY  |  {path.relative_to(root)}', style=NEUTRAL))
     choice = Prompt.ask('Report number', choices=[str(n) for n in range(1, len(reports) + 1)], default='1', console=console)
     selected = reports[int(choice) - 1]
     console.print(Text(f'Opening {selected.name}', style=ACCENT))

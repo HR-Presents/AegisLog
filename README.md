@@ -202,3 +202,7 @@ AegisLog is released under the [MIT License](LICENSE).
 **AEGISLOG** · Investigate locally. Preserve evidence. Keep the analyst in control.
 
 </div>
+
+### Scan a folder of logs
+
+In `aegislog start`, choose **F Scan Folder** and enter a folder path. A bounded recursive scan finds nonempty text candidates (`.log`, `.txt`, `.jsonl`, `.ndjson`, `.json`, `.csv`), skips symlinks and binary files, and lets you select numbers or ALL. Each selected source receives its own summary and evidence report under `aegislog-reports/folder-scan/`; **R Reports** opens them. Sources remain unchanged. Extension matching does not guarantee parser support. Discovery stops at 200 candidates or 10,000 entries; choose a smaller folder to cover the rest. B returns and Q quits.

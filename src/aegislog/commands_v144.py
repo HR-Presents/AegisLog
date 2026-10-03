@@ -669,6 +669,9 @@ def start() -> None:
                 )
                 console.print()
                 commands_reference()
+            elif lowered in {"f", "folder", "scan-folder"}:
+                from .folder_scan import run_folder_scan
+                run_folder_scan(console)
             elif lowered in {"r", "reports"}:
                 from .report_browser import open_saved_reports
                 open_saved_reports(console)
