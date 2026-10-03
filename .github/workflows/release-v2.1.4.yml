@@ -89,8 +89,8 @@ jobs:
           .\dist\AegisLog.exe doctor
           $helpText = .\dist\AegisLog.exe --help | Out-String
           if ($LASTEXITCODE -ne 0 -or $helpText -match "(?im)^\s*[│|]?\s*desktop\s") { throw "Removed desktop command returned" }
-          $home = "q" | .\dist\AegisLog.exe start | Out-String
-          if ($LASTEXITCODE -ne 0 -or $home -notmatch "ANALYZE LOG" -or $home -notmatch "REPORTS" -or $home -match "\[D\]\s*LOCAL DASHBOARD") { throw "Terminal home/navigation regression" }
+          $aegisHomeOutput = "q" | .\dist\AegisLog.exe start | Out-String
+          if ($LASTEXITCODE -ne 0 -or $aegisHomeOutput -notmatch "ANALYZE LOG" -or $aegisHomeOutput -notmatch "REPORTS" -or $aegisHomeOutput -match "\[D\]\s*LOCAL DASHBOARD") { throw "Terminal home/navigation regression" }
           .\dist\AegisLog.exe start --help
           .\dist\AegisLog.exe check-computer --help
           .\dist\AegisLog.exe dashboard examples\auth.log
