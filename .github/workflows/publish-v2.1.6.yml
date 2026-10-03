@@ -9,6 +9,8 @@ permissions:
   contents: read
 jobs:
   verify:
+    permissions:
+      contents: write
     runs-on: ubuntu-24.04
     steps:
       - name: Verify reviewed draft and asset digests
