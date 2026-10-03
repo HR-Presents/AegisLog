@@ -101,12 +101,12 @@ _READING_LAYOUT_STYLE = """
 .report .group-evidence{padding:14px 0;gap:14px}
 .report .evidence{overflow-wrap:anywhere}
 .report .executive-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px}
-.report .priority-box{background:#f8fbff;border:0;border-radius:8px;padding:18px}
+.report .priority-box{align-self:start;background:#f8fbff;border:0;border-radius:8px;padding:18px}
 .report .telemetry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
 .report .telemetry-card{margin:0}
 .report .summary-header{grid-template-columns:120px minmax(0,1fr);gap:22px}
 .report .summary-header .aegislog-report-logo{width:120px}
-.report .summary-header .brand-sub{white-space:normal;font-size:8px;line-height:1.4;letter-spacing:.01em;text-align:center}
+.report .summary-header .brand-sub{white-space:nowrap;font-size:7.5px;line-height:1.4;letter-spacing:.01em;text-align:center}
 .report .content .section-note{font-size:14px!important;line-height:1.5;max-width:none}
 .report #executive p{margin-top:8px;margin-bottom:8px}
 .report .summary-header h1{font-size:30px;margin-bottom:6px}
@@ -122,6 +122,8 @@ _READING_LAYOUT_STYLE = """
 .report:not(.summary) .masthead .aegislog-report-logo{width:130px}
 .report:not(.summary) .masthead h1{grid-column:2;font-size:30px;margin:0 0 6px}
 .report:not(.summary) .masthead .subtitle,.report:not(.summary) .masthead .cover-meta{grid-column:2;margin:0;font-size:13px}
+.report:not(.summary) .masthead .summary-demo-label{grid-column:2;font-size:11px;font-weight:700;color:#245ea8;margin:8px 0 0}
+.report:not(.summary) .masthead .brand-sub{font-size:8px;letter-spacing:.02em;text-align:center}
 .report:not(.summary) .masthead .context-notice{grid-column:1 / -1;margin:12px 0 0}
 @media screen and (max-width:760px){
 .report .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -153,6 +155,7 @@ _READING_LAYOUT_STYLE = """
 .report .summary-header{grid-template-columns:110px minmax(0,1fr)}
 .report .summary-header .aegislog-report-logo{width:110px}
 .report .summary-header h1{font-size:26px}
+.report .summary-header .brand-sub{font-size:7px}
 .report .summary-chart-grid,.report .executive-grid{gap:18px}
 .report .summary-finding{break-inside:avoid;padding:12px 0}
 .report .summary-finding .evidence{padding:6px 10px;margin:6px 0}
