@@ -246,6 +246,14 @@ def _home(screen_width: int | None = None) -> RenderableType:
 
 
 def _pause_for_menu() -> None:
+    from . import commands_v11
+    if commands_v11.last_report is not None:
+        from .report_browser import report_actions
+        try:
+            report_actions(console, commands_v11.last_report)
+        except WorkspaceBack:
+            pass
+        return
     try:
         while True:
             value = console.input(f"\n[{MUTED}][Enter / B Back] [O Reports] [Q Quit][/{MUTED}]").strip().lower()
@@ -559,6 +567,8 @@ def _read_home_choice() -> str:
 
 def start() -> None:
     while True:
+        from . import commands_v11
+        commands_v11.last_report = None
         try:
             raw_choice = _read_home_choice()
             choice = raw_choice.strip() or "1"

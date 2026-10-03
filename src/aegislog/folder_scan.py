@@ -92,38 +92,52 @@ def _digest(path, poll):
     return digest.hexdigest()
 
 
-def write_batch(destination, root, rows, stopped=''):
+def write_batch(destination, root, rows, stopped='', *, scan_mode='Likely logs only'):
     import json
+    from collections import Counter
     from html import escape
     from .reporting import _summary_brand
     completed = [row for row in rows if row['status'] == 'complete']
+    status = Counter(row['status'] for row in rows)
     total_findings = sum(row.get('findings', 0) for row in completed)
     groups = {}
+    categories = Counter()
+    def coverage_label(row):
+        if row['status'] == 'duplicate':
+            return 'Shared report'
+        if row['status'] != 'complete':
+            return 'Not analyzed'
+        recognized, records = row.get('recognized', 0), row.get('records', 0)
+        return 'Recognized' if records and recognized == records else 'Partial' if recognized else 'Generic only'
+    coverage = Counter(coverage_label(row) for row in completed)
     for row in completed:
         for group in row.get('groups', []):
             key = (group['severity'], group['title'], group['recommendation'])
             groups[key] = groups.get(key, 0) + group['count']
-    recommendations = set()
-    group_html = ''
+            category = group.get('category', 'unspecified')
+            categories['Operational' if category in {'error', 'service'} else 'Security / other leads'] += group['count']
     rank = {'CRITICAL': 5, 'HIGH': 4, 'MEDIUM': 3, 'LOW': 2, 'INFO': 1}
+    group_html = ''
     for (severity, title, action), count in sorted(groups.items(), key=lambda value: (-rank.get(value[0][0], 0), -value[1]))[:6]:
-        group_html += f'<li><strong>{escape(severity)} · {escape(title)} · {count} occurrences</strong>'
-        if action not in recommendations:
-            group_html += f'<p>{escape(action)}</p>'
-            recommendations.add(action)
-        group_html += '</li>'
-    table = ''
+        word = 'occurrence' if count == 1 else 'occurrences'
+        group_html += f'<li><strong>{escape(severity)} · {escape(title)} · {count} {word}</strong><p>{escape(action)}</p></li>'
+    table, appendix = '', ''
     for row in rows:
         row['detail'] = row.get('error') or ('Identical to ' + row['duplicate_of'] if row.get('duplicate_of') else '')
         report = row.get('report')
         link = f'<a href="{escape(report, quote=True)}">Open report</a>' if report else '—'
         table += '<tr>' + ''.join(f'<td>{escape(str(row.get(key, "—")))}</td>' for key in ('source','status','lines','records','recognized','coverage','findings','detail')) + f'<td>{link}</td></tr>'
+        detail = f'<small>{escape(row["detail"])}</small>' if row['detail'] else ''
+        appendix += f'<tr><td>{escape(row["source"])}{detail}</td><td>{escape(row["status"])}</td><td>{coverage_label(row)}</td><td>{row.get("recognized", "—")} / {row.get("records", "—")}</td><td>{row.get("findings", "—")}</td></tr>'
+    leaders = ''.join(f'<li>{escape(row["source"])} — {row.get("findings", 0)} findings ({coverage_label(row)})</li>' for row in sorted(completed, key=lambda row: -row.get('findings', 0))[:5] if row.get('findings'))
+    counts = f'{len(completed)} unique sources analyzed + {status["duplicate"]} duplicate copies; {status["failed"]} failed, {status["cancelled"]} cancelled, {status["pending"]} pending / {len(rows)} selected'
     html = f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AegisLog Folder Investigation</title><style>
-    body{{font:17px/1.6 system-ui,sans-serif;background:#f3f7fd;color:#172b4d;margin:0}}main{{max-width:1250px;margin:auto;padding:24px}}section{{background:white;border:1px solid #c4d6ef;padding:22px;border-radius:12px;margin:18px 0}}.summary-brand{{display:flex;gap:12px;align-items:center}}.summary-logo{{width:54px;height:58px}}.summary-wordmark{{font-size:30px;font-weight:bold}}.summary-wordmark span,a{{color:#1258b5}}.summary-tagline,.brand-sub{{font-size:12px}}table{{border-collapse:collapse;width:100%}}th,td{{padding:10px;border-bottom:1px solid #c4d6ef;text-align:left;vertical-align:top;overflow-wrap:anywhere}}.table-wrap{{overflow:auto}}input,button{{font:inherit;padding:10px}}input{{max-width:90%}}@media print{{input,button{{display:none}}body{{background:white}}thead{{display:table-header-group}}}}
-    </style><main>{_summary_brand()}<h1>Folder investigation overview</h1><p>{escape(str(root))}</p><section><strong>{len(completed)}/{len(rows)} sources analyzed · {total_findings} findings from unique analyzed sources</strong><p>{escape(stopped or 'Batch completed.')}</p><p>Each source was analyzed independently. Groups summarize similar labels; they are not cross-file incident correlation. Duplicate content may share a report. No findings does not establish safety; review format coverage.</p><button onclick="window.print()">Print overview / Save PDF</button></section><section><h2>Top finding groups</h2><ul>{group_html or '<li>No rules matched in completed sources. Review coverage below.</li>'}</ul></section><section><h2>All selected sources</h2><label>Filter sources <input id="filter" placeholder="Path, status or coverage"></label><div class="table-wrap"><table><thead><tr><th>Relative source</th><th>Status</th><th>Physical lines</th><th>Records</th><th>Recognized</th><th>Coverage</th><th>Findings</th><th>Details</th><th>Report</th></tr></thead><tbody>{table}</tbody></table></div></section></main><script>document.getElementById('filter').addEventListener('input',function(){{const query=this.value.toLowerCase();document.querySelectorAll('tbody tr').forEach(row=>row.hidden=!row.textContent.toLowerCase().includes(query));}});</script></html>'''
+    body{{font:17px/1.6 system-ui,sans-serif;background:#f3f7fd;color:#172b4d;margin:0}}main{{max-width:1250px;margin:auto;padding:24px}}section{{background:white;border:1px solid #c4d6ef;padding:22px;border-radius:12px;margin:18px 0}}.summary-brand{{display:flex;gap:12px;align-items:center}}.summary-logo{{width:54px;height:58px}}.summary-wordmark{{font-size:30px;font-weight:bold}}.summary-wordmark span,a{{color:#1258b5}}.summary-tagline,.brand-sub{{font-size:12px}}table{{border-collapse:collapse;width:100%;min-width:1100px}}th,td{{padding:10px;border-bottom:1px solid #c4d6ef;text-align:left;vertical-align:top}}td:first-child{{overflow-wrap:anywhere;min-width:240px}}.table-wrap{{overflow:auto}}input,button{{font:inherit;padding:10px}}input{{max-width:90%}}.print-only{{display:none}}small{{display:block;color:#405675}}
+    @page{{size:A4;margin:14mm}}@media print{{body{{font-size:10pt;line-height:1.35;background:white}}main{{padding:0;max-width:none}}section{{border:0;padding:0;margin:12pt 0;border-radius:0}}h1{{font-size:20pt}}h2{{font-size:14pt}}.screen-only{{display:none!important}}.print-only{{display:block}}table{{min-width:0;table-layout:fixed}}th,td{{padding:5pt;overflow-wrap:normal}}td:first-child{{min-width:0;overflow-wrap:anywhere}}th:nth-child(1){{width:44%}}th:nth-child(2){{width:14%}}th:nth-child(3){{width:16%}}th:nth-child(4){{width:16%}}th:nth-child(5){{width:10%}}thead{{display:table-header-group}}tr{{break-inside:avoid}}h2{{break-after:avoid}}small{{font-size:8pt}}}}
+    </style><main>{_summary_brand()}<h1>Folder investigation overview</h1><p>{escape(str(root))}</p><section><strong>{counts}</strong><p>{escape(stopped or 'Batch completed.')}</p><p>Scan mode: {escape(scan_mode)}. Sources are analyzed independently; similar labels are not cross-file incident correlation.</p><p>{total_findings} rule matches from unique analyzed sources: {categories['Operational']} operational issues; {categories['Security / other leads']} security / other leads. These are not confirmed attacks.</p><p>Coverage: {coverage['Recognized']} recognized, {coverage['Partial']} partial, {coverage['Generic only']} generic-only sources. Generic rules can match unrecognized text. Zero findings does not establish safety.</p><div class="screen-only"><button onclick="window.print()">Print overview / Save PDF</button><p>For sharing, disable browser headers and footers in the print dialog.</p></div></section><section><h2>Top finding groups</h2><ul>{group_html or '<li>No rules matched. Review coverage.</li>'}</ul><h2>Sources with most findings</h2><ul>{leaders or '<li>No retained findings.</li>'}</ul></section><section class="screen-only"><h2>All selected sources</h2><label>Filter sources <input id="filter" placeholder="Path, status or coverage"></label><div class="table-wrap"><table><thead><tr><th>Relative source</th><th>Status</th><th>Physical lines</th><th>Records</th><th>Recognized</th><th>Coverage</th><th>Findings</th><th>Details</th><th>Report</th></tr></thead><tbody>{table}</tbody></table></div></section><section class="print-only"><h2>Source appendix</h2><p>Recognized / records describes format coverage. Duplicate rows refer to their shared report. Individual HTML reports remain available in the original folder.</p><table><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Recognized / records</th><th>Findings</th></tr></thead><tbody>{appendix}</tbody></table></section></main><script>document.getElementById('filter').addEventListener('input',function(){{const query=this.value.toLowerCase();document.querySelectorAll('.screen-only tbody tr').forEach(row=>row.hidden=!row.textContent.toLowerCase().includes(query));}});</script></html>'''
     index = destination / 'batch-index.html'
     index.write_text(html, encoding='utf-8')
-    (destination / 'batch-manifest.json').write_text(json.dumps(dict(root=str(root), stopped=stopped, sources=rows), indent=2, ensure_ascii=False), encoding='utf-8')
+    (destination / 'batch-manifest.json').write_text(json.dumps(dict(root=str(root), stopped=stopped, scan_mode=scan_mode, sources=rows), indent=2, ensure_ascii=False), encoding='utf-8')
     return index
 
 
@@ -195,7 +209,7 @@ def run_folder_scan(console):
                 from .reporting import _finding_groups
                 row.update(status='complete', lines=data.lines, records=data.records, recognized=data.recognized_records, coverage=data.coverage_status,
                            formats=data.format_counts, findings=len(data.findings), report=str(report.relative_to(destination)), sha256=digest,
-                           groups=[dict(severity=key[0], title=key[2], recommendation=key[3], count=len(members)) for key, members in _finding_groups(data)])
+                           groups=[dict(severity=key[0], category=key[1], title=key[2], recommendation=key[3], count=len(members)) for key, members in _finding_groups(data)])
                 fingerprints[digest] = row
                 console.print(f'  {data.lines} lines / {data.records} records / {data.recognized_records} recognized / {len(data.findings)} findings', markup=False)
             except (WorkspaceBack, KeyboardInterrupt):
@@ -209,7 +223,7 @@ def run_folder_scan(console):
                 row.update(status='failed', error=str(error))
                 console.print(f'  Skipped: {error}', markup=False)
     try:
-        index = write_batch(destination, root, rows, stopped)
+        index = write_batch(destination, root, rows, stopped, scan_mode="Other text/configuration included" if broad else "Likely logs only")
     except OSError as error:
         console.print(f'Could not save the batch overview: {error}', markup=False)
         if quit_after:

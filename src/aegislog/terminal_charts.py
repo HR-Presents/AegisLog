@@ -62,7 +62,18 @@ class ActivityChart:
 
     def __rich_console__(self, console, options):
         from .theme import HIGH, SUCCESS
-        items = sorted(self.values.items())[-min(12, max(1, (options.max_width - 12) // 5)):]
+        from datetime import datetime, timedelta
+        limit = min(12, max(1, (options.max_width - 12) // 5))
+        ordered = sorted(self.values.items())
+        items = []
+        if ordered:
+            latest = datetime.strptime(ordered[-1][0], "%Y-%m-%d %H:%M")
+            earliest = datetime.strptime(ordered[0][0], "%Y-%m-%d %H:%M")
+            start = max(earliest, latest - timedelta(minutes=limit - 1))
+            while start <= latest:
+                label = start.strftime("%Y-%m-%d %H:%M")
+                items.append((label, self.values.get(label, 0)))
+                start += timedelta(minutes=1)
         if not items:
             yield TerminalPanel(Text("No timestamped activity in retained telemetry.", style=MUTED), title=self.title,
                         box=box.ASCII, border_style=ACCENT_SOFT, style=f"{NEUTRAL} on {SURFACE}")
@@ -86,7 +97,7 @@ class ActivityChart:
         for _, value in items:
             spark.append(blocks[min(7, round(value / maximum * 7))], style=HIGH)
         rows.append(spark)
-        rows.append(Text(f"UTC: {items[0][0]} to {items[-1][0]}", style=MUTED))
+        rows.append(Text(f"UTC: {items[0][0]} to {items[-1][0]} / consecutive minutes; empty retained buckets = 0", style=MUTED))
         dot_rows = []
         for y in range(3, -1, -1):
             row = Text("        ")

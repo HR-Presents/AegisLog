@@ -58,6 +58,8 @@ class DashboardData:
     severities: dict[str, int]
     events: tuple[Event, ...] = ()
     raw_lines: tuple[str, ...] = ()
+    source_label: str = ""
+    collection_scope: str = ""
     timestamp_year_hint: int | None = None
     sampled_lines: int = 0
     truncated_lines: int = 0

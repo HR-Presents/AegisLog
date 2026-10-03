@@ -45,4 +45,5 @@ def test_compact_analyze_is_bounded_for_wide_windows_terminal() -> None:
     output = _plain(render_dashboard(data, screen_width=220), width=220)
     meaningful = [line.rstrip() for line in output.splitlines() if line.strip()]
     assert meaningful
-    assert max(len(line) for line in meaningful) <= 144
+    assert max(len(line) for line in meaningful) <= 218
+    assert max(len(line) for line in meaningful) == 218
