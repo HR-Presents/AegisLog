@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import copy
 from pathlib import Path
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -45,6 +46,13 @@ def _analysis_complete_line(data: DashboardData) -> Text:
     return line
 
 
+class _ReportReadyPanel(Panel):
+    def __rich_console__(self, console, options):
+        panel = copy(self)
+        panel.width = max(1, options.max_width - 2)
+        yield from Panel.__rich_console__(panel, console, options)
+
+
 def _report_ready_panel(report_path: Path) -> Panel:
     """Render a concise, Windows-safe handoff after report generation."""
     body = Text()
@@ -54,7 +62,7 @@ def _report_ready_panel(report_path: Path) -> Panel:
     body.append("Generated locally / source unchanged", style=SUCCESS)
     body.append("\nNEXT      ", style=MUTED)
     body.append("Open in a browser for the complete evidence, timeline, and printable report.", style="white")
-    return Panel(
+    return _ReportReadyPanel(
         body,
         title=Text(" REPORT READY ", style=f"bold {SUCCESS}"),
         title_align="left",
@@ -62,7 +70,6 @@ def _report_ready_panel(report_path: Path) -> Panel:
         border_style=ACCENT_SOFT,
         padding=(0, 1),
         expand=True,
-        width=max(1, console.size.width - 2),
     )
 
 
