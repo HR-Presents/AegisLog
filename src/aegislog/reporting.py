@@ -82,6 +82,96 @@ _SUMMARY_OPENING_STYLE = """
 """
 
 
+_READING_LAYOUT_STYLE = """
+/* Shared reading layout: results first, readable evidence, compact navigation. */
+.report{width:min(1120px,calc(100% - 40px));margin:24px auto}
+.report .masthead{padding:16px 0 18px;border-bottom:2px solid var(--accent);margin-bottom:16px}
+.report .toolbar{padding:10px 0;border:0;border-bottom:1px solid var(--line);border-radius:0;gap:16px;margin-bottom:10px}
+.report .print-help{margin:0 0 16px;font-size:12px;line-height:1.5}
+.report .metrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.report .metric{min-height:84px;padding:14px 16px;border-radius:8px;background:#f8fbff}
+.report .metric strong{margin-top:6px;font-size:27px;line-height:1.25}
+.report .metric.danger strong,.report .metric.warning strong,.report .metric.good strong{font-size:20px}
+.report .section{border:0;border-top:1px solid var(--line);border-radius:0;padding:22px 0;margin-bottom:12px}
+.report .section-head{margin-bottom:12px;gap:16px}
+.report .section-head h2{border-left:3px solid var(--accent);padding-left:12px;font-size:22px}
+.report .section-note{color:var(--muted);max-width:80ch}
+.report .record-list{border:0;border-radius:0;padding:0}
+.report .group-intro{padding:12px 16px;background:#f8fbff;border-left:3px solid var(--accent);border-radius:0 6px 6px 0}
+.report .group-evidence{padding:14px 0;gap:14px}
+.report .evidence{overflow-wrap:anywhere}
+.report .executive-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px}
+.report .priority-box{align-self:start;background:#f8fbff;border:0;border-radius:8px;padding:18px}
+.report .telemetry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.report .telemetry-card{margin:0}
+.report .summary-header{grid-template-columns:120px minmax(0,1fr);gap:22px}
+.report .summary-header .aegislog-report-logo{width:120px}
+.report .summary-header .brand-sub{white-space:nowrap;font-size:7.5px;line-height:1.4;letter-spacing:.01em;text-align:center}
+.report .content .section-note{font-size:14px!important;line-height:1.5;max-width:none}
+.report #executive p{margin-top:8px;margin-bottom:8px}
+.report .summary-header h1{font-size:30px;margin-bottom:6px}
+.report .summary-meta{margin:12px 0 0;padding-top:10px}
+.report .summary-finding{padding:18px 0}
+.report .summary-finding .record-head{gap:10px;margin-bottom:10px}
+.report .summary-finding .evidence{border:0;border-left:2px solid #c5d8f3;border-radius:0;background:#f8fbff;padding:12px 14px;margin:10px 0}
+.report .summary-finding .action-text{margin:8px 0}
+.report .summary-notes{margin:12px 0 0}
+.report .footer{border-top:1px solid var(--line);padding-top:14px;margin-top:22px}
+.report:not(.summary) .masthead{display:grid;grid-template-columns:130px minmax(0,1fr);column-gap:22px;align-items:center}
+.report:not(.summary) .masthead .brandline{grid-column:1;grid-row:1 / span 3;margin:0}
+.report:not(.summary) .masthead .aegislog-report-logo{width:130px}
+.report:not(.summary) .masthead h1{grid-column:2;font-size:30px;margin:0 0 6px}
+.report:not(.summary) .masthead .subtitle,.report:not(.summary) .masthead .cover-meta{grid-column:2;margin:0;font-size:13px}
+.report:not(.summary) .masthead .summary-demo-label{grid-column:2;font-size:11px;font-weight:700;color:#245ea8;margin:8px 0 0}
+.report:not(.summary) .masthead .brand-sub{font-size:8px;letter-spacing:.02em;text-align:center}
+.report:not(.summary) .masthead .context-notice{grid-column:1 / -1;margin:12px 0 0}
+@media screen and (max-width:760px){
+.report .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+.report .executive-grid,.report .telemetry-grid{grid-template-columns:1fr}
+.report .summary-chart-grid{grid-template-columns:1fr}
+.report.summary #incidents table{min-width:520px}
+}
+@media screen and (max-width:480px){
+.report{width:calc(100% - 28px);margin:16px auto}
+.report .summary-header,.report:not(.summary) .masthead{grid-template-columns:80px minmax(0,1fr);gap:14px}
+.report .summary-header .aegislog-report-logo,.report:not(.summary) .masthead .aegislog-report-logo{width:80px}
+.report .summary-header h1,.report:not(.summary) .masthead h1{font-size:24px}
+.report .summary-header .brand-sub{white-space:normal;font-size:8px}
+.report .metric{padding:12px;min-height:80px}
+.report .summary-meta{grid-template-columns:1fr;gap:8px}
+}
+@media print{
+.report{width:100%;margin:0}
+.report .masthead{padding:8px 0 12px;margin-bottom:12px}
+.report .toolbar,.report .print-help{display:none}
+.report .metrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.report .metric{min-height:62px;padding:10px;border-radius:6px}
+.report .metric strong{font-size:22px;margin-top:5px}
+.report .metric.danger strong,.report .metric.warning strong,.report .metric.good strong{font-size:16px}
+.report .section{padding:14px 0;margin-bottom:10px;break-inside:auto}
+.report .section-head{break-after:avoid;margin-bottom:10px}
+.report:not(.summary) #findings{page-break-before:always}
+.report #source{break-inside:avoid}
+.report .section-head h2{font-size:19px}
+.report .content .section-note{font-size:12px!important}
+.report .summary-header{grid-template-columns:110px minmax(0,1fr)}
+.report .summary-header .aegislog-report-logo{width:110px}
+.report .summary-header h1{font-size:26px}
+.report .summary-header .brand-sub{font-size:7px}
+.report .summary-chart-grid,.report .executive-grid{gap:18px}
+.report .summary-finding{break-inside:avoid;padding:12px 0}
+.report .summary-finding .evidence{padding:6px 10px;margin:6px 0}
+.report .summary-finding .action-text{margin:6px 0}
+.report .summary-notes{break-inside:auto}
+.report .priority-box{padding:12px}
+.report .group-intro{break-inside:avoid;break-after:avoid;padding:10px 12px}
+.report .group-evidence{break-inside:avoid}
+.report:not(.summary) .masthead{grid-template-columns:110px minmax(0,1fr)}
+.report:not(.summary) .masthead .aegislog-report-logo{width:110px}
+.report:not(.summary) .masthead h1{font-size:26px}
+}
+"""
+
 def _safe_name(value: str) -> str:
     cleaned = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in value)
     return cleaned.strip("-") or "analysis"
@@ -325,18 +415,18 @@ def build_html_report(data: DashboardData, summary_href: str | None = None) -> s
     case_id = _case_id(data)
     summary_link = (f'<a class="report-button" href="{escape(summary_href)}">Back / Print Summary</a>'
                     if summary_href else '<a href="#executive">Back to overview</a>')
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Report - {escape(source_name)}</title><style>{_REPORT_STYLE}{_BODY_TEXT_STYLE}</style></head><body><main class="report">
-<header class="masthead" id="cover"><div class="brandline">{_summary_brand()}</div><h1>Security Investigation Report</h1><p class="subtitle">{escape(source_name)} · Full evidence · Investigation record</p><div class="cover-meta">Case ID: {escape(case_id)}<br>Generated: {generated}<br>LOCAL / READ-ONLY / DETERMINISTIC</div>{_report_context(data)}<div class="posture {_risk_class(risk)}"><small>Current posture</small><strong>{escape(risk)}</strong></div></header>
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Report - {escape(source_name)}</title><style>{_REPORT_STYLE}{_BODY_TEXT_STYLE}{_READING_LAYOUT_STYLE}</style></head><body><main class="report">
+<header class="masthead" id="cover"><div class="brandline">{_summary_brand()}</div><h1>Security Investigation Report</h1><p class="subtitle">{escape(source_name)} · Full evidence · Investigation record</p><div class="cover-meta">Case ID: {escape(case_id)}<br>Generated: {generated}<br>LOCAL / READ-ONLY / DETERMINISTIC</div>{'<p class="summary-demo-label">SYNTHETIC DEMO · not a finding about your computer</p>' if 'SYNTHETIC DEMO DATA' in _report_context(data) else ''}<div class="posture {_risk_class(risk)}"><small>Current posture</small><strong>{escape(risk)}</strong></div></header>
 
 <nav class="toolbar">{summary_link}<a href="#executive">Overview</a><a href="#incidents">Incidents</a><a href="#findings">Findings</a><a href="#telemetry">Telemetry</a><a href="#anomalies">Anomalies</a><a href="#method">Method</a><span class="spacer"></span><span class="local-note">DETERMINISTIC ANALYSIS</span><button type="button" onclick="window.print()">Print Full Evidence / Save PDF</button></nav>
 <p class="print-help">PDF export: use A4 and turn off browser Headers and footers in the print dialog to remove the local file URL. Background graphics are optional; charts and evidence remain readable.</p><div class="content"><section class="metrics">{_metric("Records processed", f"{data.records:,}")}{_metric("Findings", str(len(data.findings)))}{_metric("Incidents", str(len(data.incidents)))}{_metric("Disposition", _disposition(risk), _risk_class(risk))}</section>
-<section class="section" id="source"><div class="section-head"><h2>Investigation Information</h2></div><div class="case-strip"><div><small>Source</small><strong>{escape(source_name)}</strong></div><div><small>Case ID</small><strong>{escape(case_id)}</strong></div><div><small>Status</small><strong>Analysis complete</strong></div><div><small>Generated</small><strong>{generated}</strong></div><div><small>Processing</small><strong>LOCAL / READ-ONLY / DETERMINISTIC</strong></div></div></section>
 <section class="section" id="executive"><div class="section-head"><div><div class="section-label">Executive summary</div><h2>Analysis Summary</h2></div><div class="section-note">Start here. Supporting evidence follows below.</div></div><div class="executive-grid"><div class="assessment"><h3>Assessment</h3><p>{escape(_assessment(data, risk))}</p>{_primary_decision(data)}<p class="caveat">Analyzed <strong>{data.lines:,}</strong> physical line(s), retained <strong>{len(data.findings)}</strong> finding(s), <strong>{len(data.incidents)}</strong> incident(s), and <strong>{len(data.anomalies)}</strong> anomaly signal(s). Findings are investigative evidence, not proof of compromise.</p><h3 class="severity-heading">Severity distribution</h3><div class="severity-block">{_severity_overview(data)}</div></div><div class="priority-box"><h3>Recommended triage</h3>{_triage_actions(data)}</div></div></section>
-<section class="section" id="incidents"><div class="section-head"><div><div class="section-label">Correlation</div><h2>Incident Queue</h2></div><div class="section-note">Grouped signals; validate shared cause and timing.</div></div><div class="record-list">{_incident_records(data)}</div></section>
 <section class="section" id="findings"><div class="section-head"><div><div class="section-label">Detection</div><h2>Findings</h2></div><div class="section-note">{len(data.findings)} retained findings in {len(_finding_groups(data))} presentation groups. Each excerpt keeps its F-reference. Grouping for readability does not establish a common cause.</div></div><div class="record-list">{_finding_records(data)}</div></section>
+<section class="section" id="incidents"><div class="section-head"><div><div class="section-label">Correlation</div><h2>Incident Queue</h2></div><div class="section-note">Grouped signals; validate shared cause and timing.</div></div><div class="record-list">{_incident_records(data)}</div></section>
+<section class="section" id="source"><div class="section-head"><h2>Investigation Information</h2></div><div class="case-strip"><div><small>Source</small><strong>{escape(source_name)}</strong></div><div><small>Case ID</small><strong>{escape(case_id)}</strong></div><div><small>Status</small><strong>Analysis complete</strong></div><div><small>Generated</small><strong>{generated}</strong></div><div><small>Processing</small><strong>LOCAL / READ-ONLY / DETERMINISTIC</strong></div></div></section>
 <section class="section" id="telemetry"><div class="section-head"><div><div class="section-label">Telemetry</div><h2>Observed Distribution</h2></div><div class="section-note">A compact view of the parsed source.</div></div><div class="telemetry-grid"><div class="telemetry-card"><h3>Categories</h3><div class="chips">{_telemetry_chips(data.categories)}</div></div><div class="telemetry-card"><h3>Log levels</h3><div class="chips">{_bar_chart(data.levels, "Log levels")}</div></div><div class="telemetry-card"><h3>Services</h3><div class="chips">{_bar_chart(data.services, "Service activity")}{_telemetry_chips(data.services)}</div></div></section>
 <section class="section" id="anomalies"><div class="section-head"><div><div class="section-label">Behavior</div><h2>Anomaly Signals</h2></div><div class="section-note">Rarity scores (0-100), not attack probability.</div></div><p class="caveat">Scores describe rare concerning event classes within this retained sample. A score of 100 does not mean 100% attack probability, severity, or confidence. No trained machine-learning model is used.</p><div class="table-wrap"><table><thead><tr><th>Rarity score / 100</th><th>Event class</th><th>Reason</th></tr></thead><tbody>{_anomaly_rows(data)}</tbody></table></div></section>
-<section class="section" id="method"><div class="section-head"><div><div class="section-label">Method and scope</div><h2>Analysis Profile</h2></div><div class="section-note">How the report was produced and how to interpret it.</div></div><div class="method-grid"><div class="method-card"><h3>Processing model</h3><p>AegisLog v{escape(__version__)} performed local deterministic detection, incident correlation, and anomaly scoring. The source was handled read-only.</p></div><div class="method-card"><h3>Evidence limitations</h3><p>{escape(data.collection_scope)} {escape(data.retention_note)} {escape(data.coverage_note)} This report contains retained derived evidence rather than a complete copy of the raw log. Missing detections do not prove malicious activity is absent. Preserve original telemetry when incident-response, retention, or chain-of-custody procedures require it.</p></div></div><div class="table-wrap" style="margin-top:14px"><table><tr><th>Source path</th><td>{escape(data.source)}</td></tr><tr><th>Source file</th><td>{escape(source_name)}</td></tr><tr><th>Physical lines</th><td>{data.lines:,}</td></tr><tr><th>AegisLog version</th><td>{escape(__version__)}</td></tr><tr><th>Generated</th><td>{generated}</td></tr><tr><th>Analysis model</th><td>Deterministic local processing</td></tr></table></div></section>
+<section class="section" id="method"><div class="section-head"><div><div class="section-label">Method and scope</div><h2>Analysis Profile</h2></div><div class="section-note">How the report was produced and how to interpret it.</div></div>{_report_context(data)}<div class="method-grid"><div class="method-card"><h3>Processing model</h3><p>AegisLog v{escape(__version__)} performed local deterministic detection, incident correlation, and anomaly scoring. The source was handled read-only.</p></div><div class="method-card"><h3>Evidence limitations</h3><p>{escape(data.collection_scope)} {escape(data.retention_note)} {escape(data.coverage_note)} This report contains retained derived evidence rather than a complete copy of the raw log. Missing detections do not prove malicious activity is absent. Preserve original telemetry when incident-response, retention, or chain-of-custody procedures require it.</p></div></div><div class="table-wrap" style="margin-top:14px"><table><tr><th>Source path</th><td>{escape(data.source)}</td></tr><tr><th>Source file</th><td>{escape(source_name)}</td></tr><tr><th>Physical lines</th><td>{data.lines:,}</td></tr><tr><th>AegisLog version</th><td>{escape(__version__)}</td></tr><tr><th>Generated</th><td>{generated}</td></tr><tr><th>Analysis model</th><td>Deterministic local processing</td></tr></table></div></section>
 <div class="footer">AEGISLOG v{escape(__version__)} · {escape(case_id)} · Defensive security analysis · Generated locally · Presented and maintained by HR-Presents</div></div></main><script>if(new URLSearchParams(location.search).get("print")==="1"){{window.addEventListener("load",()=>window.print());}}</script></body></html>'''
 
 
@@ -404,8 +494,8 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
         f'<td>{escape(item.title)}</td><td>{item.count}</td></tr>'
         for item in _ordered_incidents(data)[:5]
     )
-    incident_content = ('<table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
-                        + incident_rows + '</tbody></table>') if incident_rows else '<p>No correlated incidents were recorded.</p>'
+    incident_content = ('<div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
+                        + incident_rows + '</tbody></table></div>') if incident_rows else '<p>No correlated incidents were recorded.</p>'
     anomaly_content = "".join(f'<li><strong>{item.score:.1f}/100</strong> · {escape(item.key)}</li>'
                               for item in sorted(data.anomalies, key=lambda item: -item.score)[:3])
     risk = _risk(data)
@@ -420,12 +510,13 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
 .summary-brand{{display:flex;align-items:center;gap:12px}}.summary-logo{{width:54px;height:58px;flex:none}}.summary-wordmark{{font-size:32px;font-weight:800;letter-spacing:-.03em;color:#14233d}}.summary-wordmark span{{color:#287bff}}.summary-tagline{{font-size:9px;font-weight:700;letter-spacing:.15em;color:#47658a}}.summary .brand-sub{{margin-top:10px;color:#47658a}}.summary .masthead{{border-bottom:3px solid #287bff;margin-bottom:20px}}.summary h1{{font-size:34px;color:#14233d}}.summary .metric{{background:#f8fbff;border-color:#c5d8f3}}.summary .metric strong{{color:#245ea8}}.summary .metric.danger{{background:#fff6f6;border-color:#f2cdcf}}.summary .metric.danger strong{{color:#a62b38}}.summary .metric.warning strong{{color:#855400}}.summary .metric.good strong{{color:#166348}}.summary .section-head h2{{border-left:4px solid #287bff;padding-left:12px}}.summary .summary-service-chart{{display:block;width:100%;height:auto}}.summary .summary-service-chart text{{fill:#18345b;font-family:"Segoe UI",Arial,sans-serif}}.summary-finding .evidence{{border:1px solid #d3def0;border-radius:6px;background:#f8fbff;padding:8px 10px}}.summary .pill.danger{{background:#fff1f2;border-color:#eab9c0}}.summary .pill.warning{{background:#fff7e6;border-color:#e8d2a3}}
 @media(max-width:600px){{.summary-chart-grid{{grid-template-columns:1fr}}}}
 @media print{{.summary .metrics{{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}}.summary .metric{{min-height:58px;padding:10px}}.summary .metric strong{{font-size:21px;line-height:1.3;overflow-wrap:normal}}.summary .masthead{{padding:14px 18px 18px}}.summary .brandline{{margin-bottom:18px}}.summary h1{{font-size:28px}}.summary .section{{padding:16px;margin-bottom:14px}}.summary-finding{{break-inside:avoid;padding:6px 0}}.summary-finding .evidence{{padding:4px 8px;margin:4px 0 6px}}.summary .section-note,.summary .scope{{font-size:10px}}.summary #incidents{{break-inside:avoid}}.summary .summary-chart-grid{{display:grid;grid-template-columns:1fr 1fr;gap:18px}}.summary-chart-grid{{break-inside:avoid}}.summary #executive{{break-inside:avoid}}.summary .severity-row{{grid-template-columns:65px 22px 1fr;gap:6px}}.summary .chart text{{font-size:12px}}.summary .masthead{{border-bottom:3px solid #287bff;margin-bottom:16px}}.summary .metric,.summary .pill,.summary-finding .evidence{{print-color-adjust:exact;-webkit-print-color-adjust:exact}}.summary .metric strong{{color:#245ea8!important}}.summary .metric.danger strong{{color:#a62b38!important}}.summary .metric.warning strong{{color:#855400!important}}.summary .metric.good strong{{color:#166348!important}}.summary-logo{{width:48px;height:52px}}.summary .summary-wordmark{{font-size:30px}}}}
-{_BODY_TEXT_STYLE}{_SUMMARY_OPENING_STYLE}</style></head><body><main class="report summary{' has-findings' if data.findings else ''}"><header class="masthead"><div class="summary-header"><div class="brandline">{_summary_brand()}</div><div><p class="summary-kicker">DEFENSIVE LOG INVESTIGATION</p><h1>Investigation Summary</h1><p class="summary-status">LOCAL / READ-ONLY / DETERMINISTIC</p>{demo_label}</div></div><dl class="summary-meta"><div><dt>Source</dt><dd>{escape(Path(data.source).name)}</dd></div><div><dt>Case</dt><dd>{_case_id(data)}</dd></div><div><dt>Generated</dt><dd>{generated}</dd></div></dl></header>
+{_BODY_TEXT_STYLE}{_SUMMARY_OPENING_STYLE}{_READING_LAYOUT_STYLE}</style></head><body><main class="report summary{' has-findings' if data.findings else ''}"><header class="masthead"><div class="summary-header"><div class="brandline">{_summary_brand()}</div><div><p class="summary-kicker">DEFENSIVE LOG INVESTIGATION</p><h1>Investigation Summary</h1><p class="summary-status">LOCAL / READ-ONLY / DETERMINISTIC</p>{demo_label}</div></div><dl class="summary-meta"><div><dt>Source</dt><dd>{escape(Path(data.source).name)}</dd></div><div><dt>Case</dt><dd>{_case_id(data)}</dd></div><div><dt>Generated</dt><dd>{generated}</dd></div></dl></header>
 <nav class="toolbar"><a href="#findings">Top findings</a><a href="#incidents">Incidents</a><a href="{escape(appendix_href)}?print=1">Print complete report / Save PDF</a><span class="spacer"></span><button type="button" onclick="window.print()">Print summary / Save PDF</button></nav><p class="print-help">This print button exports the short summary. Open the appendix to print full evidence separately. For PDF, turn off browser Headers and footers.</p><div class="content"><section class="metrics">{_metric("Records processed", f"{data.records:,}")}{_metric("Findings", str(len(data.findings)))}{_metric("Incidents", str(len(data.incidents)))}{_metric("Disposition", _disposition(risk), _risk_class(risk))}</section>
-<section class="section" id="executive"><div class="section-head"><h2>What needs attention</h2></div><div class="assessment"><p>{escape(_assessment(data, risk))}</p></div>{priority_lead}<p class="caveat">Findings are investigation leads, not proof of compromise.</p><div class="summary-chart-grid"><div><h3>Severity distribution</h3>{_severity_overview(data)}</div><div><h3>Service activity</h3>{_summary_service_chart(data.services)}</div></div></section>
-<aside class="summary-notes" aria-label="Report context and limitations"><h2>Report context &amp; limitations</h2>{context}<p class="context-notice"><strong>SUMMARY ONLY</strong> - This document contains selected findings. Complete retained evidence is in the separate full report.</p></aside>
+<section class="section" id="executive"><div class="section-head"><h2>What needs attention</h2></div><div class="assessment"><p>{escape(_assessment(data, risk))}</p></div>{priority_lead}<p class="caveat">Findings are investigation leads, not proof of compromise.</p></section>
 <section class="section" id="findings"><div class="section-head"><h2>Top findings &amp; next actions</h2></div><p class="section-note">{escape(group_note)}</p>{"".join(rows) or '<p>No rule-backed findings were recorded.</p>'}</section>
 <section class="section" id="incidents"><div class="section-head"><h2>Priority incidents</h2></div><p class="section-note">Showing {min(5, len(data.incidents))} of {len(data.incidents)} retained incident(s). Single signals are leads; validate time proximity and shared cause. All groups are in the separate full HTML report.</p>{incident_content}</section>
+<section class="section" id="activity"><div class="section-head"><h2>Activity overview</h2></div><div class="summary-chart-grid"><div><h3>Severity distribution</h3>{_severity_overview(data)}</div><div><h3>Service activity</h3>{_summary_service_chart(data.services)}</div></div></section>
+<aside class="summary-notes" aria-label="Report context and limitations"><h2>Report context &amp; limitations</h2>{context}<p class="context-notice"><strong>SUMMARY ONLY</strong> - This document contains selected findings. Complete retained evidence is in the separate full report.</p></aside>
 <section class="section" id="scope"><div class="section-head"><h2>Scope &amp; evidence</h2></div><div class="scope"><p>{escape(data.collection_scope)} {escape(data.retention_note)} {escape(data.coverage_note)}</p>{'<p>Top rarity signals:</p><ul>' + anomaly_content + '</ul>' if anomaly_content else ''}<p>Rarity scores describe this sample, not attack probability. Analysis is deterministic and local. Original telemetry remains the authority.</p><a href="{escape(appendix_href)}">Open separate full evidence report: findings, incidents, anomalies, source details and method</a></div></section>
 <div class="footer">AEGISLOG v{escape(__version__)} · {_case_id(data)} · Presented and maintained by HR-Presents</div></div></main></body></html>'''
 
