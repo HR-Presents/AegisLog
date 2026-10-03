@@ -32,8 +32,8 @@ Reports and exports are local. Rolling retention and displayed chart slices are 
 
 This is a development build of version 2.1.3. Its build status and source commit are available in the linked GitHub workflow. The checksum file applies to `dist/AegisLog.exe`.
 
-## Guided and graphical investigations
+## Guided investigations
 
-From the terminal home, choose **C Check Computer** to discover readable native sources and select the last hour, 24 hours or 7 days. Choose **D Local Dashboard** for an optional local browser interface with beginner/analyst views, text size, report links and credential-redacted JSON. Quit returns to your terminal. For file discovery choose **F Scan Folder**.
+From the terminal home, choose **C Check Computer** to discover readable native sources and select the last hour, 24 hours or 7 days. Known log files are analyzed in full. Choose **F Scan Folder** for file discovery and a batch overview, and **R Reports** to open saved HTML reports. Q returns to your terminal.
 
-From PowerShell: `AegisLog.exe desktop` or `AegisLog.exe check-computer`. The browser interface runs on 127.0.0.1 with a temporary session token; it does not upload logs. Reports remain on disk after quitting.
+From PowerShell: `AegisLog.exe check-computer`. Reports remain on disk after quitting.

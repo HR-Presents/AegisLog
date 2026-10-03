@@ -3,7 +3,6 @@ from __future__ import annotations
 from .cli import app
 from .commands import register_commands, start
 from .console_pages import system_check
-from .desktop import desktop
 from .product import guided_check
 
 
@@ -22,7 +21,6 @@ def _remove_ai_surface() -> None:
 _remove_ai_surface()
 register_commands(app)
 app.command("doctor")(system_check)
-app.command("desktop")(desktop)
 
 
 def check_computer_command():

@@ -118,7 +118,7 @@ def _tools_panel(width: int) -> Panel:
 
 
 def _utility_panel(width: int) -> Panel:
-    rows = (("07", "DEMO", "Quick start dataset"), ("08", "HEALTH", "Engine diagnostics"), ("09", "HELP", "Command reference"), ("C", "CHECK COMPUTER", "Guided native-log investigation"), ("D", "LOCAL DASHBOARD", "Open a graphical investigation view"), ("F", "SCAN FOLDER", "Find and analyze local log files"), ("R", "REPORTS", "Open saved HTML reports"), ("A", "ABOUT / GUIDE", "What it does and how to use it"))
+    rows = (("07", "DEMO", "Quick start dataset"), ("08", "HEALTH", "Engine diagnostics"), ("09", "HELP", "Command reference"), ("C", "CHECK COMPUTER", "Guided native-log investigation"), ("F", "SCAN FOLDER", "Find and analyze local log files"), ("R", "REPORTS", "Open saved HTML reports"), ("A", "ABOUT / GUIDE", "What it does and how to use it"))
     return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*[_action_line(*row) for row in rows]), title=Text(" UTILITIES ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
 
 
@@ -145,7 +145,7 @@ def _quick_info_panel(width: int) -> Panel:
 def _menu(screen_width: int | None = None) -> RenderableType:
     width = _frame_width(screen_width)
     if width < _NARROW_BREAKPOINT:
-        rows = [("01", "ANALYZE LOG", "Investigate a log"), ("02", "LIVE MONITOR", "Watch a source"), ("03", "MULTI-SOURCE", "Correlate sources"), ("04", "NATIVE LOGS", "Inspect telemetry"), ("05", "NATIVE MONITOR", "Watch telemetry"), ("06", "INCIDENTS", "Review evidence"), ("07", "DEMO", "Quick start"), ("08", "HEALTH", "Diagnostics"), ("09", "HELP", "Reference"), ("C", "CHECK COMPUTER", "Guided native logs"), ("D", "LOCAL DASHBOARD", "Graphical investigation"), ("F", "SCAN FOLDER", "Find local log files"), ("R", "REPORTS", "Open saved reports"), ("A", "ABOUT / GUIDE", "What it does / how to use")]
+        rows = [("01", "ANALYZE LOG", "Investigate a log"), ("02", "LIVE MONITOR", "Watch a source"), ("03", "MULTI-SOURCE", "Correlate sources"), ("04", "NATIVE LOGS", "Inspect telemetry"), ("05", "NATIVE MONITOR", "Watch telemetry"), ("06", "INCIDENTS", "Review evidence"), ("07", "DEMO", "Quick start"), ("08", "HEALTH", "Diagnostics"), ("09", "HELP", "Reference"), ("C", "CHECK COMPUTER", "Guided native logs"), ("F", "SCAN FOLDER", "Find local log files"), ("R", "REPORTS", "Open saved reports"), ("A", "ABOUT / GUIDE", "What it does / how to use")]
         return Group(_status_panel(width), Text(""), Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*[_action_line(*row) for row in rows]), title=Text(" COMMAND CENTER ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width))
 
     if width >= _WIDE_BREAKPOINT:
@@ -255,7 +255,7 @@ def _read_home_choice() -> str:
             prompt = Text("aegis@console > ", style=f"bold {ACCENT}", no_wrap=True, overflow="crop")
             available = max(1, size.width - len(prompt.plain) - 1)
             prompt.append(value[-available:], style=NEUTRAL)
-            shortcuts = Text('[C Check] [D Dashboard] [F Folder] [R Reports] [A Guide] [Q Quit]' if size.width >= 65 else '[C] [D] [F] [R] [A] [Q Quit]', style=ACCENT, no_wrap=True, overflow="crop")
+            shortcuts = Text('[C Check] [F Folder] [R Reports] [A Guide] [Q Quit]' if size.width >= 65 else '[C] [F] [R] [A] [Q Quit]', style=ACCENT, no_wrap=True, overflow="crop")
             return Group(viewport, controls, shortcuts, prompt)
         with Live(frame(), console=legacy.console, auto_refresh=False,
                   screen=True, transient=True, vertical_overflow="crop") as live:
@@ -310,4 +310,3 @@ def start() -> None:
 
 
 __all__ = ["start"]
-

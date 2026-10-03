@@ -2,8 +2,7 @@
 
 ## Implemented
 
-- Existing terminal retained with guided C Check Computer, F Scan Folder and D Local Dashboard.
-- Local graphical snapshot investigations with beginner/analyst views, adjustable text, keyboard controls, labeled severity counts, source descriptions and access probes.
+- Existing terminal retained with guided C Check Computer, F Scan Folder.
 - Native time-window selection and bounded event counts; collection scope/retention shown explicitly.
 - Practical finding explanations, operational/security classification and alternative explanations in the guided interface.
 - Local summary/full evidence reports plus credential-redacted JSON for integration with other tools.
@@ -20,10 +19,9 @@ Independent authorized real-log datasets and reviewers are needed to validate de
 
 ## Remaining product work
 
-- Dedicated native desktop packaging/installer; the current graphical UI opens in a browser.
 - Broader application discovery beyond native channels, known DISM/CBS/auth/syslog/Nginx/Apache paths and explicit folder scans.
 - Unified cross-file investigations with preserved origin; current folder scanning generates independent reports.
 - Broader vendor-schema integrations, localization, accessible-user trials, and long-session field validation.
-- A narrated public product tour; a short silent browser demo and GETTING_STARTED.md walkthrough are provided with this update.
+- A narrated public terminal product tour and user trials; GETTING_STARTED.md provides the current walkthrough.
 
 These are explicit limits, not reasons to hide working features. Keep release claims aligned with the tested build.

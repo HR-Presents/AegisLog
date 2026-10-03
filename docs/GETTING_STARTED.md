@@ -33,18 +33,6 @@ The Windows standalone ZIP is an alternative that does not require Python. Run i
 
 For protected Windows Security logs, use the minimum required permissions; AegisLog does not elevate itself or alter auditing configuration. Empty collection does not prove a clean system.
 
-## Prefer a graphical view?
-
-Choose **D Local Dashboard**, or run:
-
-```powershell
-aegislog desktop
-```
-
-A local browser tab opens. Discover sources, select a time window and event cap, or enter the full local path of a UTF-8 text log. Start with beginner view, then switch to analyst view for matching-rule context and structured evidence. The dashboard initially shows six highest-priority findings; search, filter by severity or show all matches. Text size is adjustable and all controls support keyboard navigation.
-
-The dashboard listens only on 127.0.0.1 using a temporary session token. Keep its launch URL private. Quit stops the server and returns to the shell; Ctrl+C also stops it. Close the browser tab afterward. HTML and JSON reports persist under `aegislog-reports/desktop/`. JSON redacts common credentials, but review personal/host identifiers before sharing. HTML evidence reports can contain sensitive evidence. The browser interface is a snapshot investigation view; monitoring and folder scanning remain terminal workflows.
-
 ## Files and folders
 
 - **01 Analyze Log:** one text log.

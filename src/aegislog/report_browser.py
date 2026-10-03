@@ -26,7 +26,6 @@ def guide_view():
                       '08 Health: check runtime and collector availability. 09 Help: command reference.\n'
                       'S Workbench: filter evidence, inspect D Details and T Timeline, export JSON, and open reports.\n'
                       'C Check Computer: native logs use a time window; known log files use their full contents.\n'
-                      'D Local Dashboard: beginner/analyst browser views, text size and exports.\n'
                       'F Scan Folder: select likely logs; skip identical content; open a searchable batch overview.\n'
                       'R Reports: browse all saved summaries and batches with N/P pages. O opens reports; F opens their folder.\n'
                       'Live views: B/Escape stops; Q quits. Home: PgUp/PgDn scroll; Home/End jump.\n'

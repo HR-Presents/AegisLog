@@ -13,7 +13,6 @@ Examples: `v1.6.0` or a commit SHA from `main`.
 
 - [ ] Windows `AegisLog.exe`
 - [ ] Python package / development install
-- [ ] Local browser dashboard (`aegislog desktop`)
 - [ ] Other
 
 ## Environment
