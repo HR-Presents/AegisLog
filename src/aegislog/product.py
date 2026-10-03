@@ -1,0 +1,145 @@
+"""Guided local investigations shared by the terminal and browser interface."""
+from dataclasses import asdict, replace
+from pathlib import Path
+import json
+import os
+import platform
+import tempfile
+from html import escape
+from collections import Counter
+
+from .dashboard import analyze_dashboard
+from .native_collectors import CollectorError, collect
+from .reporting import _recommendation, write_html_report
+from .sanitize import redact_sensitive
+
+SOURCE_HELP = {
+    'System': 'Service, driver, startup and operating-system events.',
+    'Application': 'Events recorded by applications and application services.',
+    'Security': 'Auditing of accounts, authentication and security changes; access may require elevation.',
+    'journald': 'Linux systemd journal events visible to your account.',
+}
+
+
+def discover_sources():
+    system = platform.system()
+    choices = [('windows', channel) for channel in ('System', 'Application', 'Security')] if system == 'Windows' else [('journald', '')] if system == 'Linux' else []
+    rows = []
+    for source, channel in choices:
+        label = channel or source
+        try:
+            lines = collect(source, channel=channel or 'System', limit=1)
+            status, detail = 'readable', 'Read-only probe succeeded; no events returned.' if not lines else 'Read-only probe succeeded.'
+        except (CollectorError, OSError) as error:
+            status, detail = 'unavailable', redact_sensitive(str(error))[:500]
+        rows.append(dict(source=source, channel=channel, label=label, description=SOURCE_HELP[label], status=status, detail=detail))
+    known = ([('Windows servicing', Path(os.environ.get('SystemRoot', 'C:/Windows')) / 'Logs' / 'DISM' / 'dism.log'),
+              ('Windows component servicing', Path(os.environ.get('SystemRoot', 'C:/Windows')) / 'Logs' / 'CBS' / 'CBS.log')]
+             if system == 'Windows' else [('Linux authentication', Path('/var/log/auth.log')), ('Linux system log', Path('/var/log/syslog')),
+                                         ('Nginx errors', Path('/var/log/nginx/error.log')), ('Apache errors', Path('/var/log/apache2/error.log'))]
+             if system == 'Linux' else [])
+    for label, path in known:
+        if not path.exists() or path.is_symlink():
+            continue
+        try:
+            with path.open('rb') as stream:
+                sample = stream.read(4096)
+            status = 'unavailable' if b'\x00' in sample else 'readable'
+            detail = 'Export UTF-8 text first.' if status == 'unavailable' else 'Known local log path is readable.'
+        except OSError as error:
+            status, detail = 'unavailable', str(error)[:500]
+        rows.append(dict(source='file', channel='', path=str(path), label=label, description='Known application/system log file; file analysis uses the full file rather than the native time window.', status=status, detail=detail))
+    return rows
+
+
+def explain_finding(finding):
+    operational = finding.category in {'error', 'service'}
+    return dict(
+        classification='Operational issue' if operational else 'Security investigation lead',
+        reason=f'Local detection rules matched evidence for: {finding.title}.',
+        impact='The event may indicate degraded service or application reliability.' if operational else 'The activity may affect account, service or data security; validate the surrounding context.',
+        alternative='A transient failure, dependency issue or expected maintenance can produce this event.' if operational else 'Authorized administration, testing or ordinary user activity may produce similar signals.',
+        next_step=_recommendation(finding),
+        confidence='Rule match; no measured probability of compromise.',
+    )
+
+
+def investigate_path(path, output):
+    path = Path(path).expanduser()
+    if str(path).startswith(('\\\\', '//')):
+        raise ValueError('Choose a local file; network shares are not part of this workflow.')
+    if not path.is_file() or path.is_symlink():
+        raise ValueError('Choose an existing regular local log file.')
+    if path.stat().st_size > 100_000_000:
+        raise ValueError('This guided workflow accepts files up to 100 MB. Use a smaller export.')
+    with path.open('rb') as stream:
+        if b'\x00' in stream.read(4096):
+            raise ValueError('Binary or UTF-16 input detected. Export a UTF-8 text log first.')
+    return finish_investigation(analyze_dashboard(path), output)
+
+
+def check_computer(source, channel, minutes, limit, output):
+    if source not in {'windows', 'journald'}:
+        raise ValueError('Choose a discovered Windows or journald source.')
+    if minutes not in {60, 1440, 10080} or not 1 <= limit <= 2000:
+        raise ValueError('Choose 1 hour, 24 hours or 7 days and 1–2000 events.')
+    lines = collect(source, channel=channel or 'System', limit=limit, since_minutes=minutes)
+    descriptor, name = tempfile.mkstemp(prefix='aegislog-check-', suffix='.log')
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8') as stream:
+            stream.writelines(lines)
+        data = replace(analyze_dashboard(Path(name)), source=f'{source}-{channel or "journal"}-{minutes}min.log')
+        return finish_investigation(data, output, scope=f'Latest {limit} accessible events within {minutes} minutes. A count limit can exclude earlier events in this window.')
+    finally:
+        Path(name).unlink(missing_ok=True)
+
+
+def finish_investigation(data, output, scope='Selected file; activity charts use bounded retained evidence.'):
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=True)
+    report = write_html_report(data, output)
+    formats = Counter(event.source for event in data.events)
+    context = f'<p class="caveat">Collection scope: {escape(scope)} Retained formats: {escape(str(dict(formats)))}. Generic parsing is fallback coverage.</p>'
+    for html_path in [report, report.with_name(report.stem + '-appendix.html')]:
+        html = html_path.read_text(encoding='utf-8')
+        html = html.replace('<div class="scope">', '<div class="scope">' + context, 1) if '<div class="scope">' in html else html.replace('<div class="footer">', context + '<div class="footer">', 1)
+        html_path.write_text(html, encoding='utf-8')
+    payload = dict(source=data.source, events=data.lines, findings=[dict(**asdict(item), explanation=explain_finding(item)) for item in data.findings],
+                   incidents=[asdict(item) for item in data.incidents], severities=data.severities,
+                   coverage=dict(scope=scope, retention=data.retention_note, retained_formats=dict(formats),
+                                 generic_retained=sum(event.source == 'generic' for event in data.events),
+                                 caveat='Format counts cover retained events. Generic parsing is fallback coverage, not proof that every field was understood. No findings does not establish a clean system.'),
+                   summary=str(report.resolve()), evidence_report=str(report.with_name(report.stem + '-appendix.html').resolve()))
+    # Export is credential-redacted; filenames/usernames/IPs can still identify people or hosts.
+    export = output / 'evidence.json'
+    export.write_text(redact_sensitive(json.dumps(payload, ensure_ascii=False, default=str)), encoding='utf-8')
+    payload['export'] = str(export.resolve())
+    return payload
+
+
+def guided_check(console):
+    from .navigation import Prompt
+    rows = discover_sources()
+    for number, row in enumerate(rows, 1):
+        console.print(f'{number}. {row["label"]} / {row["status"]}: {row["description"]}\n{row["detail"]}', markup=False)
+    ready = {str(i): row for i, row in enumerate(rows, 1) if row['status'] == 'readable'}
+    if not ready:
+        console.print('No native source is readable here. Use 01 Analyze Log or F Scan Folder.')
+        return
+    row = ready[Prompt.ask('Source number', choices=list(ready), console=console)]
+    minutes = int(Prompt.ask('Time window in minutes', choices=['60', '1440', '10080'], default='1440', console=console)) if row['source'] != 'file' else None
+    root = Path('aegislog-reports') / 'computer-checks'
+    root.mkdir(parents=True, exist_ok=True)
+    output = Path(tempfile.mkdtemp(prefix='check-', dir=root))
+    try:
+        result = investigate_path(row['path'], output) if row['source'] == 'file' else check_computer(row['source'], row['channel'], minutes, 300, output)
+    except (CollectorError, OSError, ValueError) as error:
+        console.print(str(error), markup=False)
+        return
+    console.print(f'{result["events"]} events / {len(result["findings"])} findings', markup=False)
+    console.print(result['coverage']['scope'])
+    console.print(result['coverage']['retention'])
+    console.print(f'Summary: {result["summary"]}', markup=False)
+    for item in result['findings'][:3]:
+        console.print(f'{item["severity"]}: {item["title"]}\n{item["explanation"]["classification"]}\nNext: {item["explanation"]["next_step"]}', markup=False)
+    Prompt.ask('Enter to return', default='', console=console)

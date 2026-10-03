@@ -40,6 +40,8 @@ jobs:
           .\dist\AegisLog.exe --version
           .\dist\AegisLog.exe doctor
           .\dist\AegisLog.exe start --help
+          .\dist\AegisLog.exe desktop --help
+          .\dist\AegisLog.exe check-computer --help
           .\dist\AegisLog.exe dashboard examples\auth.log
           .\dist\AegisLog.exe live --help
           .\dist\AegisLog.exe live-multi --help

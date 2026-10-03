@@ -24,6 +24,8 @@ def guide_view():
                       '07 Demo / P Replay: explore synthetic or recorded activity.\n'
                       '08 Health: check runtime and collector availability. 09 Help: command reference.\n'
                       'S Workbench: filter evidence, inspect D Details and T Timeline, export JSON, and open reports.\n'
+                      'C Check Computer: discover accessible native logs and select a time window.\n'
+                      'D Local Dashboard: beginner/analyst browser views, text size and exports.\n'
                       'F Scan Folder: discover text logs and analyze selected files separately.\n'
                       'R Reports: open locally generated HTML reports in your browser.\n'
                       'Live views: B/Escape stops; Q quits. Home: PgUp/PgDn scroll; Home/End jump.\n'
@@ -33,7 +35,7 @@ def guide_view():
 def report_candidates(root):
     if not root.exists():
         return []
-    return sorted((p for p in [*root.glob('*.html'), *root.glob('folder-scan/*/*/*.html')] if p.is_file() and not p.name.endswith('-appendix.html')),
+    return sorted((p for p in [*root.glob('*.html'), *root.glob('folder-scan/*/*/*.html'), *root.glob('computer-checks/*/*.html'), *root.glob('desktop/*/*.html')] if p.is_file() and not p.name.endswith('-appendix.html')),
                   key=lambda p: p.stat().st_mtime_ns, reverse=True)[:20]
 
 

@@ -54,21 +54,26 @@ def _windows_timestamp(value: object) -> str:
     return stamp.isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
-def windows_event_logs(limit: int = 300, channel: str = "System") -> list[str]:
+def windows_event_logs(limit: int = 300, channel: str = "System", since_minutes: int | None = None) -> list[str]:
     if os.name != "nt":
         raise CollectorError("Windows Event Logs are only available on Windows")
     safe_channels = {"System", "Application", "Security"}
     if channel not in safe_channels:
         raise CollectorError("channel must be System, Application, or Security")
     count = max(1, min(int(limit), 2000))
+    if since_minutes is not None and since_minutes not in {60, 1440, 10080}:
+        raise CollectorError("unsupported time window")
+    query = f"-FilterHashtable @{{LogName='{channel}'; StartTime=(Get-Date).AddMinutes(-{since_minutes})}}" if since_minutes else f"-LogName '{channel}'"
     script = (
-        f"Get-WinEvent -LogName '{channel}' -MaxEvents {count} -ErrorAction Stop | "
+        f"Get-WinEvent {query} -MaxEvents {count} -ErrorAction Stop | "
         "Select-Object TimeCreated,Id,LevelDisplayName,ProviderName,Message | ConvertTo-Json -Compress"
     )
     try:
         raw = _run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script], timeout=30).strip()
     except CollectorError as exc:
         detail = str(exc)
+        if since_minutes is not None and ("NoMatchingEventsFound" in detail or "No events were found" in detail):
+            return []
         if channel == "Security" and (
             "UnauthorizedAccessException" in detail
             or "unauthorized operation" in detail.lower()
@@ -99,11 +104,16 @@ def windows_event_logs(limit: int = 300, channel: str = "System") -> list[str]:
     return lines
 
 
-def journald_logs(limit: int = 300) -> list[str]:
+def journald_logs(limit: int = 300, since_minutes: int | None = None) -> list[str]:
     if platform.system() != "Linux":
         raise CollectorError("journald is only available on Linux")
     count = max(1, min(int(limit), 5000))
-    raw = _run(["journalctl", "--no-pager", "-n", str(count), "-o", "short-iso"], timeout=30)
+    if since_minutes is not None and since_minutes not in {60, 1440, 10080}:
+        raise CollectorError("unsupported time window")
+    command = ["journalctl", "--no-pager", "-n", str(count), "-o", "short-iso"]
+    if since_minutes:
+        command += ["--since", f"{since_minutes} minutes ago"]
+    raw = _run(command, timeout=30)
     return [line + "\n" for line in raw.splitlines() if line.strip()]
 
 
@@ -135,10 +145,11 @@ def source_status() -> list[NativeSource]:
     ]
 
 
-def collect(source: str, *, limit: int = 300, channel: str = "System", container: str = "") -> list[str]:
+def collect(source: str, *, limit: int = 300, channel: str = "System", container: str = "", since_minutes: int | None = None) -> list[str]:
+    time_options = {"since_minutes": since_minutes} if since_minutes is not None else {}
     collectors: dict[str, Callable[[], list[str]]] = {
-        "windows": lambda: windows_event_logs(limit=limit, channel=channel),
-        "journald": lambda: journald_logs(limit=limit),
+        "windows": lambda: windows_event_logs(limit=limit, channel=channel, **time_options),
+        "journald": lambda: journald_logs(limit=limit, **time_options),
         "docker": lambda: docker_logs(container=container, limit=limit),
     }
     try:

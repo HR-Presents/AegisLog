@@ -669,6 +669,12 @@ def start() -> None:
                 )
                 console.print()
                 commands_reference()
+            elif lowered in {"c", "check-computer"}:
+                from .product import guided_check
+                guided_check(console)
+            elif lowered in {"d", "desktop"}:
+                from .desktop import desktop
+                desktop()
             elif lowered in {"f", "folder", "scan-folder"}:
                 from .folder_scan import run_folder_scan
                 run_folder_scan(console)

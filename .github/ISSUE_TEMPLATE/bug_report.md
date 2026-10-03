@@ -13,6 +13,7 @@ Examples: `v1.6.0` or a commit SHA from `main`.
 
 - [ ] Windows `AegisLog.exe`
 - [ ] Python package / development install
+- [ ] Local browser dashboard (`aegislog desktop`)
 - [ ] Other
 
 ## Environment
@@ -26,6 +27,10 @@ Examples: `v1.6.0` or a commit SHA from `main`.
 ```text
 Paste the command or describe the menu option used. Remove secrets and private data.
 ```
+
+## Coverage and source status
+
+If relevant, include the source label, access status, selected window/event cap and retention note. Remove personal identifiers.
 
 ## Expected behavior
 

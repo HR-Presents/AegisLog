@@ -206,3 +206,14 @@ AegisLog is released under the [MIT License](LICENSE).
 ### Scan a folder of logs
 
 In `aegislog start`, choose **F Scan Folder** and enter a folder path. A bounded recursive scan finds nonempty text candidates (`.log`, `.txt`, `.jsonl`, `.ndjson`, `.json`, `.csv`), skips symlinks and binary files, and lets you select numbers or ALL. Each selected source receives its own summary and evidence report under `aegislog-reports/folder-scan/`; **R Reports** opens them. Sources remain unchanged. Extension matching does not guarantee parser support. Discovery stops at 200 candidates or 10,000 entries; choose a smaller folder to cover the rest. B returns and Q quits.
+
+### Guided checks and local graphical dashboard
+
+Use **C Check Computer** for readable-source discovery and a bounded native-log investigation, or **D Local Dashboard** for a local browser interface. Equivalent commands:
+
+```powershell
+aegislog check-computer
+aegislog desktop
+```
+
+The dashboard offers beginner/analyst views, keyboard-accessible controls, adjustable text size, finding explanations, severity counts, HTML reports and credential-redacted JSON. Quit or Ctrl+C returns to the shell. It uses the same local engine as the terminal and binds only to 127.0.0.1. Reports stay on disk. No automatic uploads or automatic remediation. See [Getting started](docs/GETTING_STARTED.md), [Compatibility](docs/COMPATIBILITY.md), and [Product readiness](docs/PRODUCT_READINESS.md).
