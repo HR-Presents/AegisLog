@@ -40,6 +40,7 @@ jobs:
           .\dist\AegisLog.exe --version
           .\dist\AegisLog.exe doctor
           .\dist\AegisLog.exe start --help
+          .\dist\AegisLog.exe check-computer --help
           .\dist\AegisLog.exe dashboard examples\auth.log
           .\dist\AegisLog.exe live --help
           .\dist\AegisLog.exe live-multi --help
@@ -49,6 +50,12 @@ jobs:
           .\dist\AegisLog.exe investigate --help
           .\dist\AegisLog.exe explain --help
           .\dist\AegisLog.exe mitre --help
+
+      - name: Read-only native Windows snapshot smoke
+        shell: pwsh
+        run: |
+          .\dist\AegisLog.exe native-analyze windows --channel System --limit 10
+          if ($LASTEXITCODE -ne 0) { throw "Native Windows System snapshot failed" }
 
       - name: Verify signing adapter fails closed without certificate material
         shell: pwsh

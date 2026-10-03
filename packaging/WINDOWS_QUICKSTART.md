@@ -31,3 +31,9 @@ From home, P opens built-in demo replay immediately. This is recorded sample act
 Reports and exports are local. Rolling retention and displayed chart slices are labelled. Findings require investigation; they are not proof of compromise.
 
 This is a development build of version 2.1.3. Its build status and source commit are available in the linked GitHub workflow. The checksum file applies to `dist/AegisLog.exe`.
+
+## Guided investigations
+
+From the terminal home, choose **C Check Computer** to discover readable native sources and select the last hour, 24 hours or 7 days. Known log files are analyzed in full. Choose **F Scan Folder** for file discovery and a batch overview, and **R Reports** to open saved HTML reports. Q returns to your terminal.
+
+From PowerShell: `AegisLog.exe check-computer`. Reports remain on disk after quitting.

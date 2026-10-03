@@ -14,6 +14,7 @@ from rich.live import Live
 
 from . import commands_v144 as legacy
 from .config import CONFIG_DIR
+from .report_browser import INTRODUCTION
 from .navigation import KeyboardReader, shell_navigation
 from .theme import SURFACE, ACCENT, ACCENT_SOFT, DIM, MUTED, NEUTRAL, SUCCESS
 
@@ -117,7 +118,7 @@ def _tools_panel(width: int) -> Panel:
 
 
 def _utility_panel(width: int) -> Panel:
-    rows = (("07", "DEMO", "Quick start dataset"), ("08", "HEALTH", "Engine diagnostics"), ("09", "HELP", "Command reference"))
+    rows = (("07", "DEMO", "Quick start dataset"), ("08", "HEALTH", "Engine diagnostics"), ("09", "HELP", "Command reference"), ("C", "CHECK COMPUTER", "Guided native-log investigation"), ("F", "SCAN FOLDER", "Find and analyze local log files"), ("R", "REPORTS", "Open saved HTML reports"), ("A", "ABOUT / GUIDE", "What it does and how to use it"))
     return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*[_action_line(*row) for row in rows]), title=Text(" UTILITIES ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
 
 
@@ -136,7 +137,7 @@ def _quick_info_panel(width: int) -> Panel:
     grid = Table.grid(expand=True, padding=(0, 1))
     grid.add_column(width=9, no_wrap=True)
     grid.add_column(ratio=1, no_wrap=True, overflow="crop")
-    for label, value in (("REPORTS", "./aegislog-reports/"), ("CONFIG", str(CONFIG_DIR)), ("PROJECT", "HR-Presents/AegisLog-AI"), ("OWNER", "HR-PRESENTS")):
+    for label, value in (("REPORTS", "R: local / user report folders"), ("CONFIG", str(CONFIG_DIR)), ("PROJECT", "HR-Presents/AegisLog-AI"), ("OWNER", "HR-PRESENTS")):
         grid.add_row(Text(label, style=MUTED), Text(value, style=ACCENT if label != "OWNER" else NEUTRAL, no_wrap=True, overflow="crop"))
     return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=grid, title=Text(" QUICK INFO ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width, height=9)
 
@@ -144,7 +145,7 @@ def _quick_info_panel(width: int) -> Panel:
 def _menu(screen_width: int | None = None) -> RenderableType:
     width = _frame_width(screen_width)
     if width < _NARROW_BREAKPOINT:
-        rows = [("01", "ANALYZE LOG", "Investigate a log"), ("02", "LIVE MONITOR", "Watch a source"), ("03", "MULTI-SOURCE", "Correlate sources"), ("04", "NATIVE LOGS", "Inspect telemetry"), ("05", "NATIVE MONITOR", "Watch telemetry"), ("06", "INCIDENTS", "Review evidence"), ("07", "DEMO", "Quick start"), ("08", "HEALTH", "Diagnostics"), ("09", "HELP", "Reference")]
+        rows = [("01", "ANALYZE LOG", "Investigate a log"), ("02", "LIVE MONITOR", "Watch a source"), ("03", "MULTI-SOURCE", "Correlate sources"), ("04", "NATIVE LOGS", "Inspect telemetry"), ("05", "NATIVE MONITOR", "Watch telemetry"), ("06", "INCIDENTS", "Review evidence"), ("07", "DEMO", "Quick start"), ("08", "HEALTH", "Diagnostics"), ("09", "HELP", "Reference"), ("C", "CHECK COMPUTER", "Guided native logs"), ("F", "SCAN FOLDER", "Find local log files"), ("R", "REPORTS", "Open saved reports"), ("A", "ABOUT / GUIDE", "What it does / how to use")]
         return Group(_status_panel(width), Text(""), Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*[_action_line(*row) for row in rows]), title=Text(" COMMAND CENTER ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width))
 
     if width >= _WIDE_BREAKPOINT:
@@ -200,7 +201,9 @@ def _home(screen_width: int | None = None, screen_height: int | None = None) -> 
         tighten(header)
         tighten(menu)
     spacer = [] if dense else [Text("")]
-    content = Group(header, *spacer, menu, *spacer, _rule(frame_width), _footer(screen_width))
+    intro = INTRODUCTION[:2] if dense else INTRODUCTION
+    separator = [] if dense else [_rule(frame_width)]
+    content = Group(header, *[Text(line, style=MUTED) for line in intro], *spacer, menu, *spacer, *separator, _footer(screen_width))
     return Align.center(content, width=available, pad=False)
 
 
@@ -241,7 +244,7 @@ def _read_home_choice() -> str:
         def frame():
             nonlocal offset
             size = legacy.console.size
-            viewport = _HomeViewport(size.width, max(1, size.height - 2), offset)
+            viewport = _HomeViewport(size.width, max(1, size.height - 3), offset)
             viewport.prepare(legacy.console, legacy.console.options)
             offset = viewport.offset
             if viewport.maximum:
@@ -252,7 +255,8 @@ def _read_home_choice() -> str:
             prompt = Text("aegis@console > ", style=f"bold {ACCENT}", no_wrap=True, overflow="crop")
             available = max(1, size.width - len(prompt.plain) - 1)
             prompt.append(value[-available:], style=NEUTRAL)
-            return Group(viewport, controls, prompt)
+            shortcuts = Text('[C Check] [F Folder] [R Reports] [A Guide] [Q Quit]' if size.width >= 65 else '[C] [F] [R] [A] [Q Quit]', style=ACCENT, no_wrap=True, overflow="crop")
+            return Group(viewport, controls, shortcuts, prompt)
         with Live(frame(), console=legacy.console, auto_refresh=False,
                   screen=True, transient=True, vertical_overflow="crop") as live:
             next_refresh = time.monotonic()

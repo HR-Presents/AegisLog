@@ -269,24 +269,33 @@ def watch(path: Path = typer.Argument(..., exists=True, dir_okay=False), interva
 @app.command()
 def report(path: Path = typer.Argument(..., exists=True, dir_okay=False), output: Path = Path("aegislog-report.json")) -> None:
     """Write JSON, Markdown, or HTML analysis reports."""
-    total, findings = analyze_file(path)
-    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    anomaly_results = score_events([parse_line(line) for line in lines])
-    incident_results = correlate(findings)
-    if output.suffix.lower() in {".md", ".markdown", ".html", ".htm"}:
-        write_report(output, str(path), total, findings, incident_results)
-    else:
-        payload = {
-            "schema_version": 1,
-            "tool_version": __version__,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-            "source": str(path),
-            "lines": total,
-            "findings": [f.__dict__ for f in findings],
-            "anomalies": [a.__dict__ for a in anomaly_results],
-            "incidents": [{**i.__dict__, "evidence": list(i.evidence)} for i in incident_results],
-        }
-        output.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    from .dashboard import analyze_dashboard
+    from .output_safety import ensure_distinct_output
+    from .reporting import write_html_report
+    from .sanitize import redact_sensitive
+    try:
+        ensure_distinct_output(path, output)
+        data = analyze_dashboard(path)
+        if output.suffix.lower() in {".html", ".htm"}:
+            write_html_report(data, output.parent, filename=output.name)
+        elif output.suffix.lower() in {".md", ".markdown"}:
+            write_report(output, str(path), data.lines, data.findings, data.incidents)
+        else:
+            payload = {
+                "schema_version": 1,
+                "tool_version": __version__,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "source": str(path), "lines": data.lines, "records": data.records,
+                "recognized_records": data.recognized_records,
+                "coverage": data.coverage_note, "retention": data.retention_note,
+                "findings": [f.__dict__ for f in data.findings],
+                "anomalies": [a.__dict__ for a in data.anomalies],
+                "incidents": [{**i.__dict__, "evidence": list(i.evidence)} for i in data.incidents],
+            }
+            output.write_text(redact_sensitive(json.dumps(payload, indent=2)), encoding="utf-8")
+    except (OSError, ValueError) as exc:
+        console.print(Text(f"Report could not be written: {exc}", style=MUTED))
+        raise typer.Exit(1) from exc
     console.print(f"Report written to {escape(str(output))}")
 
 

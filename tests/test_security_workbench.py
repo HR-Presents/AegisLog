@@ -126,7 +126,7 @@ def test_suppression_remains_in_export_and_report(demo, tmp_path):
     assert all('token=DEMO_ONLY' not in event['evidence'] for event in payload['events'])
     assert payload['source_fingerprint_at_export']['sha256'] == hashlib.sha256(demo.read_bytes()).hexdigest()
     report = write_security_report(result, Filters(), tmp_path / 'reports')
-    assert 'Authorized demo audit clearing' in report.read_text()
+    assert 'Authorized demo audit clearing' in report.with_name(report.stem + '-appendix.html').read_text()
 
 
 @pytest.mark.parametrize('obj', [{'login_failure_threshold':True},{'login_window_seconds':0},{'unexpected':1},{'exceptions':[{'category':'web','contains':'','reason':'okay'}]}])
@@ -159,7 +159,8 @@ def test_export_refuses_overwrite_and_redacts_secrets(tmp_path):
 def test_report_escapes_timeline_fields(demo,tmp_path):
     result=investigate_file(demo)
     result.records[0]=replace(result.records[0],action='account created',account='<script>bad</script>')
-    text=write_security_report(result,Filters(),tmp_path/'reports').read_text()
+    report=write_security_report(result,Filters(),tmp_path/'reports')
+    text=report.with_name(report.stem + '-appendix.html').read_text()
     assert '<script>bad</script>' not in text and '&lt;script&gt;bad&lt;/script&gt;' in text
     console=Console(file=StringIO(),width=40,record=True)
     console.print(timeline_view(result.records))

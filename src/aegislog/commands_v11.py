@@ -23,7 +23,7 @@ def _analysis_complete_line(data: DashboardData) -> Text:
     line = Text()
     line.append("ANALYSIS COMPLETE", style=f"bold {SUCCESS}")
     line.append("  /  ", style=MUTED)
-    line.append(f"{data.lines:,} events", style="white")
+    line.append(f"{data.records:,} records / {data.lines:,} physical lines" if data.record_count is not None else f"{data.lines:,} events", style="white")
     line.append("  /  ", style=MUTED)
     line.append(f"{len(data.findings)} findings", style=ACCENT)
     line.append("  /  ", style=MUTED)
@@ -76,7 +76,7 @@ def dashboard(
     console.print(bounded(render_dashboard(data, screen_width=console.size.width)))
     try:
         report_path = write_html_report(data)
-    except OSError as exc:
+    except (OSError, ValueError) as exc:
         console.print(Text(f"Report could not be written: {exc}", style=WARNING))
     else:
         console.print()
@@ -100,8 +100,8 @@ def analyze_dashboard_command(
         rules, errors = load_rules()
         if not rules and not errors:
             return
-        with path.open("r", encoding="utf-8", errors="replace") as handle:
-            custom = apply_rules(handle.readlines(), rules)
+        from .ingestion import iter_bounded_lines
+        custom = apply_rules((item.text for item in iter_bounded_lines(path)), rules)
         if errors:
             console.print(f"Rule-pack warnings: {len(errors)}. Run `aegislog plugins` for details.")
         if custom:

@@ -27,6 +27,10 @@ Examples: `v1.6.0` or a commit SHA from `main`.
 Paste the command or describe the menu option used. Remove secrets and private data.
 ```
 
+## Coverage and source status
+
+If relevant, include the source label, access status, selected window/event cap and retention note. Remove personal identifiers.
+
 ## Expected behavior
 
 What did you expect AegisLog to do?

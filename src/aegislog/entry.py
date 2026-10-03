@@ -3,6 +3,7 @@ from __future__ import annotations
 from .cli import app
 from .commands import register_commands, start
 from .console_pages import system_check
+from .product import guided_check
 
 
 def _remove_ai_surface() -> None:
@@ -20,5 +21,19 @@ def _remove_ai_surface() -> None:
 _remove_ai_surface()
 register_commands(app)
 app.command("doctor")(system_check)
+
+
+def check_computer_command():
+    """Discover native logs and perform a guided read-only check."""
+    from rich.console import Console
+    from .navigation import WorkspaceBack, WorkspaceQuit, shell_navigation
+    try:
+        with shell_navigation():
+            guided_check(Console())
+    except (WorkspaceBack, WorkspaceQuit):
+        return
+
+
+app.command("check-computer")(check_computer_command)
 
 __all__ = ["app", "start"]

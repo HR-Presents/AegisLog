@@ -79,3 +79,24 @@ def test_repeated_same_service_and_source_can_correlate():
     assert len(incidents) == 1
     assert incidents[0].count == 2
     assert incidents[0].category == "network"
+
+
+def test_report_print_has_readable_charts_and_score_context(tmp_path):
+    from aegislog.dashboard import analyze_dashboard
+    from aegislog.reporting import build_html_report
+    path = tmp_path / 'native.log'
+    path.write_text('2026-10-02T15:04:18Z Service Control Manager[7011]: ERROR A timeout while waiting for BrYNSvc\n' * 2)
+    html = build_html_report(analyze_dashboard(path))
+    assert 'Rarity score / 100' in html and '100% attack probability' in html
+    assert 'Grouping basis:' in html and 'no time-window constraint' in html
+    assert "named service&#x27;s own logs" in html
+    assert 'class="chart"' in html and 'retained total' in html
+    assert 'color:#1f2937!important' in html
+    assert 'Headers and footers' in html
+
+
+def test_report_charts_escape_untrusted_service_names():
+    from aegislog.reporting import _bar_chart
+    html = _bar_chart({'<script>alert(1)</script>': 3}, 'Service activity')
+    assert '<script>' not in html
+    assert '&lt;script&gt;' in html

@@ -318,6 +318,11 @@ class AnalysisState:
         line = redact(raw.strip())
         if not line:
             return
+        if "SURICATA ALERT priority=" in line:
+            priority = re.search(r"SURICATA ALERT priority=(HIGH|MEDIUM|LOW)", line)
+            if priority:
+                self._append_finding(Finding(priority.group(1), "network", "Suricata IDS alert reported", line[:500], "Validate the upstream signature, packet/flow context and expected traffic; the IDS alert is an investigation lead, not proof of compromise."))
+                return
         absolute_timestamp = _parse_absolute_timestamp(line)
         if absolute_timestamp is not None:
             self.timestamp_year_hint = absolute_timestamp.year

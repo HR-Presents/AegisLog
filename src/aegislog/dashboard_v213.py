@@ -27,7 +27,7 @@ def _risk(data: DashboardData) -> str:
     for name in ("CRITICAL", "HIGH", "MEDIUM", "LOW"):
         if name in severities:
             return "REVIEW" if name == "MEDIUM" else name
-    return "CLEAR"
+    return "NO MATCHES"
 
 
 def _header(data: DashboardData, width: int) -> Panel:
@@ -46,7 +46,7 @@ def _header(data: DashboardData, width: int) -> Panel:
 def _metrics(data: DashboardData) -> Text:
     elevated = sum(1 for item in data.findings if _rank(item.severity) >= _rank("MEDIUM"))
     row = Text()
-    entries = (("EVENTS", data.lines), ("FINDINGS", len(data.findings)), ("ELEVATED", elevated), ("INCIDENTS", len(data.incidents)), ("ANOMALIES", len(data.anomalies)))
+    entries = (("EVENTS" if data.recognized_records == data.records or data.record_count is None else "RECORDS", data.records), ("FINDINGS", len(data.findings)), ("ELEVATED", elevated), ("INCIDENTS", len(data.incidents)), ("ANOMALIES", len(data.anomalies)))
     for index, (label, value) in enumerate(entries):
         if index:
             row.append("   |   ", style=MUTED)
@@ -63,6 +63,8 @@ def _source_block(data: DashboardData) -> Panel:
     grid.add_row(Text("SOURCE", style=f"bold {ACCENT}"), Text(source_name, style=NEUTRAL))
     grid.add_row(Text("PATH", style=MUTED), Text(data.source, style=MUTED, overflow="fold"))
     grid.add_row(Text("METRICS", style=MUTED), _metrics(data))
+    if data.record_count is not None:
+        grid.add_row(Text("COVERAGE", style=MUTED), Text(f"{data.lines} physical lines / {data.recognized_records}/{data.records} recognized records / {data.coverage_status}", style=MUTED))
     return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=grid, title=Text(" INVESTIGATION SUMMARY ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(0, 1))
 
 
@@ -124,7 +126,7 @@ def _next(data: DashboardData) -> Panel:
 def render_dashboard(data: DashboardData, *, screen_width: int | None = None) -> RenderableType:
     width = min(max(1, screen_width or 100), _MAX_WIDTH)
     body: list[RenderableType] = [_header(data, width), Text(""), _source_block(data), Text("")]
-    activity = minute_activity(data.raw_lines, data.timestamp_year_hint)
+    activity = minute_activity((event.raw for event in data.events) if data.events else data.raw_lines, data.timestamp_year_hint)
     charts = [DistributionChart("SEVERITY DISTRIBUTION", data.severities, semantic=True), DistributionChart("SERVICE ACTIVITY", data.services)]
     if width >= 104:
         chart_row = Table.grid(expand=True, padding=(0, 1))

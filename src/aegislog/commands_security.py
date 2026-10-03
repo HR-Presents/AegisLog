@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .report_paths import default_report_dir
+
 import html
 import json
 import tempfile
@@ -19,7 +21,7 @@ from .dashboard_v213 import render_dashboard
 from .navigation import KeyboardReader, Prompt, WorkspaceBack, shell_navigation, wait_for_navigation
 from .realtime import RealtimeState
 from .command_center_ui import render_realtime_command_center
-from .reporting import build_html_report
+from .reporting import write_html_report
 from .sanitize import redact_sensitive, terminal_safe
 from .security_workbench import Filters, Tuning, check_integrity, export_evidence, investigate_file, load_watchlist, record_integrity
 from .terminal_charts import TerminalPanel
@@ -86,7 +88,7 @@ def scope_view(investigation, filters):
 
 
 def write_security_report(investigation, filters, output_dir: Path | None = None):
-    root = output_dir or Path.cwd() / "aegislog-reports"
+    root = output_dir or default_report_dir()
     root.mkdir(parents=True, exist_ok=True)
     target = root / "security-workbench-report.html"
     if target.resolve() == investigation.path.resolve():
@@ -97,8 +99,8 @@ def write_security_report(investigation, filters, output_dir: Path | None = None
     rows = "".join(f"<tr><td>{esc(r.timestamp or 'unknown')}</td><td>{r.line}</td><td>{esc(r.account or 'unknown')}</td><td>{esc(r.action)}</td></tr>" for r in records if r.action)
     suppressed = "".join(f"<li>{esc(s.finding.title)} — {esc(s.suppression_reason)}</li>" for s in signals if s.suppression_reason)
     extra = f"<h2>Workbench scope</h2><p>Selected {len(records)} events from {len(investigation.records)} retained / {investigation.total_lines} source lines. {investigation.sampled_lines} lines outside sample; {investigation.truncated_lines} lines truncated. Filters: {esc(json.dumps(asdict(filters)))}. Login threshold: {investigation.tuning.login_failure_threshold} failures within {investigation.tuning.login_window_seconds}s.</p><h2>Account and privilege timeline</h2><p>Account fields can describe actors or targets; validate original evidence.</p><table><tr><th>Time</th><th>Source line</th><th>Log account</th><th>Observation</th></tr>{rows}</table><h2>Documented suppressions</h2><ul>{suppressed}</ul>"
-    target.write_text(build_html_report(investigation.dashboard(filters)).replace("</body>", extra + "</body>"), encoding="utf-8")
-    return target
+    return write_html_report(investigation.dashboard(filters), root,
+                             filename=target.name, appendix_extra=extra)
 
 
 def open_report(path: Path):

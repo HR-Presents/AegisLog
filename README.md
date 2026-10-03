@@ -73,6 +73,17 @@ Public product screenshots should come from a verified build and should not be p
 
 The interactive shell uses the authoritative `aegis@console >` prompt. Windows SmartScreen or endpoint-security reputation warnings may appear because the executable is unsigned, even when the published checksum matches.
 
+### Install a terminal command
+
+With Python 3.10+ and pipx installed:
+
+```bash
+py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/3fa654012458ca91e38ca40dd31e25d016dec70a.zip"
+aegislog start
+```
+
+This installs the report-update review branch. Choose **04 Native logs** or **05 Native monitor** to use supported system telemetry without a supplied demo file. Press **Q** to return to your existing terminal. See [installation instructions](docs/INSTALL.md) for Windows pipx setup and uninstalling.
+
 ### Python 3.10+
 
 ```bash
@@ -191,3 +202,17 @@ AegisLog is released under the [MIT License](LICENSE).
 **AEGISLOG** · Investigate locally. Preserve evidence. Keep the analyst in control.
 
 </div>
+
+### Scan a folder of logs
+
+In `aegislog start`, choose **F Scan Folder** and enter a folder path. A bounded recursive scan finds nonempty text candidates (`.log`, `.txt`, `.jsonl`, `.ndjson`, `.json`, `.csv`), skips symlinks and binary files, and lets you select numbers or ALL. Each selected source receives its own summary and evidence report under `aegislog-reports/folder-scan/`; **R Reports** opens them. Sources remain unchanged. Extension matching does not guarantee parser support. Discovery stops at 200 candidates or 10,000 entries; choose a smaller folder to cover the rest. B returns and Q quits.
+
+### Guided computer checks
+
+Choose **C Check Computer** for readable-source discovery and a bounded native-log investigation, or run `aegislog check-computer`. Native logs use the selected time window; discovered files use their full contents. All investigations run in the terminal and create local HTML reports. Sources are handled read-only.
+
+Folder scans now default to likely logs, offer identical-content deduplication, preserve relative source locations, and produce a searchable batch overview plus JSON manifest. B/Escape/Ctrl+C cancels while retaining completed reports. **O** opens completed reports and **F** opens their folder. **R** paginates all saved summaries and batch overviews; the terminal keeps **C/F/R/A** shortcuts visible beneath the scrollable home. Physical lines, records and recognized records are reported separately. Supported structured inputs and detection limits are listed in [compatibility](docs/COMPATIBILITY.md).
+
+### Audited terminal build and next release
+
+The terminal/report fixes at commit `3fa654012458ca91e38ca40dd31e25d016dec70a` passed 515 tests and all seven CI workflows. The D browser dashboard was removed; terminal panels remain. Windows native collection and report opening were also exercised by the owner. See [installation](docs/INSTALL.md), [final audit](docs/FINAL_AUDIT.md), and [prepared v2.1.4 release notes](docs/RELEASE_V2.1.4.md). This development artifact still reports 2.1.3; v2.1.4 has not been published.

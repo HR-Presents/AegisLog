@@ -71,7 +71,7 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
         "Evidence limitations",
         "LOCAL / READ-ONLY",
         "DETERMINISTIC ANALYSIS",
-        "Print / Save PDF",
+        "Print Full Evidence / Save PDF",
     ):
         assert text in html
 
@@ -86,9 +86,13 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
         assert anchor in html
 
     assert 'class="telemetry-grid"' in html
-    assert '<svg viewBox="0 0 46 52"' in html
-    assert "#4C8DFF" in html
-    assert 'content="dark"' in html
+    assert 'aria-label="AegisLog shield and telemetry logo"' in html
+    assert "#287bff" in html
+    assert 'content="light"' in html
+    assert 'body{margin:0;background:#fff;color:var(--ink)' in html
+    assert 'Investigation Information' in html
+    assert 'PRESENTED BY HR-PRESENTS' in html
+    assert 'grid-template-columns:repeat(2,minmax(0,1fr))' in html
     assert "REMOTE AI" not in html
     assert "@media print" in html
     assert "break-inside:avoid" in html
@@ -204,3 +208,95 @@ def test_write_html_report_uses_safe_predictable_filename(tmp_path: Path) -> Non
     html = target.read_text(encoding="utf-8")
     assert "<!doctype html>" in html
     assert "prod auth?.log" in html
+
+
+def test_incident_queue_links_evidence_once_and_preserves_unmatched_excerpt():
+    data = _data()
+    incident = replace(data.incidents[0], evidence=(data.findings[0].evidence, "unique incident excerpt"))
+    html = build_html_report(replace(data, incidents=(incident,)))
+    queue = html.split('id="incidents"', 1)[1].split('id="findings"', 1)[0]
+    assert 'href="#finding-001"' in queue
+    assert 'id="finding-001"' in html
+    assert "user=admin &amp; source=203.0.113.10" not in queue
+    assert "unique incident excerpt" in queue
+    assert html.count("Grouping basis:") == 1
+    single = build_html_report(replace(data, incidents=(replace(incident, count=1),)))
+    assert "Single-signal entries are leads" in single
+
+
+def test_short_report_groups_repetitions_and_preserves_all_evidence_in_appendix(tmp_path):
+    from aegislog.reporting import build_summary_report
+    data = _data()
+    findings = tuple(replace(data.findings[0], evidence=f"unique evidence {index}") for index in range(44))
+    data = replace(data, findings=findings)
+    summary = build_summary_report(data, "full-appendix.html")
+    assert summary.count('class="summary-finding"') == 1
+    assert '44 finding(s)' in summary
+    assert summary.count('Review authentication history &amp; rotate exposed credentials.') == 1
+    target = write_html_report(data, tmp_path)
+    appendix = target.with_name(target.stem + '-appendix.html')
+    assert appendix.name in target.read_text()
+    text = appendix.read_text()
+    assert target.name in text and 'Back / Print Summary' in text
+    for index in range(44):
+        assert f'unique evidence {index}<' in text
+    assert text.count('id="finding-') == 44
+
+
+def test_short_report_discloses_omitted_groups_and_links_to_full_incidents():
+    from aegislog.reporting import build_summary_report
+    data = _data()
+    findings = tuple(replace(data.findings[0], title=f"Distinct finding {index}") for index in range(9))
+    data = replace(data, findings=findings)
+    summary = build_summary_report(data, "case-appendix.html")
+    assert summary.count('class="summary-finding"') == 6
+    assert 'Showing 6 highest-priority groups' in summary
+    assert summary.count('Review authentication history &amp; rotate exposed credentials.') == 1
+    assert 'Same next action as group 1' in summary
+    assert '#incident-abcdef123456' in summary
+    assert 'id="incident-abcdef123456"' in build_html_report(data)
+
+
+def test_report_pair_cannot_overwrite_source(tmp_path):
+    import pytest
+    source = tmp_path / 'prod-aegislog-report-appendix.html'
+    source.write_text('original')
+    with pytest.raises(ValueError, match='overwrite source'):
+        write_html_report(_data(str(source)), tmp_path, filename='prod-aegislog-report.html')
+    assert source.read_text() == 'original'
+
+
+def test_summary_embeds_brand_logo_and_readable_print_colors():
+    from aegislog.reporting import build_summary_report
+    html = build_summary_report(_data(), "appendix.html")
+    assert 'aria-label="AegisLog shield and telemetry logo"' in html
+    assert 'M84 18 137 38' in html
+    assert 'AEGIS<span>LOG</span>' in html
+    assert 'color:#245ea8!important' in html
+    assert 'color:#a62b38!important' in html
+    assert 'print-color-adjust:exact' in html
+    assert 'class="summary-service-chart"' in html
+    assert 'font-size="14"' in html
+
+
+def test_full_evidence_groups_repeated_recommendations_without_losing_references():
+    data = _data()
+    findings = tuple(replace(data.findings[0], evidence=f"evidence {index}") for index in range(44))
+    html = build_html_report(replace(data, findings=findings), summary_href='summary.html')
+    findings_html = html.split('id="findings"', 1)[1].split('id="telemetry"', 1)[0]
+    assert findings_html.count('class="finding-group"') == 1
+    assert findings_html.count('Review authentication history &amp; rotate exposed credentials.') == 1
+    assert findings_html.count('class="group-evidence"') == 44
+    for index in range(1, 45):
+        assert f'id="finding-{index:03d}"' in findings_html
+    assert 'href="summary.html">Back / Print Summary' in html
+    assert 'Print Full Evidence / Save PDF' in html
+
+
+def test_body_text_is_larger_without_resizing_headings():
+    from aegislog.reporting import build_summary_report
+    for html in [build_html_report(_data()), build_summary_report(_data(), 'appendix.html')]:
+        assert 'font-size:16px!important;line-height:1.65' in html
+        assert 'font-size:13px!important;line-height:1.6' in html
+        assert 'h1{font-size:38px' in html
+        assert 'h2{font-size:23px' in html

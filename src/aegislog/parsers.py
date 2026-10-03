@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-import json
+from .safe_json import loads as safe_json_loads
+from .sanitize import terminal_safe
+
 import re
 from dataclasses import dataclass
 
@@ -14,7 +16,7 @@ class Event:
     message: str = ""
 
 
-NGINX = re.compile(r'(?P<ip>\S+) \S+ \S+ \[[^]]+\] "(?P<method>\S+) (?P<path>\S+)[^\"]*" (?P<status>\d{3})')
+NGINX = re.compile(r'^(?P<ip>\S+) \S+ \S+ \[[^]]+\] "(?P<method>\S+) (?P<path>\S+)[^\"]*" (?P<status>\d{3})')
 SYSLOG = re.compile(r"^[A-Z][a-z]{2}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\S+\s+(?P<service>[\w.-]+)(?:\[\d+\])?:\s+(?P<message>.*)$")
 ISO_SERVICE = re.compile(
     r"^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)\s+"
@@ -79,14 +81,14 @@ def _web_level(status: int) -> str:
 
 
 def parse_line(line: str) -> Event:
-    raw = line.rstrip("\n")
+    raw = terminal_safe(line).rstrip("\n")
     stripped = raw.strip()
     if not stripped:
         return Event(raw=raw, message="")
 
     if stripped.startswith("{"):
         try:
-            obj = json.loads(stripped)
+            obj = safe_json_loads(stripped)
             message = str(obj.get("MESSAGE") or obj.get("message") or stripped)
             service_value = obj.get("SYSLOG_IDENTIFIER") or obj.get("_SYSTEMD_UNIT") or obj.get("service")
             service = str(service_value)[:128] if isinstance(service_value, (str, int, float)) else None
@@ -94,7 +96,7 @@ def parse_line(line: str) -> Event:
             level_value = str(obj.get("level") or "").lower()[:32]
             level = PRIORITY_LEVELS.get(priority) or level_value or _infer_level(message)
             return Event(raw=raw, source="json/journald", level=level or None, service=service, message=message)
-        except json.JSONDecodeError:
+        except (ValueError, RecursionError):
             pass
 
     match = ISO_SERVICE.match(stripped)
@@ -108,12 +110,21 @@ def parse_line(line: str) -> Event:
             message=match.group("message").strip(),
         )
 
+    match = re.match(
+        r"^\d{4}-\d{2}-\d{2}T\S+[+-]\d{4}\s+\S+\s+(?P<service>[\w.-]+)(?:\[\d+\])?:\s*(?P<message>.*)$",
+        stripped,
+    )
+    if match:
+        message = match.group('message').strip()
+        return Event(raw=raw, source='journald', level=_infer_level(message), service=match.group('service'), message=message)
+
     match = WINDOWS_EVENT.match(stripped)
     if match:
         provider = match.group("provider").strip()
         level = WINDOWS_LEVELS.get(match.group("level").lower())
         message = match.group("message").strip()
         return Event(raw=raw, source="windows", level=level or _infer_level(message), service=provider, message=message)
+
 
     match = re.match(
         r"^\d{4}-\d{2}-\d{2}T\S+\s+(?P<service>[\w.-]+)(?:\[\d+\])?:\s*(?P<message>.*)$",

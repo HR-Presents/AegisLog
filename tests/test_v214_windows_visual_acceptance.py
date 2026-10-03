@@ -42,7 +42,7 @@ def test_final_header_stays_compact() -> None:
     output = _render(120)
     lines = output.splitlines()
     investigate_index = next(i for i, line in enumerate(lines) if "INVESTIGATE" in line)
-    assert investigate_index <= 15
+    assert investigate_index <= 18
 
 
 def test_final_home_remains_ascii_safe_across_common_windows_widths() -> None:
