@@ -258,9 +258,9 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 
 ### Current Release
 
-**[v2.1.6](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.6)** is the published stable release, built from `e7af0798c731720690f298c093deec74f42fa56a`.
+**[v2.1.7](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.7)** is the published stable release, built from `7234b37fcad61836486c119f20653d45d2657a41`.
 
-Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.6/AegisLog-v2.1.6-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
+Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.7/AegisLog-v2.1.7-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
 
 > [!NOTE]
 > **Windows signing status**
@@ -291,7 +291,7 @@ python -m pipx ensurepath
 Close and reopen your terminal so PATH changes take effect. Then install the published wheel:
 
 ```bash
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.6/aegislog_ai-2.1.6-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.7/aegislog_ai-2.1.7-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start
@@ -336,7 +336,7 @@ At `aegis@console >`, select a workflow or type a supported command.
 | G | Optional beginner walkthrough with synthetic demo |
 | B / Q | Back / Quit |
 
-The G beginner walkthrough is available in the latest source; it is not included in the published v2.1.6 download.
+Choose G Beginner for the optional guided synthetic investigation and first-report walkthrough.
 
 The D browser dashboard is removed. Terminal investigation panels remain; the CLI `dashboard` command renders a terminal investigation.
 
@@ -367,7 +367,7 @@ The built-in authentication demo contains **7 records, 2 findings, and 2 inciden
 > [!NOTE]
 > **Preview provenance**
 >
-> The images below are development reference/QA previews, not screenshots of the v2.1.6 Windows executable. See [capture provenance](docs/assets/screenshots/README.md).
+> The images below are development reference/QA previews, not screenshots of the v2.1.7 Windows executable. See [capture provenance](docs/assets/screenshots/README.md).
 
 ![Terminal home reference preview](docs/assets/screenshots/reference-home-qa.png)
 
@@ -454,7 +454,7 @@ See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), 
 | [Compatibility](docs/COMPATIBILITY.md) | Formats and coverage limits |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Installation and runtime issues |
 | [Testing](docs/TESTING.md) | Validation guidance |
-| [Release Notes](docs/RELEASE_V2.1.6.md) | Published v2.1.6 changes |
+| [Release Notes](docs/RELEASE_V2.1.7.md) | Published v2.1.7 changes |
 | [Roadmap](docs/ROADMAP.md) | Released capabilities and future priorities |
 | [Documentation Index](docs/README.md) | Complete documentation directory |
 

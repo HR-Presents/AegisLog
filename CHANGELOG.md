@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.7 — 2026-10-03 (release preparation)
+## 2.1.7 — 2026-10-03
 
 - Fit terminal home actions into common laptop-sized viewports while retaining the original branding.
 - Add optional G Beginner synthetic investigation and report-opening walkthrough.

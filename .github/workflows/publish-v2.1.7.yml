@@ -1,0 +1,45 @@
+name: Publish verified v2.1.7 draft
+on:
+  pull_request:
+    paths: ['.github/workflows/publish-v2.1.7.yml']
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-v2.1.7.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Verify reviewed draft and asset digests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/HR-Presents/AegisLog-AI/releases/402626645 > release.json
+          python - <<'PY'
+          import json
+          release = json.load(open('release.json'))
+          assert release['draft'] is True
+          assert release['tag_name'] == 'v2.1.7'
+          assert release['target_commitish'] == '7234b37fcad61836486c119f20653d45d2657a41'
+          expected = {"AegisLog-v2.1.7-Windows.zip":"sha256:747d0eef0ddbfa373fe8b6989bd42b1d9b12c2c7e20b4da9be8dcd718d7e3853","AegisLog-v2.1.7-Windows.zip.sha256":"sha256:9918ab0d23ba55c91fa5bd9dded5aa67d0cee10a76a1afe43cfe0372ad2acfb9","AegisLog.exe":"sha256:d014affd32ff173328b10689021fbc7c288d93098d0b1db996fc15615a3a614b","AegisLog.exe.sha256":"sha256:71bc787196e0983c78cc53990ac396cc602b12dc41654550d479a0505bbd75e6","aegislog_ai-2.1.7-py3-none-any.whl":"sha256:78f93fbe7466b26e3a444ab026cce2139c9a3f666af834d95b1c2e2b1e26cf6a","aegislog_ai-2.1.7.tar.gz":"sha256:0a6b80aadfd3a8758fa7745b44e081c48e7b4d3b589e1f8cccb8ce3be28a7f6d","SHA256SUMS":"sha256:8025c5cc2879428a252a3d451e4e0243daa72548f55f3cc127aaed237892464e"}
+          actual = {a['name']: a['digest'] for a in release['assets']}
+          assert actual == expected, 'Reviewed release assets changed'
+          assert 'unsigned' in release['body'].lower()
+          print('Reviewed draft target, seven assets and unsigned notice verified')
+          PY
+  publish:
+    needs: verify
+    if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the reviewed draft without replacing assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit v2.1.7 --repo HR-Presents/AegisLog-AI --draft=false --latest
+          gh api repos/HR-Presents/AegisLog-AI/releases/402626645 --jq '{tag: .tag_name, draft: .draft, target: .target_commitish, url: .html_url}'

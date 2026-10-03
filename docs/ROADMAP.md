@@ -1,8 +1,8 @@
 # Roadmap
 
-AegisLog is currently released as **v2.1.6**. This roadmap describes priorities, not delivery promises or features already available.
+AegisLog is currently released as **v2.1.7**. This roadmap describes priorities, not delivery promises or features already available.
 
-## v2.1.6 — current stable release
+## v2.1.7 — current stable release
 
 Synthetic evaluations are not independently validated real-world effectiveness evidence.
 
@@ -12,6 +12,7 @@ Synthetic evaluations are not independently validated real-world effectiveness e
 - Deterministic findings, incident groups, bounded retained evidence and rarity signals.
 - Guided computer checks, folder discovery/deduplication, reports and investigation tools.
 - Summary/full-evidence HTML printing, dark readable text, demo labels and timestamp limitations.
+- Optional beginner walkthrough, height-adaptive terminal home, and approved offline report branding.
 - Windows executable, Python packages, checksums and CI/release validation.
 
 The D browser dashboard is removed. The Windows executable is unsigned. Synthetic evaluation is regression evidence; findings and rarity do not establish compromise.
