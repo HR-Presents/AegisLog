@@ -1,4 +1,5 @@
 """Bounded, read-only discovery and batch investigation of local log files."""
+from .safe_json import loads as safe_json_loads
 from .report_paths import default_report_dir
 from pathlib import Path
 import os
@@ -54,7 +55,6 @@ def discover_logs(root: Path, *, limit=200, max_entries=10000, include_other=Fal
 
 def likely_log(path, sample):
     import csv
-    import json
     from .structured_input import normalize_object
     from .parsers import parse_line
     text = sample.decode('utf-8', errors='replace').lstrip('\ufeff')
@@ -65,10 +65,10 @@ def likely_log(path, sample):
         return bool({'message','msg'} & set(header)) or {'id.orig_h','id.resp_h'} <= set(header) or ('src_ip' in header and bool({'dst_ip','dest_ip'} & set(header)))
     if path.suffix.lower() == '.json':
         try:
-            obj = json.loads(text)
+            obj = safe_json_loads(text)
             records = obj if isinstance(obj, list) else obj.get('events', [obj]) if isinstance(obj, dict) else [obj]
             return any(normalize_object(row)[0] is not None for row in records[:5]) if isinstance(records, list) else False
-        except json.JSONDecodeError:
+        except (ValueError, RecursionError):
             return any('"'+field+'"' in text for field in ('message','MESSAGE','event_type','id.orig_h'))
     return any(parse_line(line).source != 'generic' for line in text.splitlines()[:10])
 

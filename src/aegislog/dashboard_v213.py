@@ -126,7 +126,7 @@ def _next(data: DashboardData) -> Panel:
 def render_dashboard(data: DashboardData, *, screen_width: int | None = None) -> RenderableType:
     width = min(max(1, screen_width or 100), _MAX_WIDTH)
     body: list[RenderableType] = [_header(data, width), Text(""), _source_block(data), Text("")]
-    activity = minute_activity(data.raw_lines, data.timestamp_year_hint)
+    activity = minute_activity((event.raw for event in data.events) if data.events else data.raw_lines, data.timestamp_year_hint)
     charts = [DistributionChart("SEVERITY DISTRIBUTION", data.severities, semantic=True), DistributionChart("SERVICE ACTIVITY", data.services)]
     if width >= 104:
         chart_row = Table.grid(expand=True, padding=(0, 1))

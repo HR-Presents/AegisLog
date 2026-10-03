@@ -104,6 +104,10 @@ def analyze_dashboard(
         total += 1
         state.process(canonical)
         event = replace(parse_line(canonical), source=kind)
+        if known and kind.endswith('json-message') and event.service is None:
+            service_match = re.match(r'^\s*([^:]{1,128}):', canonical)
+            if service_match:
+                event = replace(event, service=service_match.group(1).strip())
         if event.message:
             level = (event.level or "unknown").upper()[:32]
             if level not in level_counts and len(level_counts) >= 32:

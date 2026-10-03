@@ -1,4 +1,4 @@
-"""Guided local investigations shared by the terminal and browser interface."""
+"""Guided local investigations for the terminal."""
 from .report_paths import default_report_dir
 from dataclasses import asdict, replace
 from pathlib import Path
@@ -98,6 +98,8 @@ def check_computer(source, channel, minutes, limit, output):
 def finish_investigation(data, output, scope='Selected file; activity charts use bounded retained evidence.'):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
+    from .output_safety import ensure_distinct_output
+    ensure_distinct_output(data.source, output / 'evidence.json')
     report = write_html_report(data, output)
     formats = Counter(event.source for event in data.events)
     context = f'<p class="caveat">Collection scope: {escape(scope)} Retained formats: {escape(str(dict(formats)))}. Generic parsing is fallback coverage.</p>'

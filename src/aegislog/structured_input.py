@@ -1,4 +1,5 @@
 """Bounded schema-aware records; unknown structures remain explicitly unrecognized."""
+from .safe_json import loads as safe_json_loads
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -66,7 +67,8 @@ def normalize_object(obj):
     message = obj.get('MESSAGE') or obj.get('message') or obj.get('msg')
     if isinstance(message, (str, int, float)):
         stamp = _stamp(obj.get('timestamp') or obj.get('time') or obj.get('ts'))
-        service = str(obj.get('service') or obj.get('SYSLOG_IDENTIFIER') or obj.get('_SYSTEMD_UNIT') or 'application')[:128]
+        service_value = obj.get('service') or obj.get('SYSLOG_IDENTIFIER') or obj.get('_SYSTEMD_UNIT') or 'application'
+        service = str(service_value)[:128] if isinstance(service_value, (str, int, float)) else 'unknown'
         level = str(PRIORITY_LEVELS.get(str(obj.get('PRIORITY'))) or obj.get('level') or '').upper()[:32]
         return f'{stamp} {service}: {level} {message}', 'json-message'
     return None, 'unknown-json'
@@ -93,31 +95,48 @@ def iter_records(path: Path, coverage: Coverage, max_line_bytes=1_000_000, cance
         return raw, text, kind, known
     suffix = path.suffix.lower()
     if suffix == '.csv':
-        reader = csv.reader(lines())
+        previous_limit = csv.field_size_limit()
+        csv.field_size_limit(max(previous_limit, max_line_bytes))
+        line_source = iter(lines())
+        reader = csv.reader(line_source, strict=True)
         try:
-            header = next(reader, [])
+            try:
+                header = next(reader, [])
+            except csv.Error:
+                coverage.invalid += 1
+                for _ in line_source:
+                    pass
+                return
             coverage.metadata += 1 if header else 0
             header = [name.strip().lstrip('\ufeff').lower() for name in header]
-            for row in reader:
+            while True:
+                try:
+                    row = next(reader)
+                except StopIteration:
+                    break
+                except csv.Error:
+                    coverage.invalid += 1
+                    yield emit('[INVALID CSV RECORD]', '[INVALID CSV RECORD]', 'invalid-csv', False)
+                    continue
                 if not row or not any(row):
                     continue
-                raw = json.dumps(dict(zip(header, row)), ensure_ascii=False)
-                if len(row) != len(header):
+                raw = json.dumps(dict(zip(header, row)) if len(row) == len(header) else row, ensure_ascii=False)
+                if len(row) != len(header) or len(set(header)) != len(header):
                     coverage.invalid += 1
                     yield emit(raw, raw, 'invalid-csv', False)
                     continue
                 text, kind = normalize_object(dict(zip(header, row)))
                 yield emit(raw, text or raw, 'csv-' + kind, text is not None)
-        except csv.Error:
-            coverage.invalid += 1
+        finally:
+            csv.field_size_limit(previous_limit)
         return
     # Whole JSON containers are supported up to 8 MB. Larger containers fall back visibly.
     if suffix == '.json' and path.stat().st_size <= 8_000_000:
         raw_lines = list(lines())
         raw = '\n'.join(raw_lines)
         try:
-            obj = json.loads(raw)
-        except json.JSONDecodeError:
+            obj = safe_json_loads(raw)
+        except (ValueError, RecursionError):
             obj = None
         if obj is not None:
             records = obj if isinstance(obj, list) else obj.get('events') if isinstance(obj, dict) and isinstance(obj.get('events'), list) else [obj]
@@ -157,9 +176,9 @@ def iter_records(path: Path, coverage: Coverage, max_line_bytes=1_000_000, cance
             continue
         if stripped.startswith(('{', '[')):
             try:
-                obj = json.loads(stripped)
+                obj = safe_json_loads(stripped)
                 text, kind = normalize_object(obj)
-            except json.JSONDecodeError:
+            except (ValueError, RecursionError):
                 text, kind = None, 'invalid-json'
                 coverage.invalid += 1
             yield emit(raw, text or raw, kind, text is not None)

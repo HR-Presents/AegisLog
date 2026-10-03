@@ -26,7 +26,7 @@ def test_windows_channel_is_allowlisted(monkeypatch: pytest.MonkeyPatch) -> None
 def test_journald_uses_bounded_read(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(nc.platform, "system", lambda: "Linux")
     seen: list[str] = []
-    def fake_run(command: list[str], timeout: int = 15) -> str:
+    def fake_run(command: list[str], timeout: int = 15, include_stderr=False) -> str:
         seen.extend(command); return "2026-08-29 host sshd[1]: Failed password\n"
     monkeypatch.setattr(nc, "_run", fake_run)
     assert nc.journald_logs(limit=25)
@@ -36,12 +36,15 @@ def test_journald_uses_bounded_read(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_docker_passes_container_as_argument(monkeypatch: pytest.MonkeyPatch) -> None:
     captured: list[str] = []
-    def fake_run(command: list[str], timeout: int = 15) -> str:
+    def fake_run(command: list[str], timeout: int = 15, include_stderr=False) -> str:
         captured.extend(command); return "2026-08-29T12:00:00Z ERROR timeout\n"
     monkeypatch.setattr(nc, "_run", fake_run)
     lines = nc.docker_logs("api-1", limit=20)
     assert captured[-1] == "api-1"
-    assert lines[0].startswith("docker/api-1:")
+    from aegislog.parsers import parse_line
+    from aegislog.terminal_charts import minute_activity
+    assert parse_line(lines[0]).service == 'docker.api-1'
+    assert sum(minute_activity(lines).values()) == 1
 
 
 def test_docker_rejects_whitespace_container() -> None:

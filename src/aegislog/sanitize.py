@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .safe_json import loads as safe_json_loads
+
 import json
 import re
 from typing import Any
@@ -13,7 +15,7 @@ _SENSITIVE_KEYS = {
 }
 _KEY_VALUE = re.compile(
     r"(?i)(?P<key>authorization|password|passwd|pwd|secret|token|access[_-]?token|refresh[_-]?token|api[_-]?key|apikey|client[_-]?secret|cookie|set-cookie)"
-    r"(?P<sep>\s*[:=]\s*)(?P<quote>[\"']?)(?P<value>[^\s,;\"']+|[^\"']*)(?P=quote)"
+    r"(?P<sep>[\"']?\s*[:=]\s*)(?P<quote>[\"']?)(?P<value>[^\s,;\"']+|[^\"']*)(?P=quote)"
 )
 _BEARER = re.compile(r"(?i)\b(Bearer|Basic)\s+[A-Za-z0-9._~+/=-]+")
 _URL_CREDS = re.compile(r"(?P<scheme>https?://)(?P<user>[^\s/@:]+):(?P<password>[^\s/@]+)@", re.I)
@@ -59,9 +61,12 @@ def redact_sensitive(text: str) -> str:
     stripped = safe.strip()
     if stripped and stripped[0] in "[{":
         try:
-            parsed = json.loads(stripped)
-        except (json.JSONDecodeError, TypeError):
+            parsed = safe_json_loads(stripped)
+        except (ValueError, TypeError, RecursionError):
             pass
         else:
-            return json.dumps(_redact_structured(parsed), ensure_ascii=False, separators=(",", ":"))
+            try:
+                return json.dumps(_redact_structured(parsed), ensure_ascii=False, separators=(",", ":"))
+            except RecursionError:
+                pass
     return _redact_unstructured(safe)

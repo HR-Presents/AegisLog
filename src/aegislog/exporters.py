@@ -25,6 +25,8 @@ def html_report(source: str, total: int, findings: list, incidents: list) -> str
 
 
 def write_report(output: Path, source: str, total: int, findings: list, incidents: list) -> None:
+    from .output_safety import ensure_distinct_output
+    ensure_distinct_output(source, output)
     suffix = output.suffix.lower()
     if suffix in {".md", ".markdown"}:
         content = markdown_report(source, total, findings, incidents)

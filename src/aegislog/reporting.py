@@ -375,8 +375,8 @@ def write_html_report(data: DashboardData, output_dir: Path | None = None, *,
     stem = _safe_name(Path(data.source).stem)
     target = destination / (filename or f"{stem}-aegislog-report.html")
     appendix = target.with_name(target.stem + "-appendix.html")
-    if Path(data.source).resolve() in {target.resolve(), appendix.resolve()}:
-        raise ValueError("Report cannot overwrite source")
+    from .output_safety import ensure_distinct_output
+    ensure_distinct_output(data.source, target, appendix)
     full = build_html_report(data, summary_href=target.name)
     if appendix_extra:
         full = full.replace('<div class="footer">', appendix_extra + '<div class="footer">')

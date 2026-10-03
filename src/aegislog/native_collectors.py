@@ -23,7 +23,7 @@ class NativeSource:
     detail: str
 
 
-def _run(command: list[str], timeout: int = 15) -> str:
+def _run(command: list[str], timeout: int = 15, include_stderr: bool = False) -> str:
     try:
         result = subprocess.run(  # nosec B603 - shell is never used; commands are constructed as argument lists
             command,
@@ -39,7 +39,7 @@ def _run(command: list[str], timeout: int = 15) -> str:
     if result.returncode != 0:
         detail = (result.stderr or result.stdout or "collector command failed").strip()
         raise CollectorError(detail[:500])
-    return result.stdout
+    return result.stdout + (result.stderr if include_stderr else "")
 
 
 def _windows_timestamp(value: object) -> str:
@@ -119,11 +119,20 @@ def journald_logs(limit: int = 300, since_minutes: int | None = None) -> list[st
 
 def docker_logs(container: str, limit: int = 300) -> list[str]:
     name = container.strip()
-    if not name or any(ch.isspace() for ch in name):
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", name):
         raise CollectorError("provide one Docker container name or ID")
     count = max(1, min(int(limit), 5000))
-    raw = _run(["docker", "logs", "--timestamps", "--tail", str(count), name], timeout=30)
-    return [f"docker/{name}: {line}\n" for line in raw.splitlines() if line.strip()]
+    raw = _run(["docker", "logs", "--timestamps", "--tail", str(count), name], timeout=30, include_stderr=True)
+    lines = []
+    for line in raw.splitlines():
+        if not line.strip():
+            continue
+        stamp, separator, message = line.partition(' ')
+        if separator and re.match(r'^\d{4}-\d{2}-\d{2}T', stamp):
+            lines.append(f'{stamp} docker.{name}: {message}\n')
+        else:
+            lines.append(f'docker/{name}: {line}\n')
+    return lines
 
 
 def _docker_status() -> NativeSource:
