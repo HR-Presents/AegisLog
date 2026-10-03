@@ -337,4 +337,5 @@ def test_summary_opens_with_results_and_keeps_context_grouped():
     assert 'SUMMARY ONLY' in notes
     assert 'Complete retained evidence is in the separate full report' in notes
     assert 'Priority lead:' in html
+    assert html.index('id="executive"') < html.index('id="findings"') < html.index('id="incidents"') < html.index('id="activity"') < html.index('<aside class="summary-notes"')
     assert 'width:110px' in html
