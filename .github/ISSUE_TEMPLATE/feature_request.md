@@ -9,6 +9,10 @@ labels: enhancement
 
 What defensive analysis or investigation problem would this solve? Describe the user and workflow rather than only the proposed implementation.
 
+## Current version and source format
+
+Which AegisLog version and log format/source are involved? Check docs/ROADMAP.md for proposed priorities.
+
 ## Proposed outcome
 
 What should AegisLog do, and what would a successful result look like?
@@ -21,7 +25,7 @@ Show an example command, control-center path, or sanitized input/output when use
 
 ## Security and privacy boundaries
 
-Could this change log collection, local data storage, redaction, external data transfer, privileges, or system state? AegisLog features should remain defensive, read-only, and local-first; remote AI must remain optional and explicit.
+Could this change log collection, local data storage, redaction, external data transfer, privileges, or system state? AegisLog features should remain defensive, read-only, and local-first; remote AI is not part of the supported public product surface.
 
 ## Alternatives
 

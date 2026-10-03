@@ -2,6 +2,8 @@
 
 # AEGISLOG
 
+<img src="docs/assets/aegislog-logo.svg" alt="AegisLog logo" width="96">
+
 **Terminal-first defensive log investigation for analysts who want evidence, not noise.**
 
 [![CI](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/ci.yml)
@@ -25,12 +27,13 @@ AegisLog turns raw logs into structured investigation context while keeping anal
 
 | | Capability | What it gives the analyst |
 |---|---|---|
-| **01** | **ANALYZE** | Parse a log, surface findings, correlate incidents, and generate a self-contained report. |
+| **01** | **ANALYZE** | Parse a log, surface findings, correlate incidents, and generate summary and full retained-evidence HTML reports. |
 | **02** | **LIVE MONITOR** | Watch a log source continuously with read-only detection. |
 | **03** | **MULTI-SOURCE** | Correlate activity across multiple live telemetry sources. |
 | **04** | **NATIVE TELEMETRY** | Inspect supported Windows, Linux, and Docker sources. |
-| **05** | **INCIDENTS** | Review evidence chains, severity, confidence, and investigation context. |
-| **06** | **REPORTING** | Produce analyst-oriented HTML evidence reports that stay local. |
+| **05** | **NATIVE MONITOR** | Watch supported native telemetry with read-only collection. |
+| **06** | **INCIDENTS** | Review evidence chains, severity, confidence, and investigation context. |
+| **R** | **REPORTING** | Produce analyst-oriented HTML evidence reports that stay local. |
 
 AI Analyst is not part of the supported public product surface. No remote model workflow, auto-remediation, exploitation, persistence, credential theft, or silent host modification is part of the supported product surface.
 
@@ -38,23 +41,13 @@ AI Analyst is not part of the supported public product surface. No remote model 
 
 ## Current release
 
-The current published stable release is **v2.1.3**.
+**[v2.1.6](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.6)** is the published stable release, built from `e7af0798c731720690f298c093deec74f42fa56a`.
 
-- Release target commit: `c01247b34a2dd54c863dd142c618f03e184af8f8`
-- Windows artifacts: `AegisLog.exe` and `AegisLog.exe.sha256`
-- Windows EXE SHA-256: `1ddda99e03fd36ba1816b1567a28b8cc23d410583f34771c1287f9e3c1a28155`
-- The Windows executable is currently unsigned.
-- Maintained benchmark results are synthetic regression evidence only, not independently validated real-world effectiveness evidence.
+Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.6/AegisLog-v2.1.6-Windows.zip), standalone executable, Python wheel or source package from the release page. Matching SHA-256 files are included. The Windows executable is **unsigned**; build provenance is separate from Authenticode signing.
 
-### Windows visual-status note
+This release includes readable light reports with dark text, grouped findings, native channel context, folder overview printing, explicit demo/timestamp limitations, and separate summary/full-evidence print actions. The D browser dashboard is removed; terminal investigation panels remain. See [release notes](docs/RELEASE_V2.1.6.md), [upgrade guidance](docs/INSTALL.md#upgrade-and-verify), and the [roadmap](docs/ROADMAP.md).
 
-The published v2.1.3 executable is functionally released, but its Mission Control presentation did **not** pass subsequent real-Windows visual acceptance. A later unreleased UI experiment on `main` also failed visual review. Those attempts are not being promoted as a finished visual design, and no newer release should be inferred from development-branch or CI artifacts.
-
-The current development dashboard follows the [terminal reference design](docs/TERMINAL_REFERENCE_DESIGN.md), with cyan headings, mint bars, thin borders, and telemetry-based charts. Its labelled development previews do not replace Windows visual acceptance.
-
-The development [Security Workbench](docs/SECURITY_WORKBENCH.md) adds filtered evidence, report access, demo replay, login-sequence review, account timelines, supplied watchlists, integrity fingerprints, detection tuning and collector health. Enter `S` or `P` from the interactive shell.
-
-Public product screenshots should come from a verified build and should not be presented as accepted product imagery until a real Windows capture has been reviewed.
+Python 3.10–3.13 are covered by CI. Python 3.14 was exercised by the owner but is not yet in that matrix. Synthetic evaluations measure regression consistency, not independently validated real-world detection effectiveness.
 
 ---
 
@@ -78,11 +71,11 @@ The interactive shell uses the authoritative `aegis@console >` prompt. Windows S
 With Python 3.10+ and pipx installed:
 
 ```bash
-py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/main.zip"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.6/aegislog_ai-2.1.6-py3-none-any.whl"
 aegislog start
 ```
 
-This installs the report-update review branch. Choose **04 Native logs** or **05 Native monitor** to use supported system telemetry without a supplied demo file. Press **Q** to return to your existing terminal. See [installation instructions](docs/INSTALL.md) for Windows pipx setup and uninstalling.
+This installs the published v2.1.6 wheel. If pipx is not installed, follow the one-time setup in the installation guide. Use `py` instead of `python` if that is the Python command available on your Windows installation. Choose **04 Native logs** or **05 Native monitor** to use supported system telemetry without a supplied demo file. Press **Q** to return to your existing terminal. See [installation instructions](docs/INSTALL.md) for Windows pipx setup and uninstalling.
 
 ### Python 3.10+
 
@@ -213,6 +206,17 @@ Choose **C Check Computer** for readable-source discovery and a bounded native-l
 
 Folder scans now default to likely logs, offer identical-content deduplication, preserve relative source locations, and produce a searchable batch overview plus JSON manifest. B/Escape/Ctrl+C cancels while retaining completed reports. **O** opens completed reports and **F** opens their folder. **R** paginates all saved summaries and batch overviews; the terminal keeps **C/F/R/A** shortcuts visible beneath the scrollable home. Physical lines, records and recognized records are reported separately. Supported structured inputs and detection limits are listed in [compatibility](docs/COMPATIBILITY.md).
 
-### Audited terminal build and next release
+## Reports and product previews
 
-The terminal/report fixes at commit `3fa654012458ca91e38ca40dd31e25d016dec70a` passed 515 tests and all seven CI workflows. The D browser dashboard was removed; terminal panels remain. Windows native collection and report opening were also exercised by the owner. See [installation](docs/INSTALL.md), [final audit](docs/FINAL_AUDIT.md), and [prepared v2.1.4 release notes](docs/RELEASE_V2.1.4.md). The previous audited artifact reports 2.1.3. Main now prepares a 2.1.4 candidate with fresh versioned assets and a draft release; v2.1.4 has not been published.
+Reports provide a short summary and a separate full retained-evidence HTML document. Use **Print complete report / Save PDF** for the complete report, or **Print summary / Save PDF** for the short overview. Disable browser **Headers and footers** to remove browser-added local file paths. Preserve original logs separately.
+
+For the built-in synthetic authentication demo, the summary reports **7 records, 2 findings (HIGH authentication lead and MEDIUM operational error), and 2 incident groups**. These are training signals, not findings about the user's computer. Yearless syslog timestamps are not guessed; event-order correlation does not establish elapsed time.
+
+Existing terminal images below are **development reference/QA previews**, not screenshots of the v2.1.6 Windows executable. See [capture provenance](docs/assets/screenshots/README.md).
+
+![Terminal home reference preview](docs/assets/screenshots/reference-home-qa.png)
+![Terminal analysis reference preview](docs/assets/screenshots/reference-analysis-qa.png)
+
+## Feedback and next steps
+
+[Report a bug](https://github.com/HR-Presents/AegisLog-AI/issues/new?template=bug_report.md), [request a feature](https://github.com/HR-Presents/AegisLog-AI/issues/new?template=feature_request.md), or review the [roadmap](docs/ROADMAP.md). Include a sanitized reproducible example and your version; report vulnerabilities privately through [SECURITY.md](SECURITY.md).

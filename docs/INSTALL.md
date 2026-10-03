@@ -18,33 +18,43 @@ Get-FileHash .\AegisLog.exe -Algorithm SHA256
 Get-Content .\AegisLog.exe.sha256
 ```
 
-Compare the two SHA-256 values exactly. Always use the checksum published beside the same release asset you downloaded. The published stable version is v2.1.3. The audited terminal/report updates are a newer development build; see [prepared release notes](RELEASE_V2.1.4.md) for its verified artifact and limitations.
+Compare the two SHA-256 values exactly, using the checksum beside the same release asset. The published version is **v2.1.6**. See [release notes](RELEASE_V2.1.6.md).
 
 ## Install as a terminal command
 
-AegisLog runs inside your existing PowerShell, Command Prompt, or Linux/macOS terminal. It does not replace your shell.
-
-Requires Python 3.10+ and pipx. No Git checkout or supplied demo log is required for this installation route.
+AegisLog runs inside your existing terminal; Q returns to your shell. Requires Python 3.10+ and pipx. Native collectors depend on the OS, installed tools and channel permissions.
 
 ### Windows: prepare pipx once
 
-```powershell
-py -m pip install --user pipx
-py -m pipx ensurepath
+Check `python --version`. If `python` is unavailable but `py --version` works, substitute `py` in the commands below.
+
+```cmd
+python -m pip install --user pipx
+python -m pipx ensurepath
 ```
 
-Close and reopen the terminal after `ensurepath` so Windows loads the updated PATH.
+Close and reopen the terminal to reload PATH. Administrator access is not required for normal installation.
 
-### Install or update the current candidate
+### Upgrade and verify
 
-```powershell
-cd $HOME
-py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/main.zip"
+Exit AegisLog first, then install the published wheel:
+
+```cmd
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.6/aegislog_ai-2.1.6-py3-none-any.whl"
+aegislog --version
+aegislog doctor
+aegislog start
 ```
 
-This moving URL installs the current main development build (2.1.4 candidate); it does not install a published stable v2.1.4 release. For reproducible installation, replace `refs/heads/main` with the reviewed full commit SHA. `--force` also updates an existing installation. Do not add `--pip-args="--force-reinstall"`: with the uv backend that duplicates the reinstall option and fails. Python 3.10–3.13 are covered by CI; Python 3.14 is not yet part of that test matrix.
+The version should be **2.1.6**. Regenerate existing reports after updating. Your source logs are not modified; retain saved reports until you choose to delete them. Do not add `--pip-args="--force-reinstall"`: it can duplicate the uv backend's reinstall option.
 
-### Start, use, and exit
+If `aegislog` is not recognized after installation, reopen the terminal. In Command Prompt, an immediate launch is `"%USERPROFILE%\.local\bin\aegislog.exe" start`; in PowerShell use `& "$env:USERPROFILE\.local\bin\aegislog.exe" start`.
+
+For the standalone distribution, download the new EXE/ZIP, verify its matching checksum and run the new copy. An older extracted EXE does not update automatically. The executable is unsigned; a matching checksum does not imply a valid publisher signature.
+
+Python 3.10–3.13 are covered by CI; 3.14 is not yet in that matrix. On Linux/macOS use `python3` where appropriate and the same published wheel with pipx.
+
+## Start, use, and exit
 
 ```powershell
 aegislog start
@@ -59,7 +69,7 @@ Check the installation with `aegislog --version` and `aegislog doctor`.
 Remove it with:
 
 ```powershell
-py -m pipx uninstall aegislog-ai
+python -m pipx uninstall aegislog-ai
 ```
 
 On Linux/macOS, install pipx using its documented platform instructions, then use the same `pipx install` and `aegislog` commands.
