@@ -256,22 +256,11 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 
 ## Installation
 
-### Latest reviewed report design
-
-The latest report design is merged on main. Install this reviewed source snapshot after preparing pipx below:
-
-```bash
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/447837b7f6b61c2d86e5bedb028cf0e37e8dfc52.zip"
-aegislog start
-```
-
-Generate a new investigation report after updating. Existing HTML/PDF files do not change automatically. This snapshot retains the package version 2.1.7; the version alone does not distinguish it from the older release assets.
-
 ### Current Release
 
-**[v2.1.7](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.7)** is the published stable release, built from `7234b37fcad61836486c119f20653d45d2657a41`.
+**[v2.1.8](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.8)** is the published stable release, built from `1eb0a4a4124599544b3608eb84582979770e4a04`.
 
-Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.7/AegisLog-v2.1.7-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
+Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.8/AegisLog-v2.1.8-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
 
 > [!NOTE]
 > **Windows signing status**
@@ -302,7 +291,7 @@ python -m pipx ensurepath
 Close and reopen your terminal so PATH changes take effect. Then install the published wheel:
 
 ```bash
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.7/aegislog_ai-2.1.7-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.8/aegislog_ai-2.1.8-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start
@@ -458,7 +447,7 @@ See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), 
 | [Compatibility](docs/COMPATIBILITY.md) | Formats and coverage limits |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Installation and runtime issues |
 | [Testing](docs/TESTING.md) | Validation guidance |
-| [Release Notes](docs/RELEASE_V2.1.7.md) | Published v2.1.7 changes |
+| [Release Notes](docs/RELEASE_V2.1.8.md) | Published v2.1.8 changes |
 | [Roadmap](docs/ROADMAP.md) | Released capabilities and future priorities |
 | [Documentation Index](docs/README.md) | Complete documentation directory |
 
