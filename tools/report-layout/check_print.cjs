@@ -23,6 +23,13 @@ const path = require('path');
   if (metrics.length !== 4 || Math.max(...metrics) - Math.min(...metrics) > 1) throw Error('Desktop metrics should occupy one compact row');
   const findings = await page.locator('#findings h2').boundingBox();
   if (!findings || findings.y + findings.height > 900) throw Error('Findings were pushed below the desktop opening');
+  const colored = await page.locator('#aegislog-report *').evaluateAll(items => items.filter(item => item.textContent.trim() && getComputedStyle(item).color !== 'rgb(0, 0, 0)').map(item => item.className));
+  if (colored.length) throw Error(`Non-black report text: ${colored}`);
+  const disclosure = page.locator('details.report-evidence').first();
+  if (await disclosure.getAttribute('open') !== null) throw Error('Evidence should start collapsed');
+  await disclosure.locator('summary').click();
+  if (!await disclosure.locator('.evidence').isVisible()) throw Error('Evidence did not expand');
+  await disclosure.locator('summary').click();
   await page.screenshot({path:'report-layout-qa/summary-desktop.png'});
   await page.setViewportSize({width:390,height:844});
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error('Summary overflows mobile screen');
@@ -45,6 +52,14 @@ const path = require('path');
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({media:'print'});
   await page.pdf({path:'report-layout-qa/demo-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
+  for (const name of ['empty', 'missing-time', 'many-findings']) {
+    await page.emulateMedia({media:'screen'});
+    await page.goto(pathToFileURL(path.resolve(`report-layout-qa/${name}-aegislog-report.html`)).href);
+    await page.setViewportSize({width:390,height:844});
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error(`${name} overflows`);
+    await page.setViewportSize({width:1440,height:900});
+    await page.pdf({path:`report-layout-qa/${name}.pdf`,format:'A4',printBackground:true,displayHeaderFooter:false});
+  }
   await browser.close();
   console.log('Chromium filter and 161-source print smoke passed');
 })().catch(error => {console.error(error);process.exit(1);});

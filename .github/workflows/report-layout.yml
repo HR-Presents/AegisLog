@@ -4,6 +4,7 @@ on:
     paths:
       - 'src/aegislog/folder_scan.py'
       - 'src/aegislog/reporting.py'
+      - 'src/aegislog/report_design.py'
       - 'tools/report-layout/**'
       - '.github/workflows/report-layout.yml'
   workflow_dispatch:
@@ -23,7 +24,7 @@ jobs:
           PYTHONPATH=src python tools/report-layout/generate_fixture.py
       - name: Render and exercise the report in Chromium
         run: |
-          npm install --no-save --prefix /tmp/aegis-report-browser playwright@1.48.2
+          npm install --no-save --prefix /tmp/aegis-report-browser playwright@1.56.1
           /tmp/aegis-report-browser/node_modules/.bin/playwright install --with-deps chromium
           sudo apt-get install -y poppler-utils
           NODE_PATH=/tmp/aegis-report-browser/node_modules node tools/report-layout/check_print.cjs
@@ -44,6 +45,12 @@ jobs:
           for name in ['demo-summary', 'demo-complete']:
               contents = subprocess.check_output(['pdftotext', f'report-layout-qa/{name}.pdf', '-'], text=True)
               assert 'SYNTHETIC DEMO DATA' in contents
+              info = subprocess.check_output(['pdfinfo', f'report-layout-qa/{name}.pdf'], text=True)
+              count = int(re.search(r'Pages:\s+(\d+)', info).group(1))
+              for page in range(1, count + 1):
+                  page_text = subprocess.check_output(['pdftotext', '-f', str(page), '-l', str(page), f'report-layout-qa/{name}.pdf', '-'], text=True)
+                  assert f'{page} / {count}' in page_text, 'Missing page number'
+
               assert 'Timestamp limitations:' in contents
               if name == 'demo-summary':
                   assert 'SUMMARY ONLY' in contents

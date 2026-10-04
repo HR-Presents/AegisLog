@@ -360,3 +360,21 @@ def test_summary_keeps_readable_evidence_and_exposes_collection_limits():
     assert '1 oversized lines truncated' in html
     assert 'Formats: {' not in html
     assert '#finding-001' in html
+
+
+def test_report_observed_facts_do_not_invent_missing_fields():
+    from aegislog.report_design import observed_facts
+    finding = Finding('MEDIUM', 'error', 'Error', 'ERROR unstructured message <script>', 'Review')
+    facts = observed_facts(finding)
+    assert 'Unresolved' in facts
+    assert 'Account' not in facts and 'Source address' not in facts
+    assert '<script>' not in facts
+
+def test_report_evidence_disclosure_keeps_print_and_anchor_support():
+    html = build_html_report(_data())
+    assert 'id="aegislog-report"' in html
+    assert '<details class="report-evidence" open>' in html
+    assert "beforeprint" in html and "afterprint" in html
+    assert "hashchange" in html
+    assert 'Observed evidence' in html and 'Why it matters:' in html
+    assert '#aegislog-report *{color:#000!important}' in html
