@@ -81,7 +81,7 @@ def correlate(findings: list[Finding]) -> list[Incident]:
         for item in items:
             context = dict(item.context or windows_context(item.evidence))
             try:
-                stamp = datetime.fromisoformat(context.get('timestamp', '').replace('Z', '+00:00'))
+                stamp = datetime.fromisoformat(re.sub(r'(\.\d{6})\d+', r'\1', context.get('timestamp', '').replace('Z', '+00:00')))
                 if stamp.tzinfo is None:
                     raise ValueError('Unresolved timezone')
             except ValueError:
@@ -123,7 +123,7 @@ def correlate(findings: list[Finding]) -> list[Incident]:
                     description.append(label + '=' + observed[label])
             try:
                 start = datetime.fromtimestamp(float(window), timezone.utc)
-                stamps = [datetime.fromisoformat(dict(i.context or windows_context(i.evidence))['timestamp'].replace('Z', '+00:00')) for i in items]
+                stamps = [datetime.fromisoformat(re.sub(r'(\.\d{6})\d+', r'\1', dict(i.context or windows_context(i.evidence))['timestamp'].replace('Z', '+00:00'))) for i in items]
                 end = max(stamps).astimezone(timezone.utc)
             except (ValueError, KeyError, OverflowError, OSError):
                 description.append('Time unresolved')

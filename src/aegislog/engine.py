@@ -75,6 +75,7 @@ def _parse_absolute_timestamp(line: str) -> datetime | None:
         if not match:
             continue
         value = match.group("ts").replace("Z", "+00:00")
+        value = re.sub(r'(\.\d{6})\d+', r'\1', value)
         try:
             parsed = datetime.fromisoformat(value)
         except ValueError:

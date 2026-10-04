@@ -162,7 +162,12 @@ REPORT_DESIGN_STYLE = """
 .report .summary-print-evidence h2{grid-column:1/-1;font-size:18px;margin:0 0 6px}
 .report .summary-print-excerpt{break-inside:avoid;margin:8px 0}
 .report .summary-print-excerpt strong{font-size:12px}
-.report .summary-print-excerpt .evidence{font-size:12px;line-height:1.5;margin:4px 0}
+.report .summary-print-excerpt .evidence{font-size:12px;line-height:1.35;margin:4px 0}
+.report.summary #incidents table{table-layout:fixed}
+.report.summary #incidents th:first-child{width:100px}
+.report.summary #incidents th:nth-child(2){width:70px}
+.report.summary #incidents th:last-child{width:44px}
+.report.summary #incidents td:first-child,.report.summary #incidents th:last-child{white-space:nowrap}
 .report.summary #scope .scope>a{display:none}
 .report .distribution-row{font-size:12px;margin:6px 0}
 .report .footer{display:none}
