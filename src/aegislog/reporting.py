@@ -333,6 +333,19 @@ def _finding_groups(data: DashboardData):
     return list(groups.items())
 
 
+def _summary_brand() -> str:
+    from .brand_logo import report_logo_uri
+    return (
+        '<style>.aegislog-report-logo{display:block;width:190px;max-width:100%;height:auto;'
+        'background:transparent;print-color-adjust:exact;-webkit-print-color-adjust:exact}'
+        '@media print{.aegislog-report-logo{width:110px}}</style>'
+        '<div class="summary-brand"><img class="aegislog-report-logo" '
+        'alt="AegisLog terminal mark logo" aria-label="AegisLog terminal mark logo" '
+        f'src="{report_logo_uri()}"></div>'
+        '<div class="brand-sub">PRESENTED BY HR-PRESENTS</div>'
+    )
+
+
 def _summary_service_chart(values: dict[str, int]) -> str:
     items = sorted(values.items(), key=lambda pair: (-pair[1], str(pair[0])))[:6]
     if not items:
@@ -449,4 +462,3 @@ def write_html_report(data: DashboardData, output_dir: Path | None = None, *,
     appendix.write_text(full, encoding="utf-8")
     target.write_text(build_summary_report(data, appendix.name), encoding="utf-8")
     return target
-
