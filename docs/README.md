@@ -8,7 +8,7 @@ Welcome to the AegisLog documentation hub. Start with the user guide for the com
 
 | Goal | Guide |
 |---|---|
-| Current release / upgrade | [v2.1.8 notes](RELEASE_V2.1.8.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
+| Current release / upgrade | [v2.1.9 notes](RELEASE_V2.1.9.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
 | Proposed improvements | [Roadmap](ROADMAP.md) |
 | Install AegisLog | [Installation](INSTALL.md) |
 | Run your first analysis | [Quick Start](QUICKSTART.md) |
@@ -66,10 +66,10 @@ Public screenshots should come from a verified build and sanitized or synthetic 
 
 ## Release status
 
-- **Published stable:** [v2.1.8 release notes](RELEASE_V2.1.8.md)
-- **Published release build commit:** `1eb0a4a4124599544b3608eb84582979770e4a04`
-- **Latest reviewed report design:** on main; v2.1.9 packaging in progress; see [installation](INSTALL.md#latest-reviewed-report-design-on-main)
-- **Downloads and matching checksums:** [v2.1.8 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.8)
+- **Published stable:** [v2.1.9 release notes](RELEASE_V2.1.9.md)
+- **Published release build commit:** `63cc07d0fb1d51c41e8fed7ea87ee254b740ab1c`
+- **Latest reviewed report design:** included in v2.1.9; see [installation](INSTALL.md#latest-reviewed-report-design-on-main)
+- **Downloads and matching checksums:** [v2.1.9 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.9)
 - **Upgrade:** [Installation](INSTALL.md#upgrade-and-verify) / [Upgrading](UPGRADING.md)
 - **History:** [Changelog](../CHANGELOG.md)
 
