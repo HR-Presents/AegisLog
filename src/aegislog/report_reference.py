@@ -87,7 +87,7 @@ REFERENCE_STYLE = """
 .cover-footer{left:24px;right:24px;bottom:30px}
 .document-contents,.report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{padding:20px}
 .report .hero,.report .finding-columns{grid-template-columns:1fr}
-.report.summary .summary-finding{display:block}.report.summary .finding-index{padding:12px 16px}.report.summary .finding-content{min-width:0}
+.report.summary .summary-finding{display:block}.report.summary .finding-index{float:none;padding:12px 16px 0}.report.summary .summary-finding .record-head{padding:12px 16px}.report.summary .summary-finding .record-head strong{flex-basis:100%}.report.summary .finding-content{min-width:0}
 .report.summary #scope{padding:20px}
 .report .metric strong{font-size:25px}
 }

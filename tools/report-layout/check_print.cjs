@@ -46,6 +46,8 @@ const path = require('path');
   await page.screenshot({path:'report-layout-qa/summary-desktop.png'});
   await page.setViewportSize({width:390,height:844});
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error('Summary overflows mobile screen');
+  const titleWidth = await page.locator('.summary-finding .record-head strong').first().evaluate(item => item.getBoundingClientRect().width);
+  if (titleWidth < 200) throw Error('Mobile finding title is unnecessarily narrow');
   await page.screenshot({path:'report-layout-qa/summary-mobile.png',fullPage:true});
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({media:'print'});
