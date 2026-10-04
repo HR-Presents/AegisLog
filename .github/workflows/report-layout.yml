@@ -77,7 +77,7 @@ jobs:
                   assert 'SUMMARY ONLY' in contents
                   assert count <= 3, 'Small demo summary has unnecessary pages'
                   last_page = subprocess.check_output(['pdftotext', '-f', str(count), '-l', str(count), f'report-layout-qa/{name}.pdf', '-'], text=True)
-                  assert 'Coverage' in last_page and 'MADE BY HR-PRESENTS' in last_page, 'Closing signature orphaned'
+                  assert 'COVERAGE' in last_page and 'MADE BY HR-PRESENTS' in last_page, 'Closing signature orphaned'
               else:
                   assert 'F-001' in contents and 'F-002' in contents
           for name in ['empty', 'missing-time', 'many-findings', 'windows-context', 'wer-application']:
@@ -89,7 +89,7 @@ jobs:
               for page in range(1, count + 1):
                   page_text = subprocess.check_output(['pdftotext', '-f', str(page), '-l', str(page), report, '-'], text=True)
                   assert re.search(rf'{page}\s*/\s*{count}', page_text), f'{name}: missing page number'
-              assert 'Coverage' in contents, f'{name}: coverage lost'
+              assert 'COVERAGE' in contents, f'{name}: coverage lost'
               assert 'MADE BY HR-PRESENTS' in contents, f'{name}: closing signature missing'
               if name == 'windows-context':
                   assert 'Microsoft-Windows-DistributedCOM' in contents
