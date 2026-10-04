@@ -114,7 +114,7 @@ def _severity_overview(data: DashboardData) -> str:
             continue
         percent = min(100.0, (count / total) * 100.0)
         rows.append(
-            f'<div class="severity-row {_risk_class(severity)}"><small>{severity}</small><strong>{count}</strong><svg width="100%" height="8" role="img" aria-label="{severity}: {count}"><rect width="100%" height="8" fill="#cbd5e1"/><rect width="{percent:.1f}%" height="8" fill="#397dcc"/></svg></div>'
+            f'<div class="severity-row {_risk_class(severity)}"><small>{severity}</small><strong>{count}</strong><svg width="100%" height="8" role="img" aria-label="{severity}: {count}"><rect width="100%" height="8" fill="#cbd5e1"/><rect width="{percent:.1f}%" height="8" fill="#299aa7"/></svg></div>'
         )
     return "".join(rows) or '<p class="caveat">No rule-backed severity counts in this input.</p>'
 
@@ -289,6 +289,10 @@ def _document_opening(data: DashboardData, generated: str, *, summary: bool, app
     formats = ', '.join(sorted(data.format_counts or {})) or 'Generic / unresolved'
     cover = document_cover(source, _case_id(data), formats, generated, report_logo_uri(),
                            summary=summary, demo='SYNTHETIC DEMO DATA' in _report_context(data))
+    return cover
+
+
+def _report_navigation(*, summary: bool, appendix_href: str = '') -> str:
     entries = [('#executive', 'Executive Summary'), ('#metrics', 'Record Overview')]
     if summary:
         entries += [('#findings', 'Findings & Next Actions'), ('#incidents', 'Priority Incidents'),
@@ -298,7 +302,7 @@ def _document_opening(data: DashboardData, generated: str, *, summary: bool, app
         entries += [('#findings', 'Findings'),
                     ('#incidents', 'Incident Queue'), ('#source', 'Investigation Information'), ('#telemetry', 'Observed Distribution'),
                     ('#anomalies', 'Anomaly Signals'), ('#method', 'Analysis Profile')]
-    return cover + document_contents(entries)
+    return document_contents(entries)
 
 
 def build_html_report(data: DashboardData, summary_href: str | None = None) -> str:
@@ -315,6 +319,7 @@ def build_html_report(data: DashboardData, summary_href: str | None = None) -> s
 <p class="print-help">PDF export: use A4 and turn off browser Headers and footers in the print dialog to remove the local file URL. Background graphics are optional; charts and evidence remain readable.</p><div class="content">
 <section class="section" id="executive"><div class="section-head"><div><div class="section-label">Executive summary</div><h2>Executive Summary</h2></div><div class="section-note">Start here. Supporting evidence follows below.</div></div><div class="executive-grid"><div class="assessment"><h3>Assessment</h3><p class="posture-value">Current posture <strong>{escape(risk)}</strong></p><p>{escape(_assessment(data, risk))}</p>{_primary_decision(data)}<h3 class="severity-heading">Severity distribution</h3><div class="severity-block">{_severity_overview(data)}</div></div><div class="priority-box"><h3>Recommended triage</h3>{_triage_actions(data)}</div></div></section>
 {_record_metrics(data, summary=False)}
+{_report_navigation(summary=False)}
 <section class="section" id="findings"><div class="section-head"><div><div class="section-label">Detection</div><h2>Findings</h2></div><div class="section-note">{len(data.findings)} retained findings in {len(_finding_groups(data))} presentation groups. Each excerpt keeps its F-reference. Grouping for readability does not establish a common cause.</div></div><div class="record-list">{_finding_records(data)}</div></section>
 <section class="section" id="incidents"><div class="section-head"><div><div class="section-label">Correlation</div><h2>Incident Queue</h2></div><div class="section-note">Grouped signals; validate shared cause and timing.</div></div><div class="record-list">{_incident_records(data)}</div></section>
 <section class="section" id="source"><div class="section-head"><h2>Investigation Information</h2></div><div class="case-strip"><div><small>Source</small><strong>{escape(source_name)}</strong></div><div><small>Case ID</small><strong>{escape(case_id)}</strong></div><div><small>Status</small><strong>Analysis complete</strong></div><div><small>Generated</small><strong>{generated}</strong></div><div><small>Processing</small><strong>LOCAL / READ-ONLY / DETERMINISTIC</strong></div></div></section>
@@ -439,6 +444,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
 <nav class="toolbar"><a href="#findings">Top findings</a><a href="#incidents">Incidents</a><a href="{escape(appendix_href)}?print=1">Print complete report / Save PDF</a><span class="spacer"></span><button type="button" onclick="window.print()">Print summary / Save PDF</button></nav><p class="print-help">This print button exports the short summary. Open the appendix to print full evidence separately. For PDF, turn off browser Headers and footers.</p><div class="content">
 <section class="section" id="executive"><div class="section-head"><div><div class="section-label">Assessment</div><h2>Executive Summary</h2></div></div><div class="hero"><div><h2>{escape(headline)}</h2><div class="assessment"><p>{escape(_assessment(data, risk))}</p></div>{priority_lead}</div><aside class="review-priority"><span class="cell-label">Review priority</span><strong>{escape(_disposition(risk))}</strong><p class="caveat">Findings are investigation leads, not proof of compromise.</p></aside></div></section>
 {_record_metrics(data, summary=True)}
+{_report_navigation(summary=True, appendix_href=appendix_href)}
 <section class="section" id="findings"><div class="section-head"><h2>Findings &amp; next actions</h2></div><p class="section-note">{escape(group_note)}</p><div class="summary-findings{' compact-findings' if compact else ''}">{"".join(rows) or '<p>No rule-backed findings were recorded.</p>'}</div></section>
 {print_evidence}<section class="section" id="incidents"><div class="section-head"><h2>Priority incidents</h2></div><p class="section-note">Showing {min(5, len(data.incidents))} of {len(data.incidents)} incident groups. Verify timing and shared cause before treating signals as one incident.</p>{incident_content}</section>
 <section class="section" id="activity"><div class="section-head"><h2>Supporting activity</h2></div><div class="summary-chart-grid"><div><h3>Severity distribution</h3>{_severity_overview(data)}</div><div><h3>Service activity</h3>{_summary_service_chart(data.services)}</div></div></section>
