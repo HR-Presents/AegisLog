@@ -7,6 +7,7 @@ on:
       - 'src/aegislog/report_design.py'
       - 'src/aegislog/report_reference.py'
       - 'src/aegislog/report_styles.py'
+      - 'src/aegislog/report_editorial.py'
       - 'tools/report-layout/**'
       - '.github/workflows/report-layout.yml'
   workflow_dispatch:
@@ -81,6 +82,7 @@ jobs:
                   page_text = subprocess.check_output(['pdftotext', '-f', str(page), '-l', str(page), report, '-'], text=True)
                   assert re.search(rf'{page}\s*/\s*{count}', page_text), f'{name}: missing page number'
               assert 'Coverage' in contents, f'{name}: coverage lost'
+              assert 'MADE BY HR-PRESENTS' in contents, f'{name}: closing signature missing'
               if name == 'windows-context':
                   assert 'Microsoft-Windows-DistributedCOM' in contents
                   assert '2/123 total events' in contents
@@ -98,4 +100,3 @@ jobs:
         with:
           name: folder-report-print-review
           path: report-layout-qa/
-
