@@ -140,3 +140,12 @@ COMPANY_FULL_STYLE += """
 COMPANY_FULL_STYLE += """
 @media print{.report:not(.summary){line-height:1.5}.report:not(.summary) .observed-facts{gap:3px 12px;line-height:1.4}.report:not(.summary) .finding-columns .why{font-size:12px!important;line-height:1.5!important;margin-top:8px}.report:not(.summary) .group-intro{padding:8px 0}.report:not(.summary) .finding-columns{padding:10px 0}.report:not(.summary) .finding-group{margin-bottom:14px}.report:not(.summary) .telemetry-grid{break-inside:avoid}}
 """
+
+COMPANY_FULL_STYLE += """
+.report:not(.summary) .telemetry-grid{grid-template-columns:minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.3fr);gap:24px;align-items:start}
+.report:not(.summary) .telemetry-card{min-width:0;margin:0;padding:0}
+.report:not(.summary) .telemetry-card h3{margin:0 0 14px;line-height:1.3}
+.report:not(.summary) .telemetry-card .distribution-row>span{overflow-wrap:anywhere}
+@media screen and (max-width:760px){.report:not(.summary) .telemetry-grid{grid-template-columns:1fr;gap:20px}}
+@media print{.report:not(.summary) .telemetry-grid{column-gap:18px;break-inside:avoid}}
+"""
