@@ -324,16 +324,16 @@ def test_demo_context_and_timestamp_limits_are_explicit(tmp_path):
     assert "Timestamp limitations:" not in build_html_report(real)
 
 
-def test_summary_opens_with_results_and_keeps_context_grouped():
+def test_summary_matches_reference_cover_and_keeps_context_grouped():
     from aegislog.reporting import build_summary_report
     html = build_summary_report(_data(), 'full.html')
-    assert 'class="summary-header"' in html
-    assert '<dt>Source</dt>' in html and '<dt>Case</dt>' in html and '<dt>Generated</dt>' in html
-    header = html.split('<header class="masthead">', 1)[1].split('</header>', 1)[0]
+    assert 'class="sentrix-cover"' in html
+    assert '<dt>Source</dt>' in html and '<dt>Report ID</dt>' in html and '<dt>Generated</dt>' in html
+    header = html.split('<header class="sentrix-cover" id="cover">', 1)[1].split('</header>', 1)[0]
     assert 'Investigation Summary' in header
     assert 'AegisLog terminal mark logo' in header
     assert 'context-notice' not in header
-    assert html.index('<section class="metrics">') < html.index('id="executive"') < html.index('<aside class="summary-notes"')
+    assert html.index('id="executive"') < html.index('<section class="metrics" id="metrics">') < html.index('<aside class="summary-notes"')
     notes = html.split('<aside class="summary-notes"', 1)[1].split('</aside>', 1)[0]
     assert 'SUMMARY ONLY' in notes
     assert 'Complete retained evidence is in the separate full report' in notes
@@ -390,4 +390,5 @@ def test_summary_avoids_duplicate_disposition_and_limits_compact_print():
     long_finding = replace(data.findings[0], evidence='long evidence ' * 100)
     html = build_summary_report(replace(data, findings=(long_finding, data.findings[1])), 'appendix.html')
     assert 'class="summary-findings compact-findings"' not in html
+
 

@@ -19,12 +19,20 @@ const path = require('path');
   if (!await page.getByText('SYNTHETIC DEMO DATA', {exact:true}).isVisible()) throw Error('Demo label missing');
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map(img => img.decode())); });
-  const metrics = await page.locator('.metric').evaluateAll(items => items.map(item => item.getBoundingClientRect().top));
-  if (metrics.length !== 4 || Math.max(...metrics) - Math.min(...metrics) > 1) throw Error('Desktop metrics should occupy one compact row');
-  const findings = await page.locator('#findings h2').boundingBox();
-  if (!findings || findings.y + findings.height > 900) throw Error('Findings were pushed below the desktop opening');
-  const colored = await page.locator('#aegislog-report *').evaluateAll(items => items.filter(item => item.textContent.trim() && getComputedStyle(item).color !== 'rgb(0, 0, 0)').map(item => item.className));
-  if (colored.length) throw Error(`Non-black report text: ${colored}`);
+  const cover = page.locator('.sentrix-cover');
+  if (!await cover.isVisible()) throw Error('Sentrix-style cover missing');
+  if (!await cover.locator('.cover-logo').isVisible()) throw Error('AegisLog logo missing');
+  const color = await cover.locator('h1').evaluate(item => getComputedStyle(item).color);
+  if (color !== 'rgb(255, 255, 255)') throw Error('Cover title must be white');
+  if (await page.locator('.cover-cards > div').count() !== 4) throw Error('Cover metadata cards missing');
+  if (await page.locator('.document-contents a').count() !== 8) throw Error('Contents missing');
+  const colored = await page.locator('#aegislog-report *').evaluateAll(items => items.filter(item =>
+    !item.closest('.sentrix-cover, .document-contents') && !item.classList.contains('section-label') &&
+    item.textContent.trim() && !item.children.length && getComputedStyle(item).color !== 'rgb(0, 0, 0)'
+  ).map(item => item.className));
+  if (colored.length) throw Error(`Non-black body text: ${colored}`);
+  await page.getByRole('link', {name:'Findings & Next Actions', exact:true}).click();
+  if (!page.url().endsWith('#findings')) throw Error('Contents link failed');
   const disclosure = page.locator('details.report-evidence').first();
   if (await disclosure.getAttribute('open') !== null) throw Error('Evidence should start collapsed');
   await disclosure.locator('summary').click();
@@ -64,7 +72,7 @@ const path = require('path');
     await page.setViewportSize({width:390,height:844});
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error(`${name} overflows`);
     await page.setViewportSize({width:1440,height:900});
-    if (name === 'windows-context') await page.screenshot({path:'report-layout-qa/windows-context-desktop.png',fullPage:true});
+    if (name === 'windows-context' || name === 'wer-application') await page.screenshot({path:`report-layout-qa/${name}-desktop.png`,fullPage:true});
     await page.emulateMedia({media:'print'});
     if (await page.locator('.toolbar').isVisible()) throw Error(`${name} browser controls leaked into print`);
     await page.pdf({path:`report-layout-qa/${name}.pdf`,format:'A4',printBackground:true,displayHeaderFooter:false});
@@ -72,4 +80,5 @@ const path = require('path');
   await browser.close();
   console.log('Chromium filter and 161-source print smoke passed');
 })().catch(error => {console.error(error);process.exit(1);});
+
 
