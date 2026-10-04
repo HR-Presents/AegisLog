@@ -8,7 +8,7 @@
 - Expand the README project overview and workflow diagrams.
 
 
-## Unreleased
+## 2.1.8 — 2026-10-04
 
 - Redesign summary and full investigation reports with light sea-blue accents, black body text, an enlarged transparent logo, and an editorial evidence/action layout.
 - Add a closing MADE BY HR-PRESENTS signature to HTML and printed reports.
