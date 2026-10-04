@@ -52,9 +52,10 @@ def test_report_contents_matches_actual_section_order(tmp_path):
     assert 'Report ID identifies analysis output, not source bytes' in html
     assert 'View investigation results' in html
     summary = build_summary_report(data, 'appendix.html')
-    assert data.source_sha256 in summary
+    assert 'href="appendix.html"' in summary
+    assert 'original rule titles, retained excerpts, identifiers' in summary
     assert 'Finding occurrences' in summary and 'Incident groups' in summary
-    assert 'finding presentation groups' in summary
+    assert 'presentation groups' in summary
 
 
 def test_empty_source_has_real_digest_but_manual_analysis_does_not(tmp_path):

@@ -82,14 +82,14 @@ def test_invalid_or_incomparable_baselines_are_rejected(tmp_path):
     with pytest.raises(ValueError):compare_activity(first, second)
 
 
-def test_rarity_counts_are_explained_in_summary(tmp_path):
+def test_rarity_counts_are_explained_in_complete_report(tmp_path):
     from aegislog.dashboard import analyze_dashboard
-    from aegislog.reporting import build_summary_report
+    from aegislog.reporting import build_html_report
     path = tmp_path/'sample.log'
     path.write_text('\n'.join(['2026-10-04T08:00:00Z normal[1]: INFO okay'] * 10 + [error('2026-10-04T08:00:00Z')]))
-    html = build_summary_report(analyze_dashboard(path), 'appendix.html')
+    html = build_html_report(analyze_dashboard(path))
     assert '1/11 total events' in html
-    assert 'sample rarity' in html and 'Not attack probability.' in html
+    assert 'within this retained sample' in html and 'not attack probability' in html
 
 
 def test_guided_check_passes_selected_event_count(tmp_path, monkeypatch):

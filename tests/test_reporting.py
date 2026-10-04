@@ -196,7 +196,7 @@ def test_empty_report_has_clear_empty_states() -> None:
     assert "No correlated incidents were recorded." in html
     assert "No rule-backed findings were recorded." in html
     assert "No rare concerning event classes were recorded." in html
-    assert "No elevated rule-backed findings were recorded in this input" in html
+    assert "No matching detections were recorded in the supplied evidence" in html
     assert "not a clean-system verdict" in html
     assert "No elevated rule-backed finding requires immediate action" in html
 
@@ -231,8 +231,8 @@ def test_short_report_groups_repetitions_and_preserves_all_evidence_in_appendix(
     findings = tuple(replace(data.findings[0], evidence=f"unique evidence {index}") for index in range(44))
     data = replace(data, findings=findings)
     summary = build_summary_report(data, "full-appendix.html")
-    assert summary.count('class="summary-finding"') == 1
-    assert '44 finding(s)' in summary
+    assert summary.count('class="issue"') == 1
+    assert '44 occurrence(s)' in summary
     assert summary.count('Review authentication history &amp; rotate exposed credentials.') == 1
     target = write_html_report(data, tmp_path)
     appendix = target.with_name(target.stem + '-appendix.html')
@@ -250,8 +250,8 @@ def test_short_report_discloses_omitted_groups_and_links_to_full_incidents():
     findings = tuple(replace(data.findings[0], title=f"Distinct finding {index}") for index in range(9))
     data = replace(data, findings=findings)
     summary = build_summary_report(data, "case-appendix.html")
-    assert summary.count('class="summary-finding"') == 6
-    assert 'Showing 6 highest-priority groups' in summary
+    assert summary.count('class="issue"') == 6
+    assert 'Showing 6 of 9 presentation groups' in summary
     assert summary.count('Review authentication history &amp; rotate exposed credentials.') == 1
     assert 'Same next action as group 1' in summary
     assert '#incident-abcdef123456' in summary
@@ -270,14 +270,12 @@ def test_report_pair_cannot_overwrite_source(tmp_path):
 def test_summary_embeds_brand_logo_and_readable_print_colors():
     from aegislog.reporting import build_summary_report
     html = build_summary_report(_data(), "appendix.html")
-    assert 'aria-label="AegisLog terminal mark logo"' in html
+    assert 'alt="AegisLog terminal mark logo"' in html
     assert 'data:image/png;base64,' in html
-    assert 'aegislog-report-logo' in html
-    assert 'color:#126773!important' in html
-    assert 'color:#a62b38!important' in html
+    assert 'color:#000' in html and '#b9e6ed' in html
     assert 'print-color-adjust:exact' in html
-    assert 'class="summary-service-chart"' in html
-    assert 'font-size:14px' in html and 'distribution-track' in html
+    assert 'class="provider-bar"' in html
+    assert 'MADE BY HR-PRESENTS' in html
 
 
 def test_full_evidence_groups_repeated_recommendations_without_losing_references():
@@ -294,13 +292,12 @@ def test_full_evidence_groups_repeated_recommendations_without_losing_references
     assert 'Print Full Evidence / Save PDF' in html
 
 
-def test_body_text_is_larger_without_resizing_headings():
-    from aegislog.reporting import build_summary_report
-    for html in [build_html_report(_data()), build_summary_report(_data(), 'appendix.html')]:
-        assert 'font-size:16px!important;line-height:1.65' in html
-        assert 'font-size:13px!important;line-height:1.6' in html
-        assert 'h1{font-size:38px' in html
-        assert 'h2{font-size:23px' in html
+def test_report_body_and_headings_have_separate_sizes():
+    from aegislog.report_company import COMPANY_STYLE, COMPANY_FULL_STYLE
+    assert '.issue-columns p{font-size:15px' in COMPANY_STYLE
+    assert '.issue-heading h3{flex:1;margin:0;font-size:17px}' in COMPANY_STYLE
+    assert '.finding-columns p{font-size:15px!important}' in COMPANY_FULL_STYLE
+    assert '.issue-columns p{font-size:12px;line-height:1.35}' in COMPANY_STYLE
 
 
 def test_demo_context_and_timestamp_limits_are_explicit(tmp_path):
@@ -317,7 +314,7 @@ def test_demo_context_and_timestamp_limits_are_explicit(tmp_path):
     summary = build_summary_report(data, "full.html")
     assert "SUMMARY ONLY" in summary
     assert 'href="full.html?print=1"' in summary
-    assert "break-before:page" not in summary
+    assert ".support-page{break-before:page}" in summary
     source.write_text("2026-10-03T12:00:00Z INFO app: real input")
     real = analyze_dashboard(source)
     assert "SYNTHETIC DEMO DATA" not in build_html_report(real)
@@ -327,19 +324,12 @@ def test_demo_context_and_timestamp_limits_are_explicit(tmp_path):
 def test_summary_uses_sea_blue_brief_and_keeps_context_grouped():
     from aegislog.reporting import build_summary_report
     html = build_summary_report(_data(), 'full.html')
-    assert 'class="aegis-report-header"' in html
-    assert '<dt>Source</dt>' in html and '<dt>Report ID</dt>' in html and '<dt>Generated</dt>' in html
-    header = html.split('<header class="aegis-report-header" id="cover">', 1)[1].split('</header>', 1)[0]
-    assert 'Investigation Summary' in header
-    assert 'AegisLog terminal mark logo' in header
-    assert 'context-notice' not in header
-    assert html.index('id="executive"') < html.index('<section class="metrics" id="metrics">') < html.index('<aside class="summary-notes"')
-    notes = html.split('<aside class="summary-notes"', 1)[1].split('</aside>', 1)[0]
-    assert 'SUMMARY ONLY' in notes
-    assert 'Complete retained evidence is in the separate full report' in notes
-    assert 'Priority lead:' in html
-    assert html.index('id="executive"') < html.index('id="findings"') < html.index('id="incidents"') < html.index('id="activity"') < html.index('<aside class="summary-notes"')
-    assert 'width:110px' in html
+    assert 'class="company-header"' in html
+    assert 'Report reference' in html and 'Generated' in html
+    assert '#b9e6ed' in html and 'background:#eaf8fa' in html
+    assert html.index('class="conclusion"') < html.index('class="metric-strip"') < html.index('class="issue"')
+    assert html.index('Activity &amp; correlation') < html.index('Collection scope &amp; interpretation') < html.index('MADE BY HR-PRESENTS')
+    assert 'SUMMARY ONLY' in html and 'width:250px' in html
 
 
 def test_summary_keeps_readable_evidence_and_exposes_collection_limits():
@@ -351,13 +341,15 @@ def test_summary_keeps_readable_evidence_and_exposes_collection_limits():
                    record_count=42, recognized_records=40, format_counts={'syslog': 40},
                    invalid_records=2, dropped_findings=3, dropped_auth_events=4, truncated_lines=1)
     html = build_summary_report(data, 'full.html')
-    assert escape(evidence) in html
+    from aegislog.report_company import brief_evidence
+    assert escape(brief_evidence(data.findings[0])) in html
+    assert escape(evidence) in build_html_report(data)
     assert '<untrusted>' not in html
     assert '40 / 42' in html
     assert '2 invalid records' in html
-    assert '3 findings omitted' in html
-    assert '4 authentication events evicted' in html
-    assert '1 oversized lines truncated' in html
+    assert '3 omitted findings' in html
+    assert '4 evicted authentication events' in html
+    assert '1 truncated lines' in html
     assert 'Formats: {' not in html
     assert '#finding-001' in html
 
@@ -380,15 +372,14 @@ def test_report_evidence_disclosure_keeps_print_and_anchor_support():
     assert '#aegislog-report *{color:#000!important}' in html
 
 
-def test_summary_avoids_duplicate_disposition_and_limits_compact_print():
+def test_summary_avoids_duplicate_disposition_and_bounds_excerpts():
     from aegislog.reporting import build_summary_report
     html = build_summary_report(_data(), 'appendix.html')
     assert html.count('IMMEDIATE REVIEW') == 1
     assert 'Recognized records' in html
-    assert 'summary-findings compact-findings' in html
     data = _data()
     long_finding = replace(data.findings[0], evidence='long evidence ' * 100)
     html = build_summary_report(replace(data, findings=(long_finding, data.findings[1])), 'appendix.html')
-    assert 'class="summary-findings compact-findings"' not in html
-
-
+    assert long_finding.evidence not in html
+    assert long_finding.evidence in build_html_report(replace(data, findings=(long_finding,)))
+    assert '#finding-001' in html
