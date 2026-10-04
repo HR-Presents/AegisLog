@@ -25,11 +25,12 @@ const path = require('path');
   await cover.getByRole('link', {name:'View investigation results'}).click();
   if (!page.url().endsWith('#executive')) throw Error('Cover shortcut failed');
   const logoWidth = await cover.locator('.cover-logo').evaluate(item => item.getBoundingClientRect().width);
-  if (logoWidth < 180) throw Error('Report logo is too small');
+  if (logoWidth < 250) throw Error('Report logo is too small');
   const stops = await cover.locator('stop').evaluateAll(items => items.map(item => item.getAttribute('stop-color')));
   if (!stops.includes('#b9e6ed')) throw Error('Light sea-blue palette missing');
   const color = await cover.locator('h1').evaluate(item => getComputedStyle(item).color);
   if (color !== 'rgb(0, 0, 0)') throw Error('Header title must be black');
+  if (!await page.getByText('MADE BY HR-PRESENTS', {exact:true}).isVisible()) throw Error('Closing maker signature missing');
   if (await page.locator('.cover-cards > div').count() !== 4) throw Error('Cover metadata cards missing');
   if (await page.locator('.document-contents a').count() !== 8) throw Error('Contents missing');
   const colored = await page.locator('#aegislog-report *').evaluateAll(items => items.filter(item =>
@@ -75,7 +76,7 @@ const path = require('path');
   if (!await page.locator('.evidence-group').first().isVisible()) throw Error('Printed evidence group identifier missing');
   await page.pdf({path:'report-layout-qa/demo-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
   const bars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
-  if (!bars.length || bars.some(width => width !== '7px')) throw Error('Foreground bars missing');
+  if (bars.some(width => width !== '7px')) throw Error('Foreground bars missing');
   await page.pdf({path:'report-layout-qa/demo-complete-no-background.pdf',format:'A4',printBackground:false,displayHeaderFooter:false});
   for (const name of ['empty', 'missing-time', 'many-findings', 'windows-context', 'wer-application']) {
     await page.emulateMedia({media:'screen'});
@@ -85,11 +86,13 @@ const path = require('path');
     await page.setViewportSize({width:1440,height:900});
     if (name === 'windows-context' || name === 'wer-application') await page.screenshot({path:`report-layout-qa/${name}-desktop.png`,fullPage:true});
     await page.emulateMedia({media:'print'});
+    if (name === 'windows-context') {
+      const sourceBars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
+      if (!sourceBars.length || sourceBars.some(width => width !== '7px')) throw Error('Timestamped source foreground bars missing');
+    }
     if (await page.locator('.toolbar').isVisible()) throw Error(`${name} browser controls leaked into print`);
     await page.pdf({path:`report-layout-qa/${name}.pdf`,format:'A4',printBackground:true,displayHeaderFooter:false});
   }
   await browser.close();
   console.log('Chromium filter and 161-source print smoke passed');
 })().catch(error => {console.error(error);process.exit(1);});
-
-

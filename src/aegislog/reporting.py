@@ -4,8 +4,10 @@ from .report_paths import default_report_dir
 from .report_design import REPORT_EVIDENCE_SCRIPT, observed_facts, why_it_matters
 from .report_reference import document_cover, document_contents
 from .report_styles import report_stylesheet
+from .report_editorial import activity_timeline, report_signature
 
 import hashlib
+import re
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
@@ -107,6 +109,9 @@ def _metric(label: str, value: str, modifier: str = "") -> str:
 
 def _severity_overview(data: DashboardData) -> str:
     total = max(sum(data.severities.values()), 1)
+    if sum(data.severities.values()) < 10:
+        counts = ''.join(f'<span><strong>{escape(str(name))}</strong> {count}</span>' for name, count in sorted(data.severities.items()))
+        return '<div class="activity-counts">' + counts + '</div>' if counts else '<p class="caveat">No rule-backed severity counts in this input.</p>'
     rows = []
     for severity in ("CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"):
         count = data.severities.get(severity, 0)
@@ -198,6 +203,9 @@ def _bar_chart(values: dict[str, int], label: str) -> str:
     items = sorted(values.items(), key=lambda pair: (-pair[1], str(pair[0])))[:8]
     if not items:
         return '<p class="empty">No retained observations.</p>'
+    if sum(values.values()) < 20:
+        counts = ''.join(f'<span><strong>{escape(str(name))}</strong> {value:,}</span>' for name, value in items)
+        return '<div class="activity-counts">' + counts + '</div><p class="caveat">Small sample; direct observed counts.</p>'
     maximum = max(value for _, value in items) or 1
     rows = []
     for name, value in items:
@@ -317,16 +325,16 @@ def build_html_report(data: DashboardData, summary_href: str | None = None) -> s
 
 <nav class="toolbar">{summary_link}<a href="#executive">Overview</a><a href="#incidents">Incidents</a><a href="#findings">Findings</a><a href="#telemetry">Telemetry</a><a href="#anomalies">Anomalies</a><a href="#method">Method</a><span class="spacer"></span><span class="local-note">DETERMINISTIC ANALYSIS</span><button type="button" onclick="window.print()">Print Full Evidence / Save PDF</button></nav>
 <p class="print-help">PDF export: use A4 and turn off browser Headers and footers in the print dialog to remove the local file URL. Background graphics are optional; charts and evidence remain readable.</p><div class="content">
-<section class="section" id="executive"><div class="section-head"><div><div class="section-label">Executive summary</div><h2>Executive Summary</h2></div><div class="section-note">Start here. Supporting evidence follows below.</div></div><div class="executive-grid"><div class="assessment"><h3>Assessment</h3><p class="posture-value">Current posture <strong>{escape(risk)}</strong></p><p>{escape(_assessment(data, risk))}</p>{_primary_decision(data)}<h3 class="severity-heading">Severity distribution</h3><div class="severity-block">{_severity_overview(data)}</div></div><div class="priority-box"><h3>Recommended triage</h3>{_triage_actions(data)}</div></div></section>
+<section class="section" id="executive"><div class="section-head"><div><div class="section-label">Executive summary</div><h2>Executive Summary</h2></div><div class="section-note">Start here. Supporting evidence follows below.</div></div><div class="executive-grid"><div class="assessment"><h3>Assessment</h3><p class="posture-value">Current posture <strong>{escape(risk)}</strong></p><p>{escape(_lead_observation(data, risk))}</p>{_primary_decision(data)}<h3 class="severity-heading">Severity distribution</h3><div class="severity-block">{_severity_overview(data)}</div></div><div class="priority-box"><h3>Recommended triage</h3>{_triage_actions(data)}</div></div></section>
 {_record_metrics(data, summary=False)}
 {_report_navigation(summary=False)}
 <section class="section" id="findings"><div class="section-head"><div><div class="section-label">Detection</div><h2>Findings</h2></div><div class="section-note">{len(data.findings)} retained findings in {len(_finding_groups(data))} presentation groups. Each excerpt keeps its F-reference. Grouping for readability does not establish a common cause.</div></div><div class="record-list">{_finding_records(data)}</div></section>
 <section class="section" id="incidents"><div class="section-head"><div><div class="section-label">Correlation</div><h2>Incident Queue</h2></div><div class="section-note">Grouped signals; validate shared cause and timing.</div></div><div class="record-list">{_incident_records(data)}</div></section>
 <section class="section" id="source"><div class="section-head"><h2>Investigation Information</h2></div><div class="case-strip"><div><small>Source</small><strong>{escape(source_name)}</strong></div><div><small>Case ID</small><strong>{escape(case_id)}</strong></div><div><small>Status</small><strong>Analysis complete</strong></div><div><small>Generated</small><strong>{generated}</strong></div><div><small>Processing</small><strong>LOCAL / READ-ONLY / DETERMINISTIC</strong></div></div></section>
-<section class="section" id="telemetry"><div class="section-head"><div><div class="section-label">Telemetry</div><h2>Observed Distribution</h2></div><div class="section-note">A compact view of the parsed source.</div></div><div class="telemetry-grid"><div class="telemetry-card"><h3>Categories</h3><div class="chips">{_telemetry_chips(data.categories)}</div></div><div class="telemetry-card"><h3>Log levels</h3><div class="chips">{_bar_chart(data.levels, "Log levels")}</div></div><div class="telemetry-card"><h3>Services</h3><div class="chips">{_bar_chart(data.services, "Service activity")}{_telemetry_chips(data.services)}</div></div></section>
+<section class="section" id="telemetry"><div class="section-head"><div><div class="section-label">Telemetry</div><h2>Observed Distribution</h2></div><div class="section-note">A compact view of the parsed source.</div></div>{activity_timeline(data.raw_lines, data.timestamp_year_hint)}<div class="telemetry-grid"><div class="telemetry-card"><h3>Categories</h3><div class="chips">{_telemetry_chips(data.categories)}</div></div><div class="telemetry-card"><h3>Log levels</h3><div class="chips">{_bar_chart(data.levels, "Log levels")}</div></div><div class="telemetry-card"><h3>Services</h3><div class="chips">{_bar_chart(data.services, "Service activity")}</div></div></section>
 <section class="section" id="anomalies"><div class="section-head"><div><div class="section-label">Behavior</div><h2>Anomaly Signals</h2></div><div class="section-note">Rarity scores (0-100), not attack probability.</div></div><p class="caveat">Scores describe rare concerning event classes within this retained sample. A score of 100 does not mean 100% attack probability, severity, or confidence. No trained machine-learning model is used.</p><div class="table-wrap"><table><thead><tr><th>Rarity score / 100</th><th>Event class</th><th>Reason</th></tr></thead><tbody>{_anomaly_rows(data)}</tbody></table></div></section>
 <section class="section" id="method"><div class="section-head"><div><div class="section-label">Method and scope</div><h2>Analysis Profile</h2></div><div class="section-note">How the report was produced and how to interpret it.</div></div>{_report_context(data)}<div class="method-grid"><div class="method-card"><h3>Processing model</h3><p>AegisLog v{escape(__version__)} performed local deterministic detection, incident correlation, and anomaly scoring. The source was handled read-only.</p></div><div class="method-card"><h3>Evidence limitations</h3><p>{escape(data.collection_scope)} {escape(data.retention_note)} {escape(data.coverage_note)} This report contains retained derived evidence rather than a complete copy of the raw log. Missing detections do not prove malicious activity is absent. Preserve original telemetry when incident-response, retention, or chain-of-custody procedures require it.</p></div></div><div class="table-wrap" style="margin-top:14px"><table>{_identity_rows(data)}<tr><th>Source path</th><td>{escape(data.source)}</td></tr><tr><th>Source file</th><td>{escape(source_name)}</td></tr><tr><th>Physical lines</th><td>{data.lines:,}</td></tr><tr><th>AegisLog version</th><td>{escape(__version__)}</td></tr><tr><th>Generated</th><td>{generated}</td></tr><tr><th>Analysis model</th><td>Deterministic local processing</td></tr></table></div></section>
-<div class="footer">AEGISLOG v{escape(__version__)} · {escape(case_id)} · Defensive security analysis · Generated locally · Presented and maintained by HR-Presents</div></div></main>{REPORT_EVIDENCE_SCRIPT}<script>if(new URLSearchParams(location.search).get("print")==="1"){{window.addEventListener("load",()=>window.print());}}</script></body></html>'''
+{report_signature(case_id, __version__)}</div></main>{REPORT_EVIDENCE_SCRIPT}<script>if(new URLSearchParams(location.search).get("print")==="1"){{window.addEventListener("load",()=>window.print());}}</script></body></html>'''
 
 
 def _finding_groups(data: DashboardData):
@@ -362,6 +370,31 @@ def _summary_service_chart(values: dict[str, int]) -> str:
         rows.append(f'<div class="distribution-row"><span>{escape(str(name))}</span><strong>{value:,}</strong><div class="distribution-track"><i style="width:{width:.1f}%"></i></div></div>')
     return f'<div class="summary-service-chart" role="img" aria-label="Service activity">{"".join(rows)}</div><p class="caveat">Top {len(items)} of {len(values)} services · {sum(values.values()):,} events.</p>'
 
+
+
+def _lead_observation(data: DashboardData, risk: str) -> str:
+    priority = _ordered_findings(data)
+    if priority:
+        burst = re.match(r'^(\d+) authentication failures\b', priority[0].evidence)
+        if burst:
+            return (f'Retained evidence includes {int(burst.group(1)):,} authentication failures in a detector-grouped burst. '
+                    'Check the account, source, and successful login activity before escalating.')
+        if dict(priority[0].context).get('provider', '').casefold() == 'windows error reporting':
+            return ('Windows diagnostic report records need review. Repeated submissions do not establish separate failures; '
+                    'compare original dump times and user impact.')
+    return _assessment(data, risk)
+
+
+def _supporting_activity(data: DashboardData) -> str:
+    timeline = activity_timeline(data.raw_lines, data.timestamp_year_hint)
+    if data.records < 20:
+        severity = ' · '.join(f'{escape(str(name))}: {count}' for name, count in sorted(data.severities.items())) or 'No rule-backed findings'
+        services = ''.join(f'<span><strong>{escape(str(name))}</strong> {count:,}</span>' for name, count in sorted(data.services.items(), key=lambda pair: (-pair[1], str(pair[0])))[:6])
+        return (timeline +
+                '<div class="summary-service-chart"><h3>Observed source activity</h3><div class="activity-counts">' + services + '</div></div>'
+                f'<p class="caveat">Finding severity · {severity}. Service counts describe processed records, not distinct incidents.</p>')
+    return (timeline + '<div class="summary-chart-grid"><div><h3>Finding severity</h3>' + _severity_overview(data) +
+            '</div><div><h3>Source activity</h3>' + _summary_service_chart(data.services) + '</div></div>')
 
 
 def build_summary_report(data: DashboardData, appendix_href: str) -> str:
@@ -438,19 +471,19 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
     priority = _ordered_findings(data)
     headline = ('Authentication activity requires review.' if priority and priority[0].category == 'authentication'
                 else 'Findings require review.' if priority else 'No rule-backed findings recorded.')
-    priority_lead = (f'<p class="priority-lead"><strong>Priority lead:</strong> {escape(priority[0].title)} '
+    priority_lead = (f'<p class="priority-lead"><strong>Priority lead:</strong> <a href="#findings">{escape(priority[0].title)}</a> '
                      f'({escape(priority[0].severity)}). Validate the retained evidence before taking action.</p>') if priority else '' 
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Summary - {escape(Path(data.source).name)}</title><style>{report_stylesheet(summary=True)}</style></head><body><main id="aegislog-report" class="report summary{' has-findings' if data.findings else ''}">{_document_opening(data, generated, summary=True, appendix_href=appendix_href)}
 <nav class="toolbar"><a href="#findings">Top findings</a><a href="#incidents">Incidents</a><a href="{escape(appendix_href)}?print=1">Print complete report / Save PDF</a><span class="spacer"></span><button type="button" onclick="window.print()">Print summary / Save PDF</button></nav><p class="print-help">This print button exports the short summary. Open the appendix to print full evidence separately. For PDF, turn off browser Headers and footers.</p><div class="content">
-<section class="section" id="executive"><div class="section-head"><div><div class="section-label">Assessment</div><h2>Executive Summary</h2></div></div><div class="hero"><div><h2>{escape(headline)}</h2><div class="assessment"><p>{escape(_assessment(data, risk))}</p></div>{priority_lead}</div><aside class="review-priority"><span class="cell-label">Review priority</span><strong>{escape(_disposition(risk))}</strong><p class="caveat">Findings are investigation leads, not proof of compromise.</p></aside></div></section>
+<section class="section" id="executive"><div class="section-head"><div><div class="section-label">Assessment</div><h2>Executive Summary</h2></div></div><div class="hero"><div><h2>{escape(headline)}</h2><div class="assessment"><p>{escape(_lead_observation(data, risk))}</p></div>{priority_lead}</div><aside class="review-priority"><span class="cell-label">Review priority</span><strong>{escape(_disposition(risk))}</strong><p class="caveat">Findings are investigation leads, not proof of compromise.</p></aside></div></section>
 {_record_metrics(data, summary=True)}
 {_report_navigation(summary=True, appendix_href=appendix_href)}
 <section class="section" id="findings"><div class="section-head"><h2>Findings &amp; next actions</h2></div><p class="section-note">{escape(group_note)}</p><div class="summary-findings{' compact-findings' if compact else ''}">{"".join(rows) or '<p>No rule-backed findings were recorded.</p>'}</div></section>
 {print_evidence}<section class="section" id="incidents"><div class="section-head"><h2>Priority incidents</h2></div><p class="section-note">Showing {min(5, len(data.incidents))} of {len(data.incidents)} incident groups. Verify timing and shared cause before treating signals as one incident.</p>{incident_content}</section>
-<section class="section" id="activity"><div class="section-head"><h2>Supporting activity</h2></div><div class="summary-chart-grid"><div><h3>Severity distribution</h3>{_severity_overview(data)}</div><div><h3>Service activity</h3>{_summary_service_chart(data.services)}</div></div></section>
+<section class="section" id="activity"><div class="section-head"><h2>Supporting activity</h2></div>{_supporting_activity(data)}</section>
 <aside class="summary-notes" id="interpretation" aria-label="Report context and limitations"><h2>Interpretation notes</h2>{context}<p class="context-notice"><strong>SUMMARY ONLY</strong> - Complete retained evidence is in the separate full report. Read collection limits below before drawing conclusions.</p></aside>
 <section class="section" id="scope"><div class="section-head"><h2>Coverage</h2></div><div class="scope"><dl class="coverage-grid">{coverage_rows}</dl>{limits_note}{'<p>' + escape(data.collection_scope) + '</p>' if data.collection_scope else ''}{'<p>Top rarity signals:</p><ul>' + anomaly_content + '</ul>' if anomaly_content else ''}<p>No matching rules does not establish a clean system. Rarity describes this sample, not attack probability.</p><p class="identity-note">Report ID identifies the analysis output; it is not a source fingerprint. SHA-256 identifies bytes read during collection, including truncated tails; it does not certify an unchanged or complete live source. Preserve the original logs.</p><a href="{escape(appendix_href)}">Open the complete investigation record</a></div></section>
-<div class="footer">AEGISLOG v{escape(__version__)} · {_case_id(data)} · Presented and maintained by HR-Presents</div></div></main>{REPORT_EVIDENCE_SCRIPT}</body></html>'''
+{report_signature(_case_id(data), __version__)}</div></main>{REPORT_EVIDENCE_SCRIPT}</body></html>'''
 
 
 def write_html_report(data: DashboardData, output_dir: Path | None = None, *,

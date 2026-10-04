@@ -90,7 +90,11 @@ def test_report_print_has_readable_charts_and_score_context(tmp_path):
     assert 'Rarity score / 100' in html and '100% attack probability' in html
     assert 'Grouping basis:' in html and 'no time-window constraint' in html
     assert "named service&#x27;s own logs" in html
-    assert 'class="chart"' in html and 'retained total' in html
+    assert 'class="activity-counts"' in html and 'Small sample; direct observed counts.' in html
+    assert 'class="chart"' not in html
+    path.write_text('2026-10-02T15:04:18Z Service Control Manager[7011]: ERROR A timeout while waiting for BrYNSvc\n' * 30)
+    large = build_html_report(analyze_dashboard(path))
+    assert 'class="chart"' in large and 'retained total 30' in large
     assert 'color:#1f2937!important' in html
     assert 'Headers and footers' in html
 
