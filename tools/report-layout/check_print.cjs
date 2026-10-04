@@ -64,6 +64,8 @@ const path = require('path');
     await page.setViewportSize({width:390,height:844});
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error(`${name} overflows`);
     await page.setViewportSize({width:1440,height:900});
+    await page.emulateMedia({media:'print'});
+    if (await page.locator('.toolbar').isVisible()) throw Error(`${name} browser controls leaked into print`);
     await page.pdf({path:`report-layout-qa/${name}.pdf`,format:'A4',printBackground:true,displayHeaderFooter:false});
   }
   await browser.close();

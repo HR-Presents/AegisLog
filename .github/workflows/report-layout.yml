@@ -64,6 +64,16 @@ jobs:
                   assert 'SUMMARY ONLY' in contents
               else:
                   assert 'F-001' in contents and 'F-002' in contents
+          for name in ['empty', 'missing-time', 'many-findings']:
+              report = f'report-layout-qa/{name}.pdf'
+              contents = subprocess.check_output(['pdftotext', report, '-'], text=True)
+              assert 'Print summary / Save PDF' not in contents, f'{name}: screen controls in PDF'
+              info = subprocess.check_output(['pdfinfo', report], text=True)
+              count = int(re.search(r'Pages:\s+(\d+)', info).group(1))
+              for page in range(1, count + 1):
+                  page_text = subprocess.check_output(['pdftotext', '-f', str(page), '-l', str(page), report, '-'], text=True)
+                  assert re.search(rf'{page}\s*/\s*{count}', page_text), f'{name}: missing page number'
+              assert 'Coverage' in contents, f'{name}: coverage lost'
           print(f'Printed {pages} readable appendix pages for 161 long-path sources')
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
