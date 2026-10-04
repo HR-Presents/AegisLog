@@ -13,7 +13,7 @@ SYNTHETIC TRAINING DATA. All events, accounts and documentation-range addresses 
 
 Extract the ZIP. Run `aegislog start` (or open the Windows executable), choose 01, and paste the full path to first-investigation.log. Use O Reports or R at home to open the summary and follow its full-evidence link.
 
-Expected: 9 records, 9 recognized, 2 findings (HIGH 1 / MEDIUM 1), and 2 incident groups. Six failed logins become one authentication-burst finding; finding counts are not raw-event counts. Timestamps span 12:01–12:04 UTC on 4 October 2026.
+Expected: 9 records, 9 recognized, 2 findings (HIGH 1 / MEDIUM 1), and 1 incident group. Six failed logins become one authentication-burst finding; finding counts are not raw-event counts. Timestamps span 12:01–12:04 UTC on 4 October 2026.
 
 Repeat with clean-baseline.log: 3 recognized records, 0 findings, 0 incident groups. Review coverage even when there are no matches.
 

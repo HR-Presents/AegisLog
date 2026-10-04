@@ -27,7 +27,7 @@ If Windows still cannot find the command, run `& "$env:USERPROFILE\.local\bin\ae
 
 [Download the demo pack](https://github.com/HR-Presents/AegisLog-AI/raw/refs/heads/main/docs/demo/AegisLog-First-Investigation-Demo.zip) and extract it. Select **01 Analyze**, then drag `first-investigation.log` into the prompt or paste its full path.
 
-Expect **9 records, 9 recognized records, 2 findings and 2 incident groups**: one HIGH authentication burst containing six failures, and one MEDIUM operational timeout. These are synthetic training signals, not observations about your computer. Read the pack's README and expected-results.json.
+Expect **9 records, 9 recognized records, 2 findings and 1 incident group**: one HIGH authentication burst containing six failures, and one MEDIUM operational timeout. These are synthetic training signals, not observations about your computer. Read the pack's README and expected-results.json.
 
 For a quick check without downloading anything, select **07 Demo**. That separate built-in fixture has 7 records and omits timestamp years; its results differ from this pack.
 
