@@ -87,7 +87,7 @@ REPORT_DESIGN_STYLE = """
 .report .review-priority{padding:10px 12px}
 .report .review-priority strong{font-size:16px}
 .report .review-priority .caveat{font-size:11px!important}
-.report .summary-finding,.report .finding-group{break-inside:auto;margin-bottom:14px}
+.report.summary .summary-finding,.report .finding-group{break-inside:auto;margin-bottom:14px}
 .report .summary-finding .record-head,.report .group-intro{break-after:avoid;break-inside:avoid}
 .report .summary-finding .record-head{padding:12px 14px 10px 65px}
 .report .summary-finding .record-head strong,.report .finding-group .record-head strong{font-size:16px!important}
@@ -104,11 +104,13 @@ REPORT_DESIGN_STYLE = """
 .report.summary #executive{padding:6px 0 12px;margin-bottom:4px}
 .report.summary .summary-notes{padding:8px 0;margin:4px 0}
 .report.summary .context-notice{padding:6px 0;margin:6px 0}
-.report .observed-facts{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:3px 10px}
-.report .finding-columns{grid-template-columns:1fr}
-.report .finding-columns>div:first-child{padding-bottom:6px}
+.report .observed-facts{gap:3px 10px}
+
 .report .finding-columns{padding:10px 14px}
 .report .report-evidence .evidence{padding:6px 0!important}
+.report #method{break-inside:auto}
+.report .telemetry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.report .telemetry-card{margin-top:0}
 .report .footer{display:none}
 }
 """
