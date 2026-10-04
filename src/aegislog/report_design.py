@@ -75,6 +75,10 @@ REPORT_DESIGN_STYLE = """
 .report .group-evidence{padding:10px 0}
 .report .section-head h2{border:0;padding:0;font-size:22px}
 .report .summary-notes{border-radius:0}
+.report .distribution-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;margin:10px 0;font-size:14px}
+.report .distribution-row span{overflow-wrap:anywhere}
+.report .distribution-track{grid-column:1/-1;background:#e8eef8;height:7px;border-radius:3px;overflow:hidden}
+.report .distribution-track i{display:block;height:100%;background:#397dcc}
 @media(max-width:700px){.report .hero,.report .finding-columns{grid-template-columns:1fr}.report.summary #executive .hero h2{font-size:27px}}
 @media print{
 @page{size:A4;margin:14mm 13mm 16mm;@bottom-left{content:"AEGISLOG / HR-PRESENTS";font:9px Arial;color:#000}@bottom-right{content:counter(page) " / " counter(pages);font:9px Arial;color:#000}}
@@ -125,6 +129,7 @@ REPORT_DESIGN_STYLE = """
 .report.summary th,.report.summary td{padding:6px}
 .report.summary .summary-chart-grid h3{margin:4px 0}
 .report.summary #scope .scope>a{display:none}
+.report .distribution-row{font-size:12px;margin:6px 0}
 .report .footer{display:none}
 }
 """

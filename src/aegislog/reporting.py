@@ -391,11 +391,11 @@ def _bar_chart(values: dict[str, int], label: str) -> str:
         return '<p class="empty">No retained observations.</p>'
     maximum = max(value for _, value in items) or 1
     rows = []
-    for index, (name, value) in enumerate(items):
-        y = index * 26 + 16
-        short = str(name) if len(str(name)) < 39 else str(name)[:35] + "..."
-        rows.append(f'<text x="0" y="{y}" font-size="11">{escape(short)}</text><rect x="260" y="{y-10}" width="{180*value/maximum:.1f}" height="12" fill="#397dcc"/><text x="452" y="{y}" font-size="11">{value:,}</text>')
-    return f'<svg class="chart" width="510" height="{len(items)*26+8}" viewBox="0 0 510 {len(items)*26+8}" role="img" aria-label="{escape(label)}"><title>{escape(label)}; largest bar = {maximum}; top {len(items)} of {len(values)} classes</title>{"".join(rows)}</svg><p class="caveat">Top {len(items)} of {len(values)} classes; retained total {sum(values.values()):,}. Largest bar = {maximum:,}.</p>'
+    for name, value in items:
+        width = min(100.0, max(0.0, 100 * value / maximum))
+        rows.append(f'<div class="distribution-row"><span>{escape(str(name))}</span><strong>{value:,}</strong><div class="distribution-track"><i style="width:{width:.1f}%"></i></div></div>')
+    return f'<div class="chart" role="img" aria-label="{escape(label)}">{"".join(rows)}</div><p class="caveat">Top {len(items)} of {len(values)} classes; retained total {sum(values.values()):,}. Largest bar = {maximum:,}.</p>'
+
 
 
 def _finding_records(data: DashboardData) -> str:
