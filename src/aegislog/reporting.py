@@ -390,7 +390,7 @@ def _supporting_activity(data: DashboardData) -> str:
     if data.records < 20:
         severity = ' · '.join(f'{escape(str(name))}: {count}' for name, count in sorted(data.severities.items())) or 'No rule-backed findings'
         services = ''.join(f'<span><strong>{escape(str(name))}</strong> {count:,}</span>' for name, count in sorted(data.services.items(), key=lambda pair: (-pair[1], str(pair[0])))[:6])
-        return (timeline
+        return (timeline +
                 '<div class="summary-service-chart"><h3>Observed source activity</h3><div class="activity-counts">' + services + '</div></div>'
                 f'<p class="caveat">Finding severity · {severity}. Service counts describe processed records, not distinct incidents.</p>')
     return (timeline + '<div class="summary-chart-grid"><div><h3>Finding severity</h3>' + _severity_overview(data) +
