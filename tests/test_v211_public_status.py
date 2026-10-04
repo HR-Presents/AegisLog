@@ -10,16 +10,16 @@ def _text(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_v2110_is_current_published_stable() -> None:
+def test_v2111_is_current_published_stable() -> None:
     project_status = _text("docs/PROJECT_STATUS.md")
     roadmap = _text("docs/ROADMAP.md")
     docs_index = _text("docs/README.md")
 
-    assert "current published stable release is **v2.1.10**" in project_status
-    assert "**Published stable:** v2.1.10" in project_status
-    assert "currently released as **v2.1.10**" in roadmap
-    assert "v2.1.10 — current stable release" in roadmap
-    assert "[v2.1.10 release notes](RELEASE_V2.1.10.md)" in docs_index
+    assert "current published stable release is **v2.1.11**" in project_status
+    assert "**Published stable:** v2.1.11" in project_status
+    assert "currently released as **v2.1.11**" in roadmap
+    assert "v2.1.11 — current stable release" in roadmap
+    assert "[v2.1.11 release notes](RELEASE_V2.1.11.md)" in docs_index
 
 
 def test_v216_release_target_and_checksum_are_recorded() -> None:
