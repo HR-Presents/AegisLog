@@ -149,6 +149,7 @@ REPORT_DESIGN_STYLE = """
 .report.summary .compact-findings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 .report.summary .compact-findings .summary-finding{min-width:0;break-inside:avoid}
 .report.summary .compact-findings .finding-columns{grid-template-columns:1fr;gap:10px}
+.report.summary .compact-findings .observed-facts{grid-template-columns:auto minmax(0,1fr)}
 .report.summary .compact-findings .record-head{display:grid;grid-template-columns:1fr;gap:5px;padding-left:14px;padding-top:30px;min-height:75px}
 .report.summary .compact-findings .record-head .pill{justify-self:start}
 .report.summary .compact-findings .record-head strong{min-height:2.8em}
