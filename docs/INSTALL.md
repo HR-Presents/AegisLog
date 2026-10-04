@@ -35,6 +35,18 @@ python -m pipx ensurepath
 
 Close and reopen the terminal to reload PATH. Administrator access is not required for normal installation.
 
+### Latest reviewed report design on main
+
+The published wheel and EXE predate the editorial report redesign. To install that reviewed source snapshot, exit AegisLog and run:
+
+```cmd
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/447837b7f6b61c2d86e5bedb028cf0e37e8dfc52.zip"
+aegislog doctor
+aegislog start
+```
+
+Generate a new report. Existing HTML and PDF files remain unchanged. The source snapshot still identifies as 2.1.7; verify the installed origin with `python -m pipx list` rather than relying only on the version number. An installed or extracted older EXE is a separate copy.
+
 ### Upgrade and verify
 
 Exit AegisLog first, then install the published wheel:

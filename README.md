@@ -148,7 +148,7 @@ Incident groups connect related retained evidence for investigation. Grouping do
 
 ### Rarity and Activity
 
-Activity charts show bounded retained timestamped evidence, including recent consecutive minute buckets. Rarity scores describe unusual event classes within the retained sample; they are not a trained attack classifier.
+Terminal activity charts show bounded retained timestamped evidence. Report timelines show up to 12 occupied UTC minute buckets, disclose skipped gaps and unresolved timestamps, and avoid inventing missing time information. Rarity scores describe unusual event classes within the retained sample; they are not a trained attack classifier.
 
 > [!WARNING]
 > **Unusual activity is a lead, not a verdict**
@@ -222,7 +222,7 @@ Use **B/Escape** to stop a live view and **Q** to quit AegisLog. Quitting return
 
 ## Reports and Evidence
 
-Each investigation provides a short summary and a separate full retained-evidence HTML report. Reports use a light background, dark body text, AegisLog branding, coverage notes, findings, and investigation context.
+Each investigation provides a short summary and a separate full retained-evidence HTML report. Reports on current main use an editorial layout with a larger transparent AegisLog logo, black body text, light sea-blue accents, a compact metrics strip, and separate evidence and next-action areas. The closing signature reads **MADE BY HR-PRESENTS**. Small samples use direct counts; timelines appear only when the retained timestamps support them.
 
 | Report | Purpose |
 |---|---|
@@ -255,6 +255,17 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 > Keep original logs separately. Retention limits and omitted or truncated evidence are disclosed. A PDF summary is not a substitute for the full report or the original source.
 
 ## Installation
+
+### Latest reviewed report design
+
+The latest report design is merged on main. Install this reviewed source snapshot after preparing pipx below:
+
+```bash
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/447837b7f6b61c2d86e5bedb028cf0e37e8dfc52.zip"
+aegislog start
+```
+
+Generate a new investigation report after updating. Existing HTML/PDF files do not change automatically. This snapshot retains the package version 2.1.7; the version alone does not distinguish it from the older release assets.
 
 ### Current Release
 
@@ -358,20 +369,12 @@ aegislog --help
 
 Replace example paths with your own accessible files. See the complete [Command Reference](docs/COMMANDS.md).
 
-## Demonstration Data and Previews
+## Demonstration Data
 
 Start `aegislog start`, choose **01 Analyze**, and enter `demo`, or choose **07 Demo** for the quick-start workflow.
 
 The built-in authentication demo contains **7 records, 2 findings, and 2 incident groups**: a HIGH authentication investigation lead and a MEDIUM operational error. These are synthetic training signals, not findings about the user's computer. Yearless syslog timestamps are not guessed; event order alone does not establish elapsed time.
 
-> [!NOTE]
-> **Preview provenance**
->
-> The images below are development reference/QA previews, not screenshots of the v2.1.7 Windows executable. See [capture provenance](docs/assets/screenshots/README.md).
-
-![Terminal home reference preview](docs/assets/screenshots/reference-home-qa.png)
-
-![Terminal analysis reference preview](docs/assets/screenshots/reference-analysis-qa.png)
 
 ## Technology Stack
 
@@ -447,6 +450,7 @@ See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), 
 |---|---|
 | [Installation](docs/INSTALL.md) | Standalone, pipx, upgrades, and verification |
 | [User Guide](docs/USER_GUIDE.md) | Investigation workflows |
+| [Reports](docs/REPORTS.md) | Reading, printing, coverage, and report design |
 | [Commands](docs/COMMANDS.md) | CLI reference |
 | [Demo](docs/DEMO.md) | Synthetic demonstration workflows |
 | [Architecture](docs/ARCHITECTURE.md) | Pipeline and trust boundaries |

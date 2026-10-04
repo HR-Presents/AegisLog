@@ -10,7 +10,12 @@
 
 ## Unreleased
 
-- No unreleased changes yet.
+- Redesign summary and full investigation reports with light sea-blue accents, black body text, an enlarged transparent logo, and an editorial evidence/action layout.
+- Add a closing MADE BY HR-PRESENTS signature to HTML and printed reports.
+- Use direct counts for small samples and bounded occupied-minute UTC timelines when retained timestamps support them.
+- Increase supporting print text and guard against an orphan closing-signature page.
+- Preserve source handling, detection rules, and terminal presentation.
+- Synchronize installation, branding, user guide, and report documentation with the reviewed main-branch design; published v2.1.7 assets remain separate.
 
 ## 2.1.6 - 2026-10-03
 
