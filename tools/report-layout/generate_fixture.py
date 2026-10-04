@@ -30,3 +30,19 @@ lines += ['2026-10-04T08:02:00Z Microsoft-Windows-DistributedCOM[10010]: ERROR t
 source = root/'windows-context.log'
 source.write_text(''.join(lines))
 write_html_report(analyze_dashboard(source), root)
+
+
+# Real-shaped diagnostic fixture: submissions are not unique failure counts.
+from datetime import datetime, timedelta, timezone
+start = datetime(2026, 10, 4, 8, tzinfo=timezone.utc)
+lines = []
+for i in range(231):
+ stamp = (start + timedelta(seconds=i*6)).isoformat(timespec='microseconds')
+ lines.append(f'{stamp} Windows Error Reporting[1001]: INFO Event Name: LiveKernelEvent P1: 141 Attached files: C:/Windows/LiveKernelReports/WATCHDOG/fixture.dmp ' + 'retained diagnostic detail '*30 + '\n')
+for i in range(4):
+ lines.append(f'{start.isoformat()} Windows Error Reporting[1001]: INFO Event Name: crashpad_log P1: MicrosoftEdgeUpdate.exe P3: OnLogonLaunchError P4: 0x80070002 Attached files: C:/ProgramData/Microsoft/EdgeUpdate/Log/MicrosoftEdgeUpdate.log ' + 'retained diagnostic detail '*30 + '\n')
+for i in range(65):
+ lines.append(f'{start.isoformat()} {providers[i % len(providers)]}[1]: INFO Normal fixture activity\n')
+source = root/'wer-application.log'
+source.write_text(''.join(lines))
+write_html_report(analyze_dashboard(source), root)

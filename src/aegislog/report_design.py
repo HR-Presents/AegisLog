@@ -33,7 +33,7 @@ def observed_facts(item, year_hint=None):
     windows_id = re.search(r'\bEvent ID\s+(\d+)\b', item.evidence)
     if windows_id and not windows:
         facts.append(('Event ID', windows_id.group(1)))
-    facts.append(('Timestamp', event.timestamp.isoformat() if event.timestamp else 'Unresolved'))
+    facts.append(('Timestamp', event.timestamp.isoformat(timespec='seconds') if event.timestamp else 'Unresolved'))
     return '<dl class="observed-facts">' + ''.join(
         f'<dt>{escape(label)}</dt><dd>{escape(str(value))}</dd>' for label, value in facts
     ) + '</dl>'
@@ -47,6 +47,7 @@ def why_it_matters(category):
         'network': 'Blocked traffic needs exposure and source context; a block alone does not establish compromise.',
         'error': 'An operational error may affect service availability. Establish the cause and user impact.',
         'service': 'Service failures may affect availability. Correlate resource pressure and surrounding events.',
+        'diagnostic': 'A diagnostic report records troubleshooting information; report submission alone does not establish a new failure.',
     }.get(category, 'Validate this signal against original telemetry and the affected component before escalation.')
 
 
@@ -94,6 +95,7 @@ REPORT_DESIGN_STYLE = """
 .report .distribution-track{grid-column:1/-1;background:#e8eef8;height:7px;border-radius:3px;overflow:hidden}
 .report .distribution-track i{display:block;height:0;border-top:7px solid #397dcc;box-sizing:border-box}
 .report .summary-print-evidence{display:none}
+.report .incident-context{display:block;font-size:12px;line-height:1.45;margin-top:4px;overflow-wrap:anywhere}
 @media(max-width:700px){.report .hero,.report .finding-columns{grid-template-columns:1fr}.report.summary #executive .hero h2{font-size:27px}}
 @media print{
 @page{size:A4;margin:14mm 13mm 16mm;@bottom-left{content:"AEGISLOG / HR-PRESENTS";font:9px Arial;color:#000}@bottom-right{content:counter(page) " / " counter(pages);font:9px Arial;color:#000}}

@@ -105,7 +105,7 @@ def windows_event_logs(limit: int = 300, channel: str = "System", since_minutes:
         if not isinstance(item, dict):
             continue
         timestamp = _windows_timestamp(item.get("TimeCreated"))
-        level = {1: 'CRITICAL', 2: 'ERROR', 3: 'WARNING', 4: 'INFO', 5: 'VERBOSE'}.get(
+        level = {0: 'INFO', 1: 'CRITICAL', 2: 'ERROR', 3: 'WARNING', 4: 'INFO', 5: 'VERBOSE'}.get(
             item.get('Level'), str(item.get("LevelDisplayName") or "INFO").upper()
         )
         provider = str(item.get("ProviderName") or "windows")

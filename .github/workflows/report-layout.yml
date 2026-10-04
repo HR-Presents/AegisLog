@@ -64,7 +64,7 @@ jobs:
                   assert 'SUMMARY ONLY' in contents
               else:
                   assert 'F-001' in contents and 'F-002' in contents
-          for name in ['empty', 'missing-time', 'many-findings', 'windows-context']:
+          for name in ['empty', 'missing-time', 'many-findings', 'windows-context', 'wer-application']:
               report = f'report-layout-qa/{name}.pdf'
               contents = subprocess.check_output(['pdftotext', report, '-'], text=True)
               assert 'Print summary / Save PDF' not in contents, f'{name}: screen controls in PDF'
@@ -78,6 +78,12 @@ jobs:
                   assert 'Microsoft-Windows-DistributedCOM' in contents
                   assert '2/123 total events' in contents
                   assert 'sample rarity' in contents
+              if name == 'wer-application':
+                  assert count <= 2, f'Diagnostic summary too long: {count} pages'
+                  assert 'Windows kernel live-dump report recorded' in contents
+                  assert 'Edge updater diagnostic report recorded' in contents
+                  assert 'not counts of unique failures' in contents
+                  assert 'Event ID 1001' in contents
           print(f'Printed {pages} readable appendix pages for 161 long-path sources')
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

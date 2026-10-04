@@ -58,7 +58,7 @@ const path = require('path');
   const bars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
   if (!bars.length || bars.some(width => width !== '7px')) throw Error('Foreground bars missing');
   await page.pdf({path:'report-layout-qa/demo-complete-no-background.pdf',format:'A4',printBackground:false,displayHeaderFooter:false});
-  for (const name of ['empty', 'missing-time', 'many-findings', 'windows-context']) {
+  for (const name of ['empty', 'missing-time', 'many-findings', 'windows-context', 'wer-application']) {
     await page.emulateMedia({media:'screen'});
     await page.goto(pathToFileURL(path.resolve(`report-layout-qa/${name}-aegislog-report.html`)).href);
     await page.setViewportSize({width:390,height:844});
@@ -72,3 +72,4 @@ const path = require('path');
   await browser.close();
   console.log('Chromium filter and 161-source print smoke passed');
 })().catch(error => {console.error(error);process.exit(1);});
+

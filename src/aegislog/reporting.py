@@ -363,7 +363,7 @@ def _incident_records(data: DashboardData) -> str:
         rows.append(
             f'<tr id="incident-{escape(item.id)}"><td><strong>INC-{escape(item.id.upper()[:8])}</strong></td>'
             f'<td><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span></td>'
-            f'<td><strong>{escape(item.title)}</strong></td>'
+            f'<td><strong>{escape(item.title)}</strong><small class="incident-context">{escape(item.context)}</small></td>'
             f'<td>{item.count}</td><td>{links}{extra}</td></tr>'
         )
     if not rows:
@@ -452,7 +452,12 @@ def _report_context(data: DashboardData) -> str:
     timing = (f'<p class="context-notice"><strong>Timestamp limitations:</strong> {missing} retained record(s) lack a resolved timestamp. '
               'Traditional syslog may omit the year; AegisLog does not guess it. '
               'Use an explicit timestamp year when known. Event-order correlation does not establish elapsed time or a time-window attack.</p>') if missing else ''
-    return demo + timing
+    diagnostics = ('<p class="context-notice"><strong>Windows diagnostic reports:</strong> '
+                   'Repeated report records are not counts of unique failures. The record timestamp can describe report submission; '
+                   'check the original dump or application log for the failure time.</p>') if any(
+                       dict(f.context).get('provider', '').casefold() == 'windows error reporting'
+                       for f in data.findings) else ''
+    return demo + timing + diagnostics
 
 
 def build_html_report(data: DashboardData, summary_href: str | None = None) -> str:
@@ -515,7 +520,7 @@ def _summary_service_chart(values: dict[str, int]) -> str:
 def build_summary_report(data: DashboardData, appendix_href: str) -> str:
     groups = _finding_groups(data)
     compact = len(groups) == 2 and all(
-        len(members[0][1].evidence) <= 400 and len(key[3]) <= 250 and len(key[2]) <= 100
+        len(members[0][1].evidence) <= 600 and len(key[3]) <= 250 and len(key[2]) <= 100
         for key, members in groups
     )
     rows = []
@@ -545,7 +550,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
     incident_rows = "".join(
         f'<tr><td><a href="{escape(appendix_href)}#incident-{escape(item.id)}">INC-{escape(item.id.upper()[:8])}</a></td>'
         f'<td><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span></td>'
-        f'<td>{escape(item.title)}</td><td>{item.count}</td></tr>'
+        f'<td>{escape(item.title)}<small class="incident-context">{escape(item.context)}</small></td><td>{item.count}</td></tr>'
         for item in _ordered_incidents(data)[:5]
     )
     incident_content = ('<div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
@@ -569,7 +574,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
             limits.append(f'{count:,} {label}')
     limits_note = '<p class="coverage-warning">Collection limits: ' + escape('; '.join(limits)) + '.</p>' if limits else ''
     print_evidence = ''.join(
-        f'<div class="summary-print-excerpt"><strong><a href="{escape(appendix_href)}#finding-{members[0][0]:03d}">F-{members[0][0]:03d} · {escape(key[2])}</a></strong><code class="evidence">{escape(members[0][1].evidence)}</code></div>'
+        f'<div class="summary-print-excerpt"><strong><a href="{escape(appendix_href)}#finding-{members[0][0]:03d}">F-{members[0][0]:03d} · {escape(key[2])}</a></strong><code class="evidence">{escape(members[0][1].evidence[:280])}{" … [excerpt; see complete report]" if len(members[0][1].evidence) > 280 else ""}</code></div>'
         for key, members in groups
     ) if compact else ''
     print_evidence = f'<section class="summary-print-evidence"><h2>Representative evidence</h2>{print_evidence}</section>' if print_evidence else ''

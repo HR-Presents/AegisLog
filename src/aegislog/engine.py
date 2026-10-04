@@ -364,15 +364,24 @@ class AnalysisState:
                     Finding(signal.severity, signal.category, signal.title, signal.evidence[:500], signal.recommendation)
                 )
                 return
-        severity, category, pattern, title, recommendation = PRIVILEGE_RULE
-        if pattern.search(line):
+        from .windows_reports import report_signal
+        diagnostic = report_signal(line)
+        if diagnostic is not None:
+            severity, category, title, recommendation = diagnostic
             self._append_finding(Finding(severity, category, title, line[:500], recommendation))
             return
-        if AUTH_FAILURE_RE.search(line):
+        from .parsers import WINDOWS_EVENT
+        record = WINDOWS_EVENT.match(line)
+        detection_text = (record.group('level') + ' ' + record.group('message').split(' | AEGIS_EVENT_DATA=', 1)[0]) if record else line
+        severity, category, pattern, title, recommendation = PRIVILEGE_RULE
+        if pattern.search(detection_text):
+            self._append_finding(Finding(severity, category, title, line[:500], recommendation))
+            return
+        if AUTH_FAILURE_RE.search(detection_text):
             self._add_auth(_auth_event(line, self.timestamp_year_hint))
             return
         for severity, category, pattern, title, recommendation in RULES[1:]:
-            if pattern.search(line):
+            if pattern.search(detection_text):
                 self._append_finding(Finding(severity, category, title, line[:500], recommendation))
                 break
 
