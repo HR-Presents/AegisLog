@@ -51,7 +51,7 @@ REFERENCE_STYLE = """
 .cover-footer{position:absolute;bottom:48px;left:64px;right:64px;font-size:12px;opacity:.8;margin:0}
 .cover-results{display:inline-block;padding:12px 18px;margin:0 0 24px;border:1px solid #aac7f0;border-radius:8px;font-weight:700;text-decoration:none}
 .evidence-group{display:none}.group-label{padding:12px 20px 0;font-size:12px;font-weight:700}
-.count-key{margin:0 0 24px;font-size:14px}.source-fingerprint,.coverage-grid dd{overflow-wrap:anywhere}
+.count-key{margin:0 0 24px;font-size:14px}.source-fingerprint,.coverage-grid dd{overflow-wrap:anywhere}.coverage-grid .fingerprint-row{grid-column:1/-1}.fingerprint-row dd{font-family:Consolas,monospace;font-weight:400!important;font-size:12px!important}
 .cover-demo{font-size:12px;font-weight:700;margin-top:18px}
 .document-contents,.report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{border:1px solid #d3def0;border-radius:16px;padding:28px;margin:0 0 24px;background:#fff}
 .document-label,#aegislog-report .section-label{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px}
@@ -105,7 +105,7 @@ REFERENCE_STYLE = """
 .cover-cards{gap:5mm}.cover-cards>div{padding:5mm;border-radius:12px}.cover-cards dt{font-size:12px}.cover-cards dd{font-size:14px}
 .cover-footer{bottom:13mm;left:13mm;right:13mm;font-size:10px}.cover-results{display:inline-block;padding:12px 18px;margin:0 0 24px;border:1px solid #aac7f0;border-radius:8px;font-weight:700;text-decoration:none}
 .evidence-group{display:none}.group-label{padding:12px 20px 0;font-size:12px;font-weight:700}
-.count-key{margin:0 0 24px;font-size:14px}.source-fingerprint,.coverage-grid dd{overflow-wrap:anywhere}
+.count-key{margin:0 0 24px;font-size:14px}.source-fingerprint,.coverage-grid dd{overflow-wrap:anywhere}.coverage-grid .fingerprint-row{grid-column:1/-1}.fingerprint-row dd{font-family:Consolas,monospace;font-weight:400!important;font-size:12px!important}
 .cover-demo{font-size:10px}
 .document-contents{padding:18px 22px;margin:0 0 18px;break-inside:avoid}
 .document-contents a{padding:9px 0;font-size:13px}.document-contents h2{font-size:22px;margin-bottom:12px}

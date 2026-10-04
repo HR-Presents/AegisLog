@@ -129,10 +129,10 @@ def _primary_decision(data: DashboardData) -> str:
         or _severity_rank(top_incident.severity) >= _severity_rank(top_finding.severity)
     ):
         iid = f"INC-{top_incident.id.upper()[:8]}"
-        return f'<div class="decision"><div class="decision-head"><span class="decision-kicker">What needs attention</span><span class="pill {_risk_class(top_incident.severity)}">{escape(top_incident.severity)}</span></div><div class="lead">{escape(iid)} · {escape(top_incident.title)}</div><div class="action">Review the correlated evidence chain and validate the affected source, identity, host, and network context before escalation.</div><div class="meta">{top_incident.count} correlated signal(s) · {escape(top_incident.category)}</div></div>'
+        return f'<div class="decision"><div class="decision-head"><span class="decision-kicker">What needs attention</span><span class="pill {_risk_class(top_incident.severity)}">{escape(top_incident.severity)}</span></div><div class="lead">{escape(iid)} · {escape(top_incident.title)}</div></div>'
     if top_finding:
-        return f'<div class="decision"><div class="decision-head"><span class="decision-kicker">What needs attention</span><span class="pill {_risk_class(top_finding.severity)}">{escape(top_finding.severity)}</span></div><div class="lead">{escape(top_finding.title)}</div><div class="action">Review the retained excerpt and its recommended action before escalation.</div><div class="meta">Rule-backed finding · {escape(top_finding.category)}</div></div>'
-    return '<div class="decision"><div class="decision-head"><span class="decision-kicker">What needs attention</span><span class="pill good">NO MATCHES</span></div><div class="lead">No elevated rule-backed finding requires immediate action</div><div class="action">Review coverage and original telemetry before closing the investigation.</div></div>'
+        return f'<div class="decision"><div class="decision-head"><span class="decision-kicker">What needs attention</span><span class="pill {_risk_class(top_finding.severity)}">{escape(top_finding.severity)}</span></div><div class="lead">{escape(top_finding.title)}</div></div>'
+    return '<div class="decision"><div class="decision-head"><span class="decision-kicker">What needs attention</span><span class="pill good">NO MATCHES</span></div><div class="lead">No elevated rule-backed finding requires immediate action</div></div>'
 
 
 def _triage_actions(data: DashboardData) -> str:
@@ -313,7 +313,7 @@ def build_html_report(data: DashboardData, summary_href: str | None = None) -> s
 
 <nav class="toolbar">{summary_link}<a href="#executive">Overview</a><a href="#incidents">Incidents</a><a href="#findings">Findings</a><a href="#telemetry">Telemetry</a><a href="#anomalies">Anomalies</a><a href="#method">Method</a><span class="spacer"></span><span class="local-note">DETERMINISTIC ANALYSIS</span><button type="button" onclick="window.print()">Print Full Evidence / Save PDF</button></nav>
 <p class="print-help">PDF export: use A4 and turn off browser Headers and footers in the print dialog to remove the local file URL. Background graphics are optional; charts and evidence remain readable.</p><div class="content">
-<section class="section" id="executive"><div class="section-head"><div><div class="section-label">Executive summary</div><h2>Executive Summary</h2></div><div class="section-note">Start here. Supporting evidence follows below.</div></div><div class="executive-grid"><div class="assessment"><h3>Assessment</h3><p class="posture-value">Current posture <strong>{escape(risk)}</strong></p><p>{escape(_assessment(data, risk))}</p>{_primary_decision(data)}<p class="caveat">Analyzed <strong>{data.lines:,}</strong> physical line(s), retained <strong>{len(data.findings)}</strong> finding(s), <strong>{len(data.incidents)}</strong> incident(s), and <strong>{len(data.anomalies)}</strong> anomaly signal(s). See Analysis Profile for collection and interpretation limits.</p><h3 class="severity-heading">Severity distribution</h3><div class="severity-block">{_severity_overview(data)}</div></div><div class="priority-box"><h3>Recommended triage</h3>{_triage_actions(data)}</div></div></section>
+<section class="section" id="executive"><div class="section-head"><div><div class="section-label">Executive summary</div><h2>Executive Summary</h2></div><div class="section-note">Start here. Supporting evidence follows below.</div></div><div class="executive-grid"><div class="assessment"><h3>Assessment</h3><p class="posture-value">Current posture <strong>{escape(risk)}</strong></p><p>{escape(_assessment(data, risk))}</p>{_primary_decision(data)}<h3 class="severity-heading">Severity distribution</h3><div class="severity-block">{_severity_overview(data)}</div></div><div class="priority-box"><h3>Recommended triage</h3>{_triage_actions(data)}</div></div></section>
 {_record_metrics(data, summary=False)}
 <section class="section" id="findings"><div class="section-head"><div><div class="section-label">Detection</div><h2>Findings</h2></div><div class="section-note">{len(data.findings)} retained findings in {len(_finding_groups(data))} presentation groups. Each excerpt keeps its F-reference. Grouping for readability does not establish a common cause.</div></div><div class="record-list">{_finding_records(data)}</div></section>
 <section class="section" id="incidents"><div class="section-head"><div><div class="section-label">Correlation</div><h2>Incident Queue</h2></div><div class="section-note">Grouped signals; validate shared cause and timing.</div></div><div class="record-list">{_incident_records(data)}</div></section>
@@ -407,7 +407,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
                               for item in sorted(data.anomalies, key=lambda item: -item.score)[:3])
     formats = ', '.join(sorted(data.format_counts or {})) or 'Unspecified'
     coverage_rows = ''.join(
-        f'<div><dt>{escape(label)}</dt><dd>{escape(value)}</dd></div>'
+        f'<div class="{"fingerprint-row" if label == "Source SHA-256" else ""}"><dt>{escape(label)}</dt><dd>{escape(value)}</dd></div>'
         for label, value in (
             ('Recognized records', f'{data.recognized_records:,} / {data.records:,}'),
             ('Retained excerpts', f'{len(data.raw_lines):,} / {data.records:,}'),
