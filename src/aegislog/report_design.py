@@ -135,7 +135,10 @@ REPORT_DESIGN_STYLE = """
 .report.summary .compact-findings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 .report.summary .compact-findings .summary-finding{min-width:0;break-inside:avoid}
 .report.summary .compact-findings .finding-columns{grid-template-columns:1fr;gap:10px}
-.report.summary .compact-findings .record-head{padding-left:14px;padding-top:30px;min-height:75px}
+.report.summary .compact-findings .record-head{display:grid;grid-template-columns:1fr;gap:5px;padding-left:14px;padding-top:30px;min-height:75px}
+.report.summary .compact-findings .record-head .pill{justify-self:start}
+.report.summary .compact-findings .record-head strong{min-height:2.8em}
+.report.summary .compact-findings .finding-columns>div:first-child{min-height:105px}
 .report.summary .compact-findings .finding-index{float:none;position:absolute;padding:8px 0 0 14px}
 .report.summary .compact-findings details.report-evidence{display:none}
 .report .summary-print-evidence{display:block;border-top:1px solid #dfe6ef;margin-top:10px;padding-top:8px}
