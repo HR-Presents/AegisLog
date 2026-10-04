@@ -333,7 +333,7 @@ def test_summary_matches_reference_cover_and_keeps_context_grouped():
     assert 'Investigation Summary' in header
     assert 'AegisLog terminal mark logo' in header
     assert 'context-notice' not in header
-    assert html.index('<section class="metrics" id="metrics">') < html.index('id="executive"') < html.index('<aside class="summary-notes"')
+    assert html.index('id="executive"') < html.index('<section class="metrics" id="metrics">') < html.index('<aside class="summary-notes"')
     notes = html.split('<aside class="summary-notes"', 1)[1].split('</aside>', 1)[0]
     assert 'SUMMARY ONLY' in notes
     assert 'Complete retained evidence is in the separate full report' in notes

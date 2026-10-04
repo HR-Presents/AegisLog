@@ -49,7 +49,7 @@ REFERENCE_STYLE = """
 .cover-cards dd{font-size:16px;font-weight:700;margin:0;overflow-wrap:anywhere}
 .cover-footer{position:absolute;bottom:48px;left:64px;right:64px;font-size:12px;opacity:.8;margin:0}
 .cover-demo{font-size:12px;font-weight:700;margin-top:18px}
-.document-contents,.report .section,.report.summary #executive,.report.summary .summary-notes{border:1px solid #d3def0;border-radius:16px;padding:28px;margin:0 0 24px;background:#fff}
+.document-contents,.report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{border:1px solid #d3def0;border-radius:16px;padding:28px;margin:0 0 24px;background:#fff}
 .document-label,#aegislog-report .section-label{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px}
 #aegislog-report .document-label,#aegislog-report .section-label{color:#1152c3!important}
 .document-contents h2{font-size:24px;margin:0 0 18px}
@@ -62,6 +62,7 @@ REFERENCE_STYLE = """
 .report .section-head{margin-bottom:20px}
 .report .section-head h2{font-size:24px}
 .report.summary #executive .hero h2{font-size:20px;letter-spacing:0}
+.report.summary #executive .section-head h2{font-size:24px;letter-spacing:0;text-transform:none}
 .report .assessment{background:#eaf2ff;border-left:4px solid #287bff;border-radius:10px;padding:18px 20px}
 .report .assessment p{margin:0 0 12px}
 .report .assessment p:last-child{margin-bottom:0}
@@ -79,7 +80,7 @@ REFERENCE_STYLE = """
 .cover-brand{gap:18px}.cover-logo{width:64px}.cover-brand strong{font-size:29px}.cover-brand span{font-size:9px;letter-spacing:.1em}
 .cover-heading{margin-top:70px}.sentrix-cover h1{font-size:36px}.cover-subtitle{font-size:18px}
 .cover-footer{left:24px;right:24px;bottom:30px}
-.document-contents,.report .section,.report.summary #executive,.report.summary .summary-notes{padding:20px}
+.document-contents,.report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{padding:20px}
 .report .hero,.report .finding-columns{grid-template-columns:1fr}
 .report .metric strong{font-size:25px}
 }
@@ -92,8 +93,9 @@ REFERENCE_STYLE = """
 .cover-footer{bottom:13mm;left:13mm;right:13mm;font-size:10px}.cover-demo{font-size:10px}
 .document-contents{padding:18px 22px;margin:0 0 18px;break-inside:avoid}
 .document-contents a{padding:9px 0;font-size:13px}.document-contents h2{font-size:22px;margin-bottom:12px}
-.report .section,.report.summary #executive,.report.summary .summary-notes{padding:18px 22px;margin-bottom:18px;border:1px solid #d3def0;border-radius:14px}
+.report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{padding:18px 22px;margin-bottom:18px;border:1px solid #d3def0;border-radius:14px}
 .report .section-head h2,.report .summary-notes h2{font-size:22px}
+.report.summary #executive .section-head h2{font-size:22px}
 .report .metrics,.report.summary .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
 .report .metric,.report.summary .metric{min-height:90px;padding:16px}.report .metric strong,.report.summary .metric strong{font-size:27px}
 .report .assessment{padding:12px 14px}.report .finding-columns p{font-size:13px!important}.report .observed-facts{font-size:12px}
