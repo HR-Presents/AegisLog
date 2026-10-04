@@ -124,6 +124,7 @@ REPORT_DESIGN_STYLE = """
 .report.summary .section-note{margin-bottom:6px}
 .report.summary th,.report.summary td{padding:6px}
 .report.summary .summary-chart-grid h3{margin:4px 0}
+.report.summary #scope .scope>a{display:none}
 .report .footer{display:none}
 }
 """

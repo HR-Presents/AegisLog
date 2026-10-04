@@ -508,7 +508,7 @@ def _summary_service_chart(values: dict[str, int]) -> str:
         y = index * 28 + 18
         short = str(name) if len(str(name)) <= 18 else str(name)[:15] + '...'
         rows.append(f'<text x="0" y="{y}" font-size="14">{escape(short)}</text><rect x="143" y="{y-11}" width="{104*value/maximum:.1f}" height="13" rx="2" fill="#287bff"/><text x="257" y="{y}" font-size="14">{value:,}</text>')
-    return f'<svg class="summary-service-chart" viewBox="0 0 300 {len(items)*28+4}" role="img" aria-label="Service activity"><title>Top {len(items)} services; retained total {sum(values.values()):,}</title>{"".join(rows)}</svg><p class="caveat">Top {len(items)} of {len(values)} services · {sum(values.values()):,} events. Full distribution in separate HTML report.</p>'
+    return f'<svg class="summary-service-chart" viewBox="0 0 300 {len(items)*28+4}" role="img" aria-label="Service activity"><title>Top {len(items)} services; retained total {sum(values.values()):,}</title>{"".join(rows)}</svg><p class="caveat">Top {len(items)} of {len(values)} services · {sum(values.values()):,} events.</p>'
 
 
 def build_summary_report(data: DashboardData, appendix_href: str) -> str:
@@ -584,7 +584,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
 <section class="section" id="incidents"><div class="section-head"><h2>Priority incidents</h2></div><p class="section-note">Showing {min(5, len(data.incidents))} of {len(data.incidents)} incident groups. Verify timing and shared cause before treating signals as one incident.</p>{incident_content}</section>
 <section class="section" id="activity"><div class="section-head"><h2>Supporting activity</h2></div><div class="summary-chart-grid"><div><h3>Severity distribution</h3>{_severity_overview(data)}</div><div><h3>Service activity</h3>{_summary_service_chart(data.services)}</div></div></section>
 <aside class="summary-notes" aria-label="Report context and limitations"><h2>Interpretation notes</h2>{context}<p class="context-notice"><strong>SUMMARY ONLY</strong> - Complete retained evidence is in the separate full report. Groups organize similar findings; they do not establish a shared cause.</p></aside>
-<section class="section" id="scope"><div class="section-head"><h2>Coverage</h2></div><div class="scope"><dl class="coverage-grid">{coverage_rows}</dl>{limits_note}<p>{escape(data.collection_scope)}</p>{'<p>Top rarity signals:</p><ul>' + anomaly_content + '</ul>' if anomaly_content else ''}<p>No matching rules does not establish a clean system. Rarity describes this sample, not attack probability. Preserve the original logs for further investigation.</p><a href="{escape(appendix_href)}">Open the complete investigation record</a></div></section>
+<section class="section" id="scope"><div class="section-head"><h2>Coverage</h2></div><div class="scope"><dl class="coverage-grid">{coverage_rows}</dl>{limits_note}{'<p>' + escape(data.collection_scope) + '</p>' if data.collection_scope else ''}{'<p>Top rarity signals:</p><ul>' + anomaly_content + '</ul>' if anomaly_content else ''}<p>No matching rules does not establish a clean system. Rarity describes this sample, not attack probability. Preserve the original logs for further investigation.</p><a href="{escape(appendix_href)}">Open the complete investigation record</a></div></section>
 <div class="footer">AEGISLOG v{escape(__version__)} · {_case_id(data)} · Presented and maintained by HR-Presents</div></div></main>{REPORT_EVIDENCE_SCRIPT}</body></html>'''
 
 
