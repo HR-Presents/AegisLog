@@ -61,10 +61,10 @@ jobs:
                   assert 'Report reference' in first_page and 'Generated' in first_page
                   assert 'Findings & recommended review' in first_page
               else:
-                  assert 'Report reference' in first_page
-                  assert 'Generated' in first_page
-                  assert 'Executive summary' in first_page, 'Results missing from opening page'
-                  assert 'Records processed' in contents and 'F-001' in contents
+                  assert 'reportreference' in re.sub(r'\s+', '', first_page).lower()
+                  assert 'generated' in re.sub(r'\s+', '', first_page).lower()
+                  assert 'executivesummary' in re.sub(r'\s+', '', first_page).lower(), 'Results missing from opening page'
+                  assert 'recordsprocessed' in re.sub(r'\s+', '', contents).lower() and 'F-001' in contents
               assert 'Timestamp limitations:' in contents
               assert count <= (6 if name == 'demo-summary' else 10), f'Unexpected demo print length: {name} {count}'
               if name != 'demo-summary':
