@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from aegislog.commands_v12 import _DEMO_LOG
 from aegislog.dashboard import analyze_dashboard
@@ -33,7 +34,6 @@ write_html_report(analyze_dashboard(source), root)
 
 
 # Real-shaped diagnostic fixture: submissions are not unique failure counts.
-from datetime import datetime, timedelta, timezone
 start = datetime(2026, 10, 4, 8, tzinfo=timezone.utc)
 lines = []
 for i in range(231):

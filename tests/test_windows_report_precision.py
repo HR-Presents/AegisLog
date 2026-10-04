@@ -42,3 +42,19 @@ def test_incident_rows_explain_provider_event_and_time():
 def test_punctuated_native_provider_is_recognized():
     event = parse_line(record('ordinary activity', 'Vendor & Service'))
     assert event.source == 'windows'
+
+
+def test_numeric_log_always_and_punctuated_provider_are_native(monkeypatch):
+    from aegislog import native_collectors as native
+    monkeypatch.setattr(native.platform, 'system', lambda: 'Windows')
+    monkeypatch.setattr(native, '_run', lambda *a, **k: json.dumps({'TimeCreated': '2026-10-04T08:00:00Z', 'ProviderName': 'Vendor & Service', 'Id': 1, 'Level': 0, 'LevelDisplayName': 'LogAlways', 'Message': 'Normal activity'}))
+    lines = native.windows_logs()
+    assert ': INFO Normal activity' in lines[0]
+    assert parse_line(lines[0]).source == 'windows'
+    assert analyze_lines(lines) == []
+
+
+def test_unknown_diagnostics_are_not_described_as_security_incidents():
+    from aegislog.product import explain_finding
+    finding = analyze_lines([record('ordinary diagnostic submission')])[0]
+    assert explain_finding(finding)['classification'] == 'Diagnostic record'

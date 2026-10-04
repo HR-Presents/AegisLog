@@ -11,10 +11,20 @@ identity are kept separate; group membership events use MemberName/MemberSid.
 Legacy text inputs retain their existing message parsing fallback. Missing
 structured target fields are left unresolved rather than inferred from the actor.
 
-Windows operational incidents are scoped by provider. One isolated structured
-operational error remains a finding; repeated errors within the same provider
-may form an incident group. Grouping does not establish a shared cause and does
-not currently apply a time-window constraint to operational incidents.
+Windows incidents require matching provider, Event ID, host and account context
+and resolved timestamps within a five-minute group. One isolated structured
+operational error remains a finding. Groups organize evidence; they do not
+establish a shared cause. Incident rows display the provider, Event ID and time range.
+
+Windows Error Reporting Event 1001 is classified by its recorded report type.
+LiveKernelEvent and application fault/hang reports receive targeted review guidance;
+Edge updater crashpad records are low-priority diagnostic leads, while unknown
+report types remain informational. Provider names and structured metadata alone
+do not trigger generic error rules. Repeated submissions do not count unique
+failures, and submission timestamps may differ from original failure times.
+Numeric Level 0 is normalized as informational. Native provider punctuation is
+preserved. These changes do not prove why a previous record used generic parsing;
+inspect its original evidence when coverage remains partial.
 
 Static file investigations preserve the strongest observed timestamped
 authentication window per source IP across the processed input, instead of losing
@@ -27,3 +37,4 @@ event-order fallback. Rolling/live consumers keep the current-window behavior.
 
 Rarity remains frequency within retained evidence, not attack probability. Source
 logs remain read-only. Reports contain retained excerpts, not a full forensic copy.
+
