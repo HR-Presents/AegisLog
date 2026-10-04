@@ -567,6 +567,11 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
         if count:
             limits.append(f'{count:,} {label}')
     limits_note = '<p class="coverage-warning">Collection limits: ' + escape('; '.join(limits)) + '.</p>' if limits else ''
+    print_evidence = ''.join(
+        f'<div class="summary-print-excerpt"><strong>F-{members[0][0]:03d} · {escape(key[2])}</strong><code class="evidence">{escape(members[0][1].evidence)}</code></div>'
+        for key, members in groups
+    ) if compact else ''
+    print_evidence = f'<section class="summary-print-evidence"><h2>Representative evidence</h2>{print_evidence}</section>' if print_evidence else ''
     risk = _risk(data)
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     context = _report_context(data)
@@ -589,7 +594,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
 <section class="section" id="activity"><div class="section-head"><h2>Supporting activity</h2></div><div class="summary-chart-grid"><div><h3>Severity distribution</h3>{_severity_overview(data)}</div><div><h3>Service activity</h3>{_summary_service_chart(data.services)}</div></div></section>
 <aside class="summary-notes" aria-label="Report context and limitations"><h2>Interpretation notes</h2>{context}<p class="context-notice"><strong>SUMMARY ONLY</strong> - Complete retained evidence is in the separate full report. Groups organize similar findings; they do not establish a shared cause.</p></aside>
 <section class="section" id="scope"><div class="section-head"><h2>Coverage</h2></div><div class="scope"><dl class="coverage-grid">{coverage_rows}</dl>{limits_note}{'<p>' + escape(data.collection_scope) + '</p>' if data.collection_scope else ''}{'<p>Top rarity signals:</p><ul>' + anomaly_content + '</ul>' if anomaly_content else ''}<p>No matching rules does not establish a clean system. Rarity describes this sample, not attack probability. Preserve the original logs for further investigation.</p><a href="{escape(appendix_href)}">Open the complete investigation record</a></div></section>
-<div class="footer">AEGISLOG v{escape(__version__)} · {_case_id(data)} · Presented and maintained by HR-Presents</div></div></main>{REPORT_EVIDENCE_SCRIPT}</body></html>'''
+{print_evidence}<div class="footer">AEGISLOG v{escape(__version__)} · {_case_id(data)} · Presented and maintained by HR-Presents</div></div></main>{REPORT_EVIDENCE_SCRIPT}</body></html>'''
 
 
 def write_html_report(data: DashboardData, output_dir: Path | None = None, *,

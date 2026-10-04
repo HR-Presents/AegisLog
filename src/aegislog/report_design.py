@@ -79,6 +79,7 @@ REPORT_DESIGN_STYLE = """
 .report .distribution-row span{overflow-wrap:anywhere}
 .report .distribution-track{grid-column:1/-1;background:#e8eef8;height:7px;border-radius:3px;overflow:hidden}
 .report .distribution-track i{display:block;height:0;border-top:7px solid #397dcc;box-sizing:border-box}
+.report .summary-print-evidence{display:none}
 @media(max-width:700px){.report .hero,.report .finding-columns{grid-template-columns:1fr}.report.summary #executive .hero h2{font-size:27px}}
 @media print{
 @page{size:A4;margin:14mm 13mm 16mm;@bottom-left{content:"AEGISLOG / HR-PRESENTS";font:9px Arial;color:#000}@bottom-right{content:counter(page) " / " counter(pages);font:9px Arial;color:#000}}
@@ -136,7 +137,12 @@ REPORT_DESIGN_STYLE = """
 .report.summary .compact-findings .finding-columns{grid-template-columns:1fr;gap:10px}
 .report.summary .compact-findings .record-head{padding-left:14px;padding-top:30px;min-height:75px}
 .report.summary .compact-findings .finding-index{float:none;position:absolute;padding:8px 0 0 14px}
-.report.summary .compact-findings .report-evidence .evidence{overflow-wrap:anywhere}
+.report.summary .compact-findings details.report-evidence{display:none}
+.report .summary-print-evidence{display:block;border-top:1px solid #dfe6ef;margin-top:10px;padding-top:8px}
+.report .summary-print-evidence h2{font-size:18px;margin:0 0 6px}
+.report .summary-print-excerpt{break-inside:avoid;margin:8px 0}
+.report .summary-print-excerpt strong{font-size:12px}
+.report .summary-print-excerpt .evidence{font-size:12px;line-height:1.5;margin:4px 0}
 .report.summary #scope .scope>a{display:none}
 .report .distribution-row{font-size:12px;margin:6px 0}
 .report .footer{display:none}
