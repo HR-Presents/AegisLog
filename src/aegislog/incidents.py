@@ -4,7 +4,7 @@ import hashlib
 import re
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .engine import Finding
 
@@ -17,6 +17,7 @@ class Incident:
     count: int
     title: str
     evidence: tuple[str, ...]
+    context: str = ''
 
 
 SEVERITY = {"INFO": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
@@ -80,7 +81,7 @@ def correlate(findings: list[Finding]) -> list[Incident]:
         for item in items:
             context = dict(item.context or windows_context(item.evidence))
             try:
-                stamp = datetime.fromisoformat(context.get('timestamp', '').replace('Z', '+00:00'))
+                stamp = datetime.fromisoformat(re.sub(r'(\.\d{6})\d+', r'\1', context.get('timestamp', '').replace('Z', '+00:00')))
                 if stamp.tzinfo is None:
                     raise ValueError('Unresolved timezone')
             except ValueError:
@@ -113,6 +114,21 @@ def correlate(findings: list[Finding]) -> list[Incident]:
 
         digest_seed = "\0".join(key) + "\0" + top.title.lower() + ('\0' + window if window else '')
         digest = hashlib.sha256(digest_seed.encode()).hexdigest()[:12]
+        observed = dict(items[0].context or windows_context(items[0].evidence))
+        description = []
+        if observed.get('provider'):
+            description = [observed['provider'], 'Event ID ' + observed.get('event_id', '?')]
+            for label in ['host', 'account']:
+                if observed.get(label):
+                    description.append(label + '=' + observed[label])
+            try:
+                start = datetime.fromtimestamp(float(window), timezone.utc)
+                stamps = [datetime.fromisoformat(re.sub(r'(\.\d{6})\d+', r'\1', dict(i.context or windows_context(i.evidence))['timestamp'].replace('Z', '+00:00'))) for i in items]
+                end = max(stamps).astimezone(timezone.utc)
+            except (ValueError, KeyError, OverflowError, OSError):
+                description.append('Time unresolved')
+            else:
+                description.append(start.strftime('%Y-%m-%d %H:%M:%S UTC') + ' to ' + end.strftime('%H:%M:%S UTC'))
         incidents.append(
             Incident(
                 id=digest,
@@ -121,6 +137,7 @@ def correlate(findings: list[Finding]) -> list[Incident]:
                 count=len(items),
                 title=top.title,
                 evidence=tuple(item.evidence for item in items[:5]),
+                context=' · '.join(description),
             )
         )
 

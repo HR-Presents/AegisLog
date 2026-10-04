@@ -55,6 +55,11 @@ def discover_sources():
 
 def explain_finding(finding):
     operational = finding.category in {'error', 'service'}
+    if finding.category == 'diagnostic':
+        return dict(classification='Diagnostic record', reason=f'Local rules identified: {finding.title}.',
+                    impact='Troubleshooting information; verify original event time and user impact.',
+                    alternative='Expected diagnostic reporting may produce this record.',
+                    next_step=_recommendation(finding), confidence='Record classification; no measured probability of compromise.')
     return dict(
         classification='Operational issue' if operational else 'Security investigation lead',
         reason=f'Local detection rules matched evidence for: {finding.title}.',

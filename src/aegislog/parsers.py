@@ -25,7 +25,7 @@ ISO_SERVICE = re.compile(
     re.IGNORECASE,
 )
 WINDOWS_EVENT = re.compile(
-    r"^(?P<timestamp>\S+)\s+(?P<provider>[\w.(){}\-/ ]+)\[(?P<event_id>\d+)\]:\s+"
+    r"^(?P<timestamp>\d{4}-\d{2}-\d{2}T\S+)\s+(?P<provider>[^\[\]\r\n]+)\[(?P<event_id>\d+)\]:\s+"
     r"(?P<level>CRITICAL|ERROR|WARNING|WARN|INFORMATION|INFO|VERBOSE)\s*(?P<message>.*)$",
     re.IGNORECASE,
 )

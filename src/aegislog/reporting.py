@@ -363,7 +363,7 @@ def _incident_records(data: DashboardData) -> str:
         rows.append(
             f'<tr id="incident-{escape(item.id)}"><td><strong>INC-{escape(item.id.upper()[:8])}</strong></td>'
             f'<td><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span></td>'
-            f'<td><strong>{escape(item.title)}</strong></td>'
+            f'<td><strong>{escape(item.title)}</strong><small class="incident-context">{escape(item.context)}</small></td>'
             f'<td>{item.count}</td><td>{links}{extra}</td></tr>'
         )
     if not rows:
@@ -452,7 +452,12 @@ def _report_context(data: DashboardData) -> str:
     timing = (f'<p class="context-notice"><strong>Timestamp limitations:</strong> {missing} retained record(s) lack a resolved timestamp. '
               'Traditional syslog may omit the year; AegisLog does not guess it. '
               'Use an explicit timestamp year when known. Event-order correlation does not establish elapsed time or a time-window attack.</p>') if missing else ''
-    return demo + timing
+    diagnostics = ('<p class="context-notice"><strong>Windows diagnostic reports:</strong> '
+                   'Repeated report records are not counts of unique failures. The record timestamp can describe report submission; '
+                   'check the original dump or application log for the failure time.</p>') if any(
+                       dict(f.context).get('provider', '').casefold() == 'windows error reporting'
+                       for f in data.findings) else ''
+    return demo + timing + diagnostics
 
 
 def build_html_report(data: DashboardData, summary_href: str | None = None) -> str:
@@ -515,8 +520,12 @@ def _summary_service_chart(values: dict[str, int]) -> str:
 def build_summary_report(data: DashboardData, appendix_href: str) -> str:
     groups = _finding_groups(data)
     compact = len(groups) == 2 and all(
-        len(members[0][1].evidence) <= 400 and len(key[3]) <= 250 and len(key[2]) <= 100
+        len(members[0][1].evidence) <= 600 and len(key[3]) <= 250 and len(key[2]) <= 100
         for key, members in groups
+    )
+    diagnostic_compact = compact and all(
+        dict(members[0][1].context).get('provider', '').casefold() == 'windows error reporting'
+        for _, members in groups
     )
     rows = []
     seen_actions = {}
@@ -538,14 +547,16 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
             f'<div class="finding-columns"><div><span class="cell-label">Observed evidence</span>{observed_facts(example, data.timestamp_year_hint)}</div>'
             f'<div><span class="cell-label">Next step</span><p class="action-text">{action}</p><p class="why"><strong>Why it matters:</strong> {escape(why_it_matters(category))}</p></div></div>'
             f'<details class="report-evidence" open><summary>Inspect {escape(excerpt_label.lower())}</summary><code class="evidence">{escape(excerpt)}</code>' 
-            f'<a class="evidence-link" href="{escape(appendix_href)}#finding-{index:03d}">View complete evidence → F-{index:03d}</a></details></div></article>'
+            f'<a class="evidence-link" href="{escape(appendix_href)}#finding-{index:03d}">View complete evidence → F-{index:03d}</a></details>'
+            + (f'<p class="summary-evidence-pointer"><a href="{escape(appendix_href)}#finding-{index:03d}">Complete retained evidence: F-{index:03d} in the investigation record.</a></p>' if diagnostic_compact else '')
+            + '</div></article>'
         )
     group_note = (f'Showing {min(6, len(groups))} highest-priority groups · '
                   f'{len(data.findings)} retained findings. Complete evidence is linked below.')
     incident_rows = "".join(
         f'<tr><td><a href="{escape(appendix_href)}#incident-{escape(item.id)}">INC-{escape(item.id.upper()[:8])}</a></td>'
         f'<td><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span></td>'
-        f'<td>{escape(item.title)}</td><td>{item.count}</td></tr>'
+        f'<td>{escape(item.title)}<small class="incident-context">{escape(item.context)}</small></td><td>{item.count}</td></tr>'
         for item in _ordered_incidents(data)[:5]
     )
     incident_content = ('<div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
@@ -569,9 +580,9 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
             limits.append(f'{count:,} {label}')
     limits_note = '<p class="coverage-warning">Collection limits: ' + escape('; '.join(limits)) + '.</p>' if limits else ''
     print_evidence = ''.join(
-        f'<div class="summary-print-excerpt"><strong><a href="{escape(appendix_href)}#finding-{members[0][0]:03d}">F-{members[0][0]:03d} · {escape(key[2])}</a></strong><code class="evidence">{escape(members[0][1].evidence)}</code></div>'
+        f'<div class="summary-print-excerpt"><strong><a href="{escape(appendix_href)}#finding-{members[0][0]:03d}">F-{members[0][0]:03d}</a></strong><code class="evidence">{escape(members[0][1].evidence[:100])}{" … [excerpt; see complete report]" if len(members[0][1].evidence) > 100 else ""}</code></div>'
         for key, members in groups
-    ) if compact else ''
+    ) if compact and not diagnostic_compact else ''
     print_evidence = f'<section class="summary-print-evidence"><h2>Representative evidence</h2>{print_evidence}</section>' if print_evidence else ''
     risk = _risk(data)
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -591,11 +602,11 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
 <nav class="toolbar"><a href="#findings">Top findings</a><a href="#incidents">Incidents</a><a href="{escape(appendix_href)}?print=1">Print complete report / Save PDF</a><span class="spacer"></span><button type="button" onclick="window.print()">Print summary / Save PDF</button></nav><p class="print-help">This print button exports the short summary. Open the appendix to print full evidence separately. For PDF, turn off browser Headers and footers.</p><div class="content"><section class="metrics">{_metric("Records processed", f"{data.records:,}")}{_metric("Findings", str(len(data.findings)))}{_metric("Incidents", str(len(data.incidents)))}{_metric("Recognized records", f"{data.recognized_records:,} / {data.records:,}")}</section>
 <section class="section" id="executive"><div class="hero"><div><h2>{escape(headline)}</h2><div class="assessment"><p>{escape(_assessment(data, risk))}</p></div>{priority_lead}</div><aside class="review-priority"><span class="cell-label">Review priority</span><strong>{escape(_disposition(risk))}</strong><p class="caveat">Findings are investigation leads, not proof of compromise.</p></aside></div></section>
 <section class="section" id="findings"><div class="section-head"><h2>Findings &amp; next actions</h2></div><p class="section-note">{escape(group_note)}</p><div class="summary-findings{' compact-findings' if compact else ''}">{"".join(rows) or '<p>No rule-backed findings were recorded.</p>'}</div></section>
-<section class="section" id="incidents"><div class="section-head"><h2>Priority incidents</h2></div><p class="section-note">Showing {min(5, len(data.incidents))} of {len(data.incidents)} incident groups. Verify timing and shared cause before treating signals as one incident.</p>{incident_content}</section>
+{print_evidence}<section class="section" id="incidents"><div class="section-head"><h2>Priority incidents</h2></div><p class="section-note">Showing {min(5, len(data.incidents))} of {len(data.incidents)} incident groups. Verify timing and shared cause before treating signals as one incident.</p>{incident_content}</section>
 <section class="section" id="activity"><div class="section-head"><h2>Supporting activity</h2></div><div class="summary-chart-grid"><div><h3>Severity distribution</h3>{_severity_overview(data)}</div><div><h3>Service activity</h3>{_summary_service_chart(data.services)}</div></div></section>
 <aside class="summary-notes" aria-label="Report context and limitations"><h2>Interpretation notes</h2>{context}<p class="context-notice"><strong>SUMMARY ONLY</strong> - Complete retained evidence is in the separate full report. Groups organize similar findings; they do not establish a shared cause.</p></aside>
 <section class="section" id="scope"><div class="section-head"><h2>Coverage</h2></div><div class="scope"><dl class="coverage-grid">{coverage_rows}</dl>{limits_note}{'<p>' + escape(data.collection_scope) + '</p>' if data.collection_scope else ''}{'<p>Top rarity signals:</p><ul>' + anomaly_content + '</ul>' if anomaly_content else ''}<p>No matching rules does not establish a clean system. Rarity describes this sample, not attack probability. Preserve the original logs for further investigation.</p><a href="{escape(appendix_href)}">Open the complete investigation record</a></div></section>
-{print_evidence}<div class="footer">AEGISLOG v{escape(__version__)} · {_case_id(data)} · Presented and maintained by HR-Presents</div></div></main>{REPORT_EVIDENCE_SCRIPT}</body></html>'''
+<div class="footer">AEGISLOG v{escape(__version__)} · {_case_id(data)} · Presented and maintained by HR-Presents</div></div></main>{REPORT_EVIDENCE_SCRIPT}</body></html>'''
 
 
 def write_html_report(data: DashboardData, output_dir: Path | None = None, *,
