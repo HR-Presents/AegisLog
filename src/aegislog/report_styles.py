@@ -207,4 +207,7 @@ def report_stylesheet(*, summary=False):
     from .report_design import REPORT_DESIGN_STYLE
     from .report_reference import REFERENCE_STYLE
     components = _REPORT_STYLE + (_SUMMARY_STYLE + _SUMMARY_OPENING_STYLE if summary else '')
-    return components + _BODY_TEXT_STYLE + _READING_LAYOUT_STYLE + _EDITORIAL_STYLE + REPORT_DESIGN_STYLE + REFERENCE_STYLE
+    stylesheet = components + _BODY_TEXT_STYLE + _READING_LAYOUT_STYLE + _EDITORIAL_STYLE + REPORT_DESIGN_STYLE + REFERENCE_STYLE
+    for old, new in {'#287bff': '#43aebb', '#397dcc': '#299aa7', '#eaf2ff': '#eaf8fa', '#f8fbff': '#f1fafb', '#245ea8': '#126773', '#d3def0': '#c7e3e7'}.items():
+        stylesheet = stylesheet.replace(old, new)
+    return stylesheet

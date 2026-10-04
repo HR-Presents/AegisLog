@@ -56,8 +56,8 @@ jobs:
               first_page = subprocess.check_output(['pdftotext', '-f', '1', '-l', '1', f'report-layout-qa/{name}.pdf', '-'], text=True)
               assert 'PRESENTED BY HR-PRESENTS' in first_page and 'Report ID' in first_page
               assert 'Record formats' in first_page and 'Generated' in first_page
-              assert 'Contents' not in first_page, 'Cover must be a separate first page'
-              assert 'DOCUMENTNAVIGATION' in re.sub(r'\s+', '', contents) and 'Contents' in contents
+              assert 'Executive Summary' in first_page, 'Results missing from opening page'
+              assert 'Contents' in contents and 'Record Overview' in contents
               assert 'Timestamp limitations:' in contents
               assert count <= (6 if name == 'demo-summary' else 10), f'Unexpected demo print length: {name} {count}'
               if name != 'demo-summary':

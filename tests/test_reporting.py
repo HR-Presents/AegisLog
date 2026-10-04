@@ -87,7 +87,7 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
 
     assert 'class="telemetry-grid"' in html
     assert 'aria-label="AegisLog terminal mark logo"' in html
-    assert "#287bff" in html
+    assert "#43aebb" in html
     assert 'content="light"' in html
     assert 'body{margin:0;background:#fff;color:var(--ink)' in html
     assert 'Investigation Information' in html
@@ -273,7 +273,7 @@ def test_summary_embeds_brand_logo_and_readable_print_colors():
     assert 'aria-label="AegisLog terminal mark logo"' in html
     assert 'data:image/png;base64,' in html
     assert 'aegislog-report-logo' in html
-    assert 'color:#245ea8!important' in html
+    assert 'color:#126773!important' in html
     assert 'color:#a62b38!important' in html
     assert 'print-color-adjust:exact' in html
     assert 'class="summary-service-chart"' in html
@@ -324,12 +324,12 @@ def test_demo_context_and_timestamp_limits_are_explicit(tmp_path):
     assert "Timestamp limitations:" not in build_html_report(real)
 
 
-def test_summary_matches_reference_cover_and_keeps_context_grouped():
+def test_summary_uses_sea_blue_brief_and_keeps_context_grouped():
     from aegislog.reporting import build_summary_report
     html = build_summary_report(_data(), 'full.html')
-    assert 'class="sentrix-cover"' in html
+    assert 'class="aegis-report-header"' in html
     assert '<dt>Source</dt>' in html and '<dt>Report ID</dt>' in html and '<dt>Generated</dt>' in html
-    header = html.split('<header class="sentrix-cover" id="cover">', 1)[1].split('</header>', 1)[0]
+    header = html.split('<header class="aegis-report-header" id="cover">', 1)[1].split('</header>', 1)[0]
     assert 'Investigation Summary' in header
     assert 'AegisLog terminal mark logo' in header
     assert 'context-notice' not in header

@@ -19,17 +19,21 @@ const path = require('path');
   if (!await page.getByText('SYNTHETIC DEMO DATA', {exact:true}).isVisible()) throw Error('Demo label missing');
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map(img => img.decode())); });
-  const cover = page.locator('.sentrix-cover');
-  if (!await cover.isVisible()) throw Error('Sentrix-style cover missing');
+  const cover = page.locator('.aegis-report-header');
+  if (!await cover.isVisible()) throw Error('AegisLog brief header missing');
   if (!await cover.locator('.cover-logo').isVisible()) throw Error('AegisLog logo missing');
   await cover.getByRole('link', {name:'View investigation results'}).click();
   if (!page.url().endsWith('#executive')) throw Error('Cover shortcut failed');
+  const logoWidth = await cover.locator('.cover-logo').evaluate(item => item.getBoundingClientRect().width);
+  if (logoWidth < 180) throw Error('Report logo is too small');
+  const stops = await cover.locator('stop').evaluateAll(items => items.map(item => item.getAttribute('stop-color')));
+  if (!stops.includes('#b9e6ed')) throw Error('Light sea-blue palette missing');
   const color = await cover.locator('h1').evaluate(item => getComputedStyle(item).color);
-  if (color !== 'rgb(255, 255, 255)') throw Error('Cover title must be white');
+  if (color !== 'rgb(0, 0, 0)') throw Error('Header title must be black');
   if (await page.locator('.cover-cards > div').count() !== 4) throw Error('Cover metadata cards missing');
   if (await page.locator('.document-contents a').count() !== 8) throw Error('Contents missing');
   const colored = await page.locator('#aegislog-report *').evaluateAll(items => items.filter(item =>
-    !item.closest('.sentrix-cover, .document-contents') && !item.classList.contains('section-label') &&
+    !item.closest('.aegis-report-header, .document-contents') && !item.classList.contains('section-label') &&
     item.textContent.trim() && !item.children.length && getComputedStyle(item).color !== 'rgb(0, 0, 0)'
   ).map(item => item.className));
   if (colored.length) throw Error(`Non-black body text: ${colored}`);
