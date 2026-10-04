@@ -12,7 +12,7 @@ class InputLine:
     truncated: bool
 
 
-def iter_bounded_lines(path: Path, max_line_bytes: int = 1_000_000) -> Iterator[InputLine]:
+def iter_bounded_lines(path: Path, max_line_bytes: int = 1_000_000, *, on_bytes=None) -> Iterator[InputLine]:
     if max_line_bytes < 1:
         raise ValueError("max_line_bytes must be positive")
     with path.open("rb") as handle:
@@ -20,12 +20,16 @@ def iter_bounded_lines(path: Path, max_line_bytes: int = 1_000_000) -> Iterator[
             raw = handle.readline(max_line_bytes + 2)
             if not raw:
                 return
+            if on_bytes:
+                on_bytes(raw)
             content = raw.rstrip(b"\r\n")
             truncated = len(content) > max_line_bytes
             if not raw.endswith(b"\n") and len(raw) > max_line_bytes:
                 truncated = True
                 while True:
                     tail = handle.readline(64 * 1024)
+                    if on_bytes and tail:
+                        on_bytes(tail)
                     if not tail or tail.endswith(b"\n"):
                         break
             text = content[:max_line_bytes].decode("utf-8", errors="replace")

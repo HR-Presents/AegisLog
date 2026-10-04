@@ -70,6 +70,7 @@ class DashboardData:
     format_counts: dict[str, int] | None = None
     coverage_status: str = "Legacy line analysis"
     invalid_records: int = 0
+    source_sha256: str = ""
 
     @property
     def records(self):
@@ -136,7 +137,7 @@ def analyze_dashboard(
         timestamp_year_hint=timestamp_year_hint, sampled_lines=total - len(retained), truncated_lines=coverage.truncated,
         dropped_findings=state.dropped_findings, dropped_auth_events=state.dropped_auth_events,
         record_count=coverage.records, recognized_records=coverage.recognized, format_counts=dict(coverage.formats),
-        coverage_status=coverage.status, invalid_records=coverage.invalid,
+        coverage_status=coverage.status, invalid_records=coverage.invalid, source_sha256=coverage.source_sha256,
     )
 
 
