@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.9 — 2026-10-04
+
+- Publish the approved company-facing summary and full evidence reports in fresh Windows and Python packages.
+- Lead summaries with specific issue labels, concise observations and recommended review; separate supporting activity and collection scope.
+- Simplify full-report navigation, remove repeated rule labels and synthetic notices, and consolidate retention statistics and source identity into a technical appendix.
+- Preserve retained evidence, stable references, source hashes, timestamp and diagnostic cautions, and read-only detection behavior.
+- Validate desktop/mobile reports, PDF printing, Windows native collection and package installation.
+
 ## 2.1.7 — 2026-10-03
 
 - Fit terminal home actions into common laptop-sized viewports while retaining the original branding.

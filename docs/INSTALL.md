@@ -37,7 +37,7 @@ Close and reopen the terminal to reload PATH. Administrator access is not requir
 
 ### Latest reviewed report design on main
 
-The v2.1.8 published release includes the editorial report redesign. Use the release wheel below or download the matching Windows EXE/ZIP. Generate a new report after updating; saved HTML/PDF files remain unchanged.
+The approved company-facing summary and polished full report are on main and being packaged for v2.1.9. The currently published v2.1.8 wheel and EXE/ZIP retain the earlier design. Generate a new report after updating; saved HTML/PDF files remain unchanged.
 
 ### Upgrade and verify
 
