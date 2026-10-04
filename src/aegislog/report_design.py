@@ -117,6 +117,7 @@ REPORT_DESIGN_STYLE = """
 .report #incidents,.report #anomalies{break-inside:avoid}
 .report #incidents p,.report #anomalies p{break-inside:avoid}
 .report #method{break-inside:auto}
+.report #method th,.report #method td{padding:6px 8px}
 .report .telemetry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .report .telemetry-card{margin-top:0}
 .report.summary .record-head{min-height:0;padding-top:8px;padding-bottom:8px}
