@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE_TARGET = "e7af0798c731720690f298c093deec74f42fa56a"
+RELEASE_TARGET = "1eb0a4a4124599544b3608eb84582979770e4a04"
 EXE_SHA256 = "c16c944415bcd929c1b53588f60c3f920a3ca4abcc8923c745ca1594329c66a2"
 
 
@@ -10,16 +10,16 @@ def _text(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_v217_is_current_published_stable() -> None:
+def test_v218_is_current_published_stable() -> None:
     project_status = _text("docs/PROJECT_STATUS.md")
     roadmap = _text("docs/ROADMAP.md")
     docs_index = _text("docs/README.md")
 
-    assert "current published stable release is **v2.1.7**" in project_status
-    assert "**Published stable:** v2.1.7" in project_status
-    assert "currently released as **v2.1.7**" in roadmap
-    assert "v2.1.7 — current stable release" in roadmap
-    assert "[v2.1.7 release notes](RELEASE_V2.1.7.md)" in docs_index
+    assert "current published stable release is **v2.1.8**" in project_status
+    assert "**Published stable:** v2.1.8" in project_status
+    assert "currently released as **v2.1.8**" in roadmap
+    assert "v2.1.8 — current stable release" in roadmap
+    assert "[v2.1.8 release notes](RELEASE_V2.1.8.md)" in docs_index
 
 
 def test_v216_release_target_and_checksum_are_recorded() -> None:
