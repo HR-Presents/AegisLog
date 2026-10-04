@@ -85,12 +85,14 @@ def check_computer(source, channel, minutes, limit, output):
     if minutes not in {60, 1440, 10080} or not 1 <= limit <= 2000:
         raise ValueError('Choose 1 hour, 24 hours or 7 days and 1–2000 events.')
     lines = collect(source, channel=channel or 'System', limit=limit, since_minutes=minutes)
+    limit_note = ('Count limit reached; earlier events may be excluded.' if len(lines) >= limit
+                  else 'Collector returned fewer events than the limit; this does not establish complete host coverage.')
     descriptor, name = tempfile.mkstemp(prefix='aegislog-check-', suffix='.log')
     try:
         with os.fdopen(descriptor, 'w', encoding='utf-8') as stream:
             stream.writelines(lines)
         data = replace(analyze_dashboard(Path(name)), source=f'{source}-{channel or "journal"}-{minutes}min.log')
-        return finish_investigation(data, output, scope=f'Latest {limit} accessible events within {minutes} minutes. A count limit can exclude earlier events in this window.')
+        return finish_investigation(data, output, scope=f'Latest {limit} accessible events within {minutes} minutes. Returned {len(lines)} events. {limit_note} A count limit can exclude earlier events in this window.')
     finally:
         Path(name).unlink(missing_ok=True)
 
@@ -117,6 +119,8 @@ def finish_investigation(data, output, scope='Selected file; activity charts use
     export = output / 'evidence.json'
     export.write_text(redact_sensitive(json.dumps(payload, ensure_ascii=False, default=str)), encoding='utf-8')
     payload['export'] = str(export.resolve())
+    from .activity_review import save_activity
+    payload['activity_baseline'] = str(save_activity(data, output, scope).resolve())
     return payload
 
 
@@ -131,11 +135,12 @@ def guided_check(console):
         return
     row = ready[Prompt.ask('Source number', choices=list(ready), console=console)]
     minutes = int(Prompt.ask('Time window in minutes', choices=['60', '1440', '10080'], default='1440', console=console)) if row['source'] != 'file' else None
+    limit = int(Prompt.ask('Maximum events', choices=['100', '300', '1000', '2000'], default='300', console=console)) if row['source'] != 'file' else None
     try:
         root = default_report_dir() / 'computer-checks'
         root.mkdir(parents=True, exist_ok=True)
         output = Path(tempfile.mkdtemp(prefix='check-', dir=root))
-        result = investigate_path(row['path'], output) if row['source'] == 'file' else check_computer(row['source'], row['channel'], minutes, 300, output)
+        result = investigate_path(row['path'], output) if row['source'] == 'file' else check_computer(row['source'], row['channel'], minutes, limit, output)
     except (CollectorError, OSError, ValueError) as error:
         console.print(str(error), markup=False)
         return

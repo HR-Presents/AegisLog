@@ -25,7 +25,8 @@ def guide_view():
                       '07 Demo / P Replay: explore synthetic or recorded activity.\n'
                       '08 Health: check runtime and collector availability. 09 Help: command reference.\n'
                       'S Workbench: filter evidence, inspect D Details and T Timeline, export JSON, and open reports.\n'
-                      'C Check Computer: native logs use a time window; known log files use their full contents.\n'
+                      'C Check Computer: choose a time window and event count; known files use their full contents.\n'
+                      'Completed computer checks: V compares a prior local activity baseline; S creates an aggregate sharing copy.\n'
                       'F Scan Folder: select likely logs; skip identical content; open a searchable batch overview.\n'
                       'G Beginner: optional guided synthetic demo and first-report walkthrough.\n'
                       'R Reports: browse all saved summaries and batches with N/P pages. O opens reports; F opens their folder.\n'
@@ -82,7 +83,9 @@ def report_actions(console, path):
     import webbrowser
     from .commands_security import open_report
     while True:
-        choice = Prompt.ask('O Open report / F Open folder / Enter Back', default='b', console=console).strip().lower()
+        activity = (path.parent / 'activity-baseline.json').is_file()
+        menu = 'O Report / F Folder / V Compare baseline / S Share summary / Enter Back' if activity else 'O Open report / F Open folder / Enter Back'
+        choice = Prompt.ask(menu, default='b', console=console).strip().lower()
         if choice in {'', 'b', 'back'}:
             return
         try:
@@ -93,7 +96,25 @@ def report_actions(console, path):
                     os.startfile(str(path.resolve().parent))  # nosec B606 -- open generated report directory, no shell command
                 else:
                     webbrowser.open(path.resolve().parent.as_uri())
+            elif choice in {'v', 's'}:
+                from .activity_review import compare_activity, share_activity
+                baseline = path.parent / 'activity-baseline.json'
+                if not baseline.is_file():
+                    console.print('Generate this report through C Check Computer to use activity comparisons and sharing.')
+                    continue
+                if choice == 's':
+                    destination = path.parent / 'share-summary.json'
+                    share_activity(baseline, destination)
+                    console.print(f'Sharing summary: {destination}. Raw evidence and identifiers omitted.', markup=False)
+                else:
+                    from pathlib import Path
+                    previous = Path(Prompt.ask('Previous activity-baseline.json path', console=console).strip().strip('"')).expanduser()
+                    changes = compare_activity(previous, baseline)
+                    console.print('Local sample comparison; normalized shares are not event rates or proof of an attack.')
+                    for item in changes[:20]:
+                        console.print(f'{item["provider"]}: {item["previous"]} → {item["current"]} records; {item["previous_percent"]}% → {item["current_percent"]}% of sample', markup=False)
+                    console.print(f'{len(changes)} provider changes; showing up to 20. No change does not establish safety.')
             else:
-                console.print(Text('Choose O, F or B.', style=MUTED))
-        except OSError as exc:
-            console.print(Text(f'Could not open this report location: {exc}', style=MUTED))
+                console.print(Text('Choose O, F, V, S or B.', style=MUTED))
+        except (OSError, ValueError) as exc:
+            console.print(Text(f'Could not complete report action: {exc}', style=MUTED))

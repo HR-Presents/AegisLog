@@ -369,7 +369,8 @@ def _incident_records(data: DashboardData) -> str:
     if not rows:
         return '<div class="empty">No correlated incidents were recorded.</div>'
     return ('<p class="caveat">Grouping basis: detector category/title and extracted service or source context '
-            'where available; category-level fallback when context is unresolved. Grouping has no time-window constraint '
+            'where available. Windows groups also use Event ID, observed host/account, and a maximum five-minute span. '
+            'Legacy generic grouping has no time-window constraint '
             'and does not establish a common cause. Single-signal entries are leads, not corroborated sequences. '
             'Evidence references below point to the retained excerpts in Findings; counts may exceed retained excerpts.</p>'
             '<div class="table-wrap"><table class="incident-table"><thead><tr><th>Incident</th><th>Severity</th><th>Signal / interpretation</th>'
@@ -504,11 +505,11 @@ def _summary_service_chart(values: dict[str, int]) -> str:
         return '<p class="empty">No retained observations.</p>'
     maximum = max(value for _, value in items) or 1
     rows = []
-    for index, (name, value) in enumerate(items):
-        y = index * 28 + 18
-        short = str(name) if len(str(name)) <= 18 else str(name)[:15] + '...'
-        rows.append(f'<text x="0" y="{y}" font-size="14">{escape(short)}</text><rect x="143" y="{y-11}" width="{104*value/maximum:.1f}" height="13" rx="2" fill="#287bff"/><text x="257" y="{y}" font-size="14">{value:,}</text>')
-    return f'<svg class="summary-service-chart" viewBox="0 0 300 {len(items)*28+4}" role="img" aria-label="Service activity"><title>Top {len(items)} services; retained total {sum(values.values()):,}</title>{"".join(rows)}</svg><p class="caveat">Top {len(items)} of {len(values)} services · {sum(values.values()):,} events.</p>'
+    for name, value in items:
+        width = 100 * value / maximum
+        rows.append(f'<div class="distribution-row"><span>{escape(str(name))}</span><strong>{value:,}</strong><div class="distribution-track"><i style="width:{width:.1f}%"></i></div></div>')
+    return f'<div class="summary-service-chart" role="img" aria-label="Service activity">{"".join(rows)}</div><p class="caveat">Top {len(items)} of {len(values)} services · {sum(values.values()):,} events.</p>'
+
 
 
 def build_summary_report(data: DashboardData, appendix_href: str) -> str:
@@ -549,7 +550,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
     )
     incident_content = ('<div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
                         + incident_rows + '</tbody></table></div>') if incident_rows else '<p>No correlated incidents were recorded.</p>'
-    anomaly_content = "".join(f'<li><strong>{item.score:.1f}/100</strong> · {escape(item.key)}</li>'
+    anomaly_content = "".join(f'<li><strong>{item.score:.1f}/100 sample rarity</strong> · {escape(item.key)} · {escape(item.reason)}. Not attack probability.</li>'
                               for item in sorted(data.anomalies, key=lambda item: -item.score)[:3])
     formats = ', '.join(sorted(data.format_counts or {})) or 'Unspecified'
     coverage_rows = ''.join(

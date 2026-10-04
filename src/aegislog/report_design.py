@@ -11,6 +11,7 @@ def observed_facts(item, year_hint=None):
     context = _auth_event(evidence, year_hint)
     from .windows_security import parse_windows_security_line
     security = parse_windows_security_line(original)
+    stored = dict(getattr(item, 'context', ()))
     facts = []
     failures = re.match(r'^(\d+) authentication failures\b', item.evidence)
     if failures:
@@ -18,7 +19,7 @@ def observed_facts(item, year_hint=None):
     for label, value in (
         ('Account', (security.account if security else None) or context.account or event.account),
         ('Source address', (security.source_ip if security else None) or context.source_ip or event.source_ip),
-        ('Host', (security.workstation if security else None) or context.host or event.host),
+        ('Host', stored.get('host') or (security.workstation if security else None) or context.host or event.host),
     ):
         if value:
             facts.append((label, value))

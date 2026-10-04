@@ -73,7 +73,7 @@ def windows_event_logs(limit: int = 300, channel: str = "System", since_minutes:
         "if ($xml.Event.UserData) { foreach ($data in $xml.Event.UserData.SelectNodes('.//*[not(*)]')) { "
         "$fields[[string]$data.LocalName] = [string]$data.InnerText } }; "
         "[pscustomobject]@{ TimeCreated=$event.TimeCreated.ToUniversalTime().ToString('o'); "
-        "Id=$event.Id; Level=$event.Level; LevelDisplayName=$event.LevelDisplayName; "
+        "Id=$event.Id; Level=$event.Level; LevelDisplayName=$event.LevelDisplayName; Computer=$event.MachineName; "
         "ProviderName=$event.ProviderName; Message=$event.Message; EventData=$fields } "
         "} | ConvertTo-Json -Depth 5 -Compress"
     )
@@ -112,6 +112,9 @@ def windows_event_logs(limit: int = 300, channel: str = "System", since_minutes:
         event_id = str(item.get("Id") or "")
         message = " ".join(str(item.get("Message") or "").split())
         fields = item.get('EventData')
+        fields = dict(fields) if isinstance(fields, dict) else {}
+        if item.get('Computer'):
+            fields['Computer'] = str(item['Computer'])
         if isinstance(fields, dict) and fields:
             message += ' | AEGIS_EVENT_DATA=' + json.dumps(fields, ensure_ascii=True, separators=(',', ':'))
         lines.append(f"{timestamp} {provider}[{event_id}]: {level} {message}\n")

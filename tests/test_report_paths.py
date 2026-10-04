@@ -42,7 +42,7 @@ def test_both_locations_denied_report_clean_error(tmp_path, monkeypatch):
 def test_guided_check_handles_report_directory_failure(monkeypatch):
     from aegislog.product import guided_check
     monkeypatch.setattr('aegislog.product.discover_sources', lambda: [dict(label='System',status='readable',description='System events',detail='ready',source='windows',channel='System')])
-    replies = iter(['1', '1440'])
+    replies = iter(['1', '1440', '300'])
     monkeypatch.setattr('aegislog.navigation.Prompt.ask', lambda *a, **kw: next(replies))
     monkeypatch.setattr('aegislog.product.default_report_dir', lambda: (_ for _ in ()).throw(OSError('Cannot write reports')))
     stream = StringIO()
@@ -62,3 +62,4 @@ def test_existing_but_unwritable_directory_uses_probe_fallback(tmp_path, monkeyp
         return original(*args, **kwargs)
     monkeypatch.setattr(report_paths.tempfile, 'TemporaryFile', probe)
     assert default_report_dir() == user
+
