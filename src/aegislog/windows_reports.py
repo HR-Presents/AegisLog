@@ -5,6 +5,20 @@ from .safe_json import loads
 
 
 def report_signal(line):
+    signal = _report_signal(line)
+    if signal is None:
+        return None
+    match = WINDOWS_EVENT.match(line)
+    severity, category, title, recommendation = signal
+    level = match.group('level').upper()
+    if level == 'CRITICAL':
+        severity, category = 'HIGH', 'service'
+    elif level == 'ERROR' and severity in {'INFO', 'LOW'}:
+        severity, category = 'MEDIUM', 'service'
+    return severity, category, title, recommendation
+
+
+def _report_signal(line):
     match = WINDOWS_EVENT.match(line)
     if not match or match.group('provider').strip().lower() != 'windows error reporting' or match.group('event_id') != '1001':
         return None

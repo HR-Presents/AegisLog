@@ -24,6 +24,8 @@ def test_known_diagnostic_types_have_specific_calibrated_findings():
     unknown = analyze_lines([record('ordinary diagnostic submission')])[0]
     assert unknown.category == 'diagnostic' and unknown.severity == 'INFO'
     assert analyze_lines([record('Event Name: APPCRASH')])[0].severity == 'MEDIUM'
+    assert analyze_lines([record('ordinary diagnostic submission', level='ERROR')])[0].severity == 'MEDIUM'
+    assert analyze_lines([record('Event Name: crashpad_log P1: MicrosoftEdgeUpdate.exe', level='CRITICAL')])[0].severity == 'HIGH'
 
 
 def test_structured_event_names_support_localized_messages():
