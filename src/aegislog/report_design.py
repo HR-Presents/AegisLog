@@ -5,16 +5,19 @@ from html import escape
 
 def observed_facts(item, year_hint=None):
     from .engine import _auth_event
-    event = _auth_event(item.evidence, year_hint)
+    evidence = item.evidence
+    original = evidence.split('; latest=', 1)[-1]
+    event = _auth_event(original, year_hint)
+    context = _auth_event(evidence, year_hint)
     facts = []
     failures = re.match(r'^(\d+) authentication failures\b', item.evidence)
     if failures:
         facts.append(('Failures', failures.group(1)))
-    for label, value in (('Account', event.account), ('Source address', event.source_ip), ('Host', event.host)):
+    for label, value in (('Account', context.account or event.account), ('Source address', context.source_ip or event.source_ip), ('Host', context.host or event.host)):
         if value:
             facts.append((label, value))
     from .parsers import WINDOWS_EVENT
-    windows = WINDOWS_EVENT.match(item.evidence.strip())
+    windows = WINDOWS_EVENT.match(original.strip())
     service = re.search(r'\b([\w.-]+)\[(\d+)\]:', item.evidence)
     if windows:
         facts.extend([('Provider', windows.group('provider').strip()), ('Event ID', windows.group('event_id'))])

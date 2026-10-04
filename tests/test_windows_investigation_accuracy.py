@@ -51,6 +51,16 @@ def test_structured_missing_target_does_not_guess_actor():
     assert parse_windows_security_line(line).account is None
 
 
+def test_correlated_windows_authentication_facts_keep_event_id_and_timestamp():
+    line = ('2026-10-04T08:00:00Z Microsoft-Windows-Security-Auditing[4625]: INFO '
+            'localised | AEGIS_EVENT_DATA={"TargetUserName":"alice","IpAddress":"203.0.113.7"}')
+    item = analyze_lines([line] * 6)[0]
+    html = observed_facts(item)
+    assert '<dt>Event ID</dt><dd>4625</dd>' in html
+    assert '<dt>Process</dt>' not in html
+    assert '2026-10-04T08:00:00+00:00' in html and '<dd>alice</dd>' in html
+
+
 def test_native_collector_uses_numeric_levels_and_named_xml_fields(monkeypatch):
     from aegislog import native_collectors as nc
     monkeypatch.setattr(nc.os, 'name', 'nt')
