@@ -1,0 +1,29 @@
+{
+  "schema": "aegislog-demo-expectations-1",
+  "synthetic": true,
+  "validated_version": "2.1.11",
+  "cases": {
+    "first-investigation.log": {
+      "records": 9,
+      "recognized": 9,
+      "findings": 2,
+      "incidents": 1,
+      "severities": {
+        "HIGH": 1,
+        "MEDIUM": 1
+      },
+      "titles": [
+        "Operational error detected",
+        "Possible brute-force activity from 203.0.113.7"
+      ]
+    },
+    "clean-baseline.log": {
+      "records": 3,
+      "recognized": 3,
+      "findings": 0,
+      "incidents": 0,
+      "severities": {},
+      "titles": []
+    }
+  }
+}
