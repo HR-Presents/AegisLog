@@ -3,8 +3,8 @@ from html import escape
 
 
 def document_cover(source, case_id, formats, generated, logo_uri, *, summary=False, demo=False):
-    title = 'Investigation Summary' if summary else 'Log Investigation Report'
-    subtitle = ('Findings, incidents, activity and collection coverage for ' + source + '.')
+    title = 'Investigation Summary' if summary else 'Security Investigation Report'
+    subtitle = (('' if summary else 'Full evidence · Investigation record. ') + 'Findings, incidents, activity and collection coverage for ' + source + '.')
     cards = ''.join(f'<div><dt>{label}</dt><dd>{escape(str(value))}</dd></div>' for label, value in (
         ('Source', source), ('Report ID', case_id), ('Record formats', formats), ('Generated', generated)))
     return (
@@ -15,7 +15,7 @@ def document_cover(source, case_id, formats, generated, logo_uri, *, summary=Fal
         '<stop offset="1" stop-color="#176fff"/></linearGradient></defs>'
         '<rect width="100" height="100" fill="url(#cover-gradient)"/></svg>'
         '<div class="cover-brand">'
-        f'<img class="cover-logo" src="{escape(logo_uri)}" alt="AegisLog terminal mark logo">'
+        f'<img class="cover-logo aegislog-report-logo" src="{escape(logo_uri)}" alt="AegisLog terminal mark logo" aria-label="AegisLog terminal mark logo">'
         '<div><strong>AegisLog</strong><span>PRESENTED BY HR-PRESENTS</span></div></div>'
         '<div class="cover-heading"><p class="cover-kicker">DEFENSIVE LOG INVESTIGATION</p>'
         f'<h1>{title}</h1><p class="cover-subtitle">{escape(subtitle)}</p></div>'
