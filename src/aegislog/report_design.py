@@ -126,6 +126,8 @@ REPORT_DESIGN_STYLE = """
 .report.summary #executive{padding:6px 0 12px;margin-bottom:4px}
 .report.summary .summary-notes{padding:8px 0;margin:4px 0}
 .report.summary .context-notice{padding:6px 0;margin:6px 0}
+.report.summary #incidents,.report.summary #activity{padding-top:8px}
+.report.summary .summary-notes .context-notice{padding:3px 0;margin:3px 0}
 .report .observed-facts{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:3px 8px}
 .report.summary .priority-lead{display:none}
 .report.summary #scope{padding:6px 0;margin:0}
@@ -172,7 +174,7 @@ REPORT_DESIGN_STYLE = """
 .report.summary #incidents td:first-child,.report.summary #incidents th:last-child{white-space:nowrap}
 .report.summary #incidents th,.report.summary #incidents td{font-size:12px;line-height:1.35;padding:4px 6px}
 .report.summary #scope .scope>a{display:none}
-.report .distribution-row{font-size:12px;margin:6px 0}
+.report .distribution-row{font-size:12px;margin:4px 0}
 .report .footer{display:none}
 }
 """
