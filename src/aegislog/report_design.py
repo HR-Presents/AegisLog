@@ -95,6 +95,7 @@ REPORT_DESIGN_STYLE = """
 .report .distribution-track{grid-column:1/-1;background:#e8eef8;height:7px;border-radius:3px;overflow:hidden}
 .report .distribution-track i{display:block;height:0;border-top:7px solid #397dcc;box-sizing:border-box}
 .report .summary-print-evidence{display:none}
+.report .summary-evidence-pointer{display:none}
 .report .incident-context{display:block;font-size:12px;line-height:1.45;margin-top:4px;overflow-wrap:anywhere}
 @media(max-width:700px){.report .hero,.report .finding-columns{grid-template-columns:1fr}.report.summary #executive .hero h2{font-size:27px}}
 @media print{
@@ -158,6 +159,7 @@ REPORT_DESIGN_STYLE = """
 .report.summary .compact-findings .finding-columns>div:first-child{min-height:70px}
 .report.summary .compact-findings .finding-index{float:none;position:absolute;padding:8px 0 0 14px}
 .report.summary .compact-findings details.report-evidence{display:none}
+.report.summary .summary-evidence-pointer{display:block;font-size:11px;padding:0 12px 8px;margin:0}
 .report .summary-print-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;break-inside:avoid;border-top:1px solid #dfe6ef;margin-top:10px;padding-top:8px}
 .report .summary-print-evidence h2{grid-column:1/-1;font-size:16px;margin:0 0 2px}
 .report .summary-print-excerpt{break-inside:avoid;margin:2px 0}

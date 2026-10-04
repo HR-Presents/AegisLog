@@ -523,6 +523,10 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
         len(members[0][1].evidence) <= 600 and len(key[3]) <= 250 and len(key[2]) <= 100
         for key, members in groups
     )
+    diagnostic_compact = compact and all(
+        dict(members[0][1].context).get('provider', '').casefold() == 'windows error reporting'
+        for _, members in groups
+    )
     rows = []
     seen_actions = {}
     for group_number, ((severity, category, title, recommendation), members) in enumerate(groups[:6], 1):
@@ -543,7 +547,9 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
             f'<div class="finding-columns"><div><span class="cell-label">Observed evidence</span>{observed_facts(example, data.timestamp_year_hint)}</div>'
             f'<div><span class="cell-label">Next step</span><p class="action-text">{action}</p><p class="why"><strong>Why it matters:</strong> {escape(why_it_matters(category))}</p></div></div>'
             f'<details class="report-evidence" open><summary>Inspect {escape(excerpt_label.lower())}</summary><code class="evidence">{escape(excerpt)}</code>' 
-            f'<a class="evidence-link" href="{escape(appendix_href)}#finding-{index:03d}">View complete evidence → F-{index:03d}</a></details></div></article>'
+            f'<a class="evidence-link" href="{escape(appendix_href)}#finding-{index:03d}">View complete evidence → F-{index:03d}</a></details>'
+            + (f'<p class="summary-evidence-pointer"><a href="{escape(appendix_href)}#finding-{index:03d}">Complete retained evidence: F-{index:03d} in the investigation record.</a></p>' if diagnostic_compact else '')
+            + '</div></article>'
         )
     group_note = (f'Showing {min(6, len(groups))} highest-priority groups · '
                   f'{len(data.findings)} retained findings. Complete evidence is linked below.')
@@ -576,7 +582,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
     print_evidence = ''.join(
         f'<div class="summary-print-excerpt"><strong><a href="{escape(appendix_href)}#finding-{members[0][0]:03d}">F-{members[0][0]:03d}</a></strong><code class="evidence">{escape(members[0][1].evidence[:100])}{" … [excerpt; see complete report]" if len(members[0][1].evidence) > 100 else ""}</code></div>'
         for key, members in groups
-    ) if compact else ''
+    ) if compact and not diagnostic_compact else ''
     print_evidence = f'<section class="summary-print-evidence"><h2>Representative evidence</h2>{print_evidence}</section>' if print_evidence else ''
     risk = _risk(data)
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
