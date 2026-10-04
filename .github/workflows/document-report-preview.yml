@@ -32,9 +32,9 @@ jobs:
           path = 'report-layout-qa/document-preview/AegisLog-Document-Report-Preview.pdf'
           info = subprocess.check_output(['pdfinfo', path], text=True)
           pages = int(re.search(r'Pages:\s+(\d+)', info).group(1))
-          assert pages == 4, f'Unexpected sample length: {pages}'
+          assert pages == 3, f'Unexpected sample length: {pages}'
           text = subprocess.check_output(['pdftotext', path, '-'], text=True)
-          for required in ['SYNTHETIC DEMO DATA', '117', 'F-001', 'F-002', 'F-003', 'F-004', 'Technical appendix', 'MADE BY HR-PRESENTS']:
+          for required in ['SYNTHETIC DEMO DATA', '6 failed logins need account review', '117', 'F-001', 'F-002', 'F-003', 'F-004', 'Technical appendix', 'MADE BY HR-PRESENTS']:
               assert required in text, f'Missing printed content: {required}'
           for page in range(1, pages+1):
               content = subprocess.check_output(['pdftotext','-f',str(page),'-l',str(page),path,'-'],text=True)

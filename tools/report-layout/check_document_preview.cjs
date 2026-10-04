@@ -15,12 +15,14 @@ const root = 'report-layout-qa/document-preview';
     const colors = await page.locator(selector).evaluateAll(items => items.map(item => getComputedStyle(item).color));
     if (colors.some(color => color !== 'rgb(0, 0, 0)')) throw Error('Text must be black');
   }
+  await page.locator('.supporting').evaluate(item => item.open = true);
   const bounds = await page.locator('.chart').evaluateAll(items => items.map(item => item.getBoundingClientRect().y));
   if (bounds.some(y => Math.abs(y-bounds[0]) > 1)) throw Error('Chart panels must align');
   await page.locator('#overview').screenshot({path:path.join(root,'desktop-overview.png')});
   await page.locator('#activity').screenshot({path:path.join(root,'desktop-activity.png')});
   await page.setViewportSize({width:390,height:844});
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth+1)) throw Error('Mobile overflow');
+  await page.evaluate(() => scrollTo(0,0));
   await page.screenshot({path:path.join(root,'mobile-overview.png')});
   await page.setViewportSize({width:1440,height:1100});
   await page.emulateMedia({media:'print'});
