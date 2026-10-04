@@ -69,6 +69,7 @@ REFERENCE_STYLE = """
 .report .review-priority{border:1px solid #d3def0;background:#f7f9fc}
 .report .summary-finding,.report .finding-group{border-radius:12px;background:#f7f9fc}
 .report .finding-columns{padding:18px 20px}
+.report.summary #scope{padding:28px}
 .report .observed-facts{font-size:16px}
 .report .finding-columns p{font-size:16px!important}
 .report .summary-notes h2{font-size:24px;margin-bottom:14px}
@@ -82,6 +83,7 @@ REFERENCE_STYLE = """
 .cover-footer{left:24px;right:24px;bottom:30px}
 .document-contents,.report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{padding:20px}
 .report .hero,.report .finding-columns{grid-template-columns:1fr}
+.report.summary #scope{padding:20px}
 .report .metric strong{font-size:25px}
 }
 @media print{
@@ -98,6 +100,9 @@ REFERENCE_STYLE = """
 .report.summary #executive .section-head h2{font-size:22px}
 .report .metrics,.report.summary .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
 .report .metric,.report.summary .metric{min-height:90px;padding:16px}.report .metric strong,.report.summary .metric strong{font-size:27px}
+.report.summary #scope{padding:18px 22px}
+.report:not(.summary) #findings{page-break-before:auto;break-before:auto}
+.report .observed-facts{grid-template-columns:auto minmax(0,1fr);gap:3px 8px}
 .report .assessment{padding:12px 14px}.report .finding-columns p{font-size:13px!important}.report .observed-facts{font-size:12px}
 .report.summary .compact-findings{display:block}
 .report.summary .compact-findings .record-head{display:flex;padding:12px 14px 12px 64px;min-height:0}
