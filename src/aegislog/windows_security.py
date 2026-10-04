@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from .safe_json import loads as safe_json_loads
 from dataclasses import dataclass
 
 
@@ -41,6 +42,7 @@ class WindowsSecurityEvent:
     workstation: str | None = None
     process: str | None = None
     subject_sid: str | None = None
+    actor_account: str | None = None
 
 
 @dataclass(frozen=True)
@@ -103,15 +105,35 @@ def parse_windows_security_line(line: str) -> WindowsSecurityEvent | None:
     if not match:
         return None
     message = match.group("message").strip()
+    event_id = int(match.group('event_id'))
+    plain, marker, encoded = message.rpartition(' | AEGIS_EVENT_DATA=')
+    fields = None
+    if marker:
+        try:
+            candidate = safe_json_loads(encoded)
+        except (ValueError, TypeError, RecursionError):
+            pass
+        else:
+            if isinstance(candidate, dict):
+                fields = candidate
+                message = plain
+    def value(name):
+        raw = fields.get(name) if fields is not None else None
+        return str(raw)[:512] if isinstance(raw, (str, int)) and str(raw) not in {'', '-'} else None
+    targeted = event_id in {4625, 4720, 4740}
+    account = value('TargetUserName' if targeted else 'SubjectUserName')
+    if event_id in {4728, 4732}:
+        account = value('MemberName') or value('MemberSid')
     return WindowsSecurityEvent(
-        event_id=int(match.group("event_id")),
+        event_id=event_id,
         timestamp=match.group("timestamp"),
         message=message,
-        account=_field(message, "account"),
-        source_ip=_field(message, "source_ip"),
-        workstation=_field(message, "workstation"),
-        process=_field(message, "process"),
-        subject_sid=(_field(message, "subject_sid") or "").upper() or None,
+        account=account if fields is not None else _field(message, "account"),
+        source_ip=value('IpAddress') if fields is not None else _field(message, "source_ip"),
+        workstation=value('WorkstationName') if fields is not None else _field(message, "workstation"),
+        process=value('NewProcessName') if fields is not None else _field(message, "process"),
+        subject_sid=(value('SubjectUserSid') if fields is not None else _field(message, "subject_sid")) or None,
+        actor_account=value('SubjectUserName'),
     )
 
 
@@ -129,6 +151,8 @@ def signal_for_event(event: WindowsSecurityEvent) -> SecuritySignal | None:
         parts.append(f"subject_sid={event.subject_sid}")
     if event.account:
         parts.append(f"account={event.account}")
+    if event.actor_account:
+        parts.append(f"actor_account={event.actor_account}")
     if event.source_ip:
         parts.append(f"source_ip={event.source_ip}")
     if event.workstation:
@@ -136,4 +160,5 @@ def signal_for_event(event: WindowsSecurityEvent) -> SecuritySignal | None:
     if event.process:
         parts.append(f"process={event.process}")
     parts.append(event.message[:300])
-    return SecuritySignal(severity, category, title, " | ".join(parts), recommendation)
+    evidence = f'{event.timestamp} Microsoft-Windows-Security-Auditing[{event.event_id}]: INFO ' + ' | '.join(parts)
+    return SecuritySignal(severity, category, title, evidence, recommendation)

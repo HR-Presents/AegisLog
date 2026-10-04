@@ -5,19 +5,32 @@ from html import escape
 
 def observed_facts(item, year_hint=None):
     from .engine import _auth_event
-    event = _auth_event(item.evidence, year_hint)
+    evidence = item.evidence
+    original = evidence.split('; latest=', 1)[-1]
+    event = _auth_event(original, year_hint)
+    context = _auth_event(evidence, year_hint)
+    from .windows_security import parse_windows_security_line
+    security = parse_windows_security_line(original)
     facts = []
     failures = re.match(r'^(\d+) authentication failures\b', item.evidence)
     if failures:
         facts.append(('Failures', failures.group(1)))
-    for label, value in (('Account', event.account), ('Source address', event.source_ip), ('Host', event.host)):
+    for label, value in (
+        ('Account', (security.account if security else None) or context.account or event.account),
+        ('Source address', (security.source_ip if security else None) or context.source_ip or event.source_ip),
+        ('Host', (security.workstation if security else None) or context.host or event.host),
+    ):
         if value:
             facts.append((label, value))
+    from .parsers import WINDOWS_EVENT
+    windows = WINDOWS_EVENT.match(original.strip())
     service = re.search(r'\b([\w.-]+)\[(\d+)\]:', item.evidence)
-    if service:
+    if windows:
+        facts.extend([('Provider', windows.group('provider').strip()), ('Event ID', windows.group('event_id'))])
+    elif service:
         facts.extend([('Service', service.group(1)), ('Process', service.group(2))])
     windows_id = re.search(r'\bEvent ID\s+(\d+)\b', item.evidence)
-    if windows_id:
+    if windows_id and not windows:
         facts.append(('Event ID', windows_id.group(1)))
     facts.append(('Timestamp', event.timestamp.isoformat() if event.timestamp else 'Unresolved'))
     return '<dl class="observed-facts">' + ''.join(

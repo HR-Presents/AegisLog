@@ -30,6 +30,10 @@ _SOURCE_RE = re.compile(
 
 
 def _service_from_evidence(evidence: str) -> str:
+    from .parsers import WINDOWS_EVENT
+    windows = WINDOWS_EVENT.match(evidence.strip())
+    if windows:
+        return windows.group('provider').strip().lower()
     match = _SERVICE_RE.search(evidence)
     return match.group("service").lower() if match else ""
 
