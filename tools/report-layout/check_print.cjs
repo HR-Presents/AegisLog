@@ -30,6 +30,7 @@ const path = require('path');
   await disclosure.locator('summary').click();
   if (!await disclosure.locator('.evidence').isVisible()) throw Error('Evidence did not expand');
   await disclosure.locator('summary').click();
+  await page.evaluate(() => scrollTo(0, 0));
   await page.screenshot({path:'report-layout-qa/summary-desktop.png'});
   await page.setViewportSize({width:390,height:844});
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error('Summary overflows mobile screen');
