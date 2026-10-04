@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Add grouped terminal review with retained occurrence times, impact, alternatives and recommended next steps.
+- Add explicit host/logon-ID/time-bounded Windows session context; retain successful logons as informational records.
+- Normalize Docker json-file and ECS application message records without treating unknown schemas as recognized.
+- Index newly generated investigations for source/title/date/severity search and report reopening.
+- Show static/folder processing counts and poll cancellation during oversized line discard.
+- Compare newly observed, recurring and no-longer-observed signal labels in local sample baselines.
+- Preview the complete identifier-free aggregate sharing payload before saving.
+- Add allowlisted runtime support exports and explicit GitHub release discovery without automatic installation.
+- Extend regression tests, synthetic static-investigation benchmarks and Windows command smoke checks.
+
+
 ## 2.1.9 — 2026-10-04
 
 - Publish the approved company-facing summary and full evidence reports in fresh Windows and Python packages.

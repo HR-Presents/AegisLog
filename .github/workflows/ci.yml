@@ -49,6 +49,9 @@ jobs:
       - name: Streaming benchmark
         if: matrix.python-version == '3.12'
         run: python benchmarks/stream_benchmark.py --lines 250000 --chunk-size 2000
+      - name: Static investigation benchmark
+        if: matrix.python-version == '3.12'
+        run: python benchmarks/investigation_benchmark.py --records 10000
       - run: bandit -q -r src
       - name: Dependency audit
         if: matrix.python-version == '3.12'

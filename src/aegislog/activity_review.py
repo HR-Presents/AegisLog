@@ -1,5 +1,6 @@
 """Optional local count comparisons and identifier-free aggregate sharing."""
 import json
+from collections import Counter
 from pathlib import Path
 from .safe_json import loads
 from .sanitize import terminal_safe
@@ -11,6 +12,8 @@ def save_activity(data, output, scope):
     payload = dict(schema=SCHEMA, source=data.source, scope=scope, records=data.records,
                    recognized=data.recognized_records, services=data.services, levels=data.levels,
                    severities=data.severities, incidents=len(data.incidents))
+    payload['signals'] = dict(Counter(
+        f'{item.severity}|{item.category}|{item.title}' for item in getattr(data, 'findings', ())))
     path = Path(output) / 'activity-baseline.json'
     path.write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
     return path
@@ -39,6 +42,26 @@ def read_activity(path):
     return obj
 
 
+def compare_signals(previous, current):
+    """New/recurring/not observed labels describe samples, not incident resolution."""
+    before, after = read_activity(previous), read_activity(current)
+    if before['source'] != after['source']:
+        raise ValueError('Choose baselines for the same source and time-window label.')
+    if not before['records'] or not after['records']:
+        raise ValueError('Both samples need records.')
+    for obj in (before, after):
+        signals = obj.get('signals')
+        if not isinstance(signals, dict) or len(signals) > 5000 or any(
+            not isinstance(key, str) or len(key) > 1024 or terminal_safe(key) != key
+            or type(count) is not int or count < 0 for key, count in signals.items()
+        ):
+            raise ValueError('Signal comparison requires newly generated activity baselines.')
+    return [dict(signal=key, previous=before['signals'].get(key, 0), current=after['signals'].get(key, 0),
+                 status='newly observed' if key not in before['signals'] else 'not observed in current sample'
+                 if key not in after['signals'] else 'recurring')
+            for key in sorted(set(before['signals']) | set(after['signals']))]
+
+
 def compare_activity(previous, current):
     before, after = read_activity(previous), read_activity(current)
     if before['source'] != after['source']:
@@ -55,7 +78,7 @@ def compare_activity(previous, current):
     return sorted(changes, key=lambda row: abs(row['change_percentage_points']), reverse=True)
 
 
-def share_activity(baseline, output):
+def preview_share(baseline):
     """Omit source, provider names, timestamps and all raw evidence; no reversal map."""
     data = read_activity(baseline)
     allowed = {'CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'}
@@ -65,6 +88,11 @@ def share_activity(baseline, output):
                    provider_counts=[dict(label=f'Provider {i}', records=count)
                                     for i, count in enumerate(sorted(data['services'].values(), reverse=True), 1)],
                    note='Aggregate sharing copy. Source, provider names, accounts, addresses, paths, timestamps and raw evidence are omitted. Counts are investigation metrics, not proof of compromise.')
+    return payload
+
+
+def share_activity(baseline, output):
+    payload = preview_share(baseline)
     output = Path(output)
     if output.resolve() == Path(baseline).resolve():
         raise ValueError('Sharing output must differ from the private baseline.')

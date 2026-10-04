@@ -25,6 +25,21 @@ class ProviderError(RuntimeError):
 
 
 MAX_RESPONSE_BYTES = 2_000_000
+
+
+def fetch_public_release():
+    """Explicit update-check only: fixed public URL, no log/configuration payload."""
+    request = urllib.request.Request(
+        'https://api.github.com/repos/HR-Presents/AegisLog-AI/releases/latest',
+        headers={'Accept': 'application/vnd.github+json', 'User-Agent': 'AegisLog-update-check'},
+    )
+    # Do not follow redirects to a different service or downgrade to HTTP.
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+    opener = urllib.request.build_opener(NoRedirect())
+    with opener.open(request, timeout=10) as response:  # nosec B310 -- fixed HTTPS public GitHub endpoint
+        return response.read(1_000_001)
 REMOTE_AI_OPT_IN_ENV = "AEGISLOG_ALLOW_REMOTE_AI"
 OLLAMA_TIMEOUT_ENV = "AEGISLOG_OLLAMA_TIMEOUT_SECONDS"
 DEFAULT_OLLAMA_TIMEOUT_SECONDS = 120

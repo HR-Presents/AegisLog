@@ -30,6 +30,10 @@ def guide_view():
                       'F Scan Folder: select likely logs; skip identical content; open a searchable batch overview.\n'
                       'G Beginner: optional guided synthetic demo and first-report walkthrough.\n'
                       'R Reports: browse all saved summaries and batches with N/P pages. O opens reports; F opens their folder.\n'
+                      'Type review <path> for grouped findings, explanations and bounded Windows session context.\n'
+                      'Type cases --query <text> --severity HIGH --since YYYY-MM-DD to search newly saved investigations.\n'
+                      'Type diagnostics --output support.json for a runtime-only support copy.\n'
+                      'Type update-check to contact GitHub for the latest release; no automatic installation.\n'
                       'Live views: B/Escape stops; Q quits. Home: PgUp/PgDn scroll; Home/End jump.\n'
                       'Unknown formats and zero findings do not establish a clean system. Findings and rarity scores require context; they do not prove an attack.', style=MUTED))
 
@@ -63,11 +67,20 @@ def open_saved_reports(console, root=None):
         for number, path in enumerate(reports[start:start + 20], start + 1):
             kind = 'BATCH' if path.name == 'batch-index.html' else 'SUMMARY'
             console.print(Text(f'{number:02d}  {kind}  |  {path.parent.name}/{path.name}', style=NEUTRAL))
-        choice = Prompt.ask('Report number / N / P', default=str(start + 1), console=console).strip().lower()
+        choice = Prompt.ask('Report number / N / P / search <text>', default=str(start + 1), console=console).strip().lower()
         if choice == 'n':
             page = min(page + 1, (len(reports) - 1) // 20)
         elif choice == 'p':
             page = max(0, page - 1)
+        elif choice.startswith('search '):
+            query = choice[7:].strip()
+            reports = sorted(set(p for directory in roots for p in report_candidates(directory)
+                                 if query in p.name.casefold() or query in p.parent.name.casefold()),
+                             key=lambda p: p.stat().st_mtime_ns, reverse=True)
+            if not reports:
+                console.print('No matching report filenames. Use cases to search indexed finding titles.', markup=False)
+                return
+            page = 0
         elif choice.isdigit() and 1 <= int(choice) <= len(reports):
             selected = reports[int(choice) - 1]
             console.print(Text(f'Opening {selected.name}', style=ACCENT))
@@ -97,13 +110,18 @@ def report_actions(console, path):
                 else:
                     webbrowser.open(path.resolve().parent.as_uri())
             elif choice in {'v', 's'}:
-                from .activity_review import compare_activity, share_activity
+                from .activity_review import compare_activity, compare_signals, preview_share, share_activity
                 baseline = path.parent / 'activity-baseline.json'
                 if not baseline.is_file():
                     console.print('Generate this report through C Check Computer to use activity comparisons and sharing.')
                     continue
                 if choice == 's':
                     destination = path.parent / 'share-summary.json'
+                    import json
+                    console.print('Preview: this is the complete sharing copy. Counts can still be sensitive.', markup=False)
+                    console.print(json.dumps(preview_share(baseline), indent=2), markup=False)
+                    if Prompt.ask('Save this sharing copy?', choices=['yes', 'no'], default='no', console=console) != 'yes':
+                        continue
                     share_activity(baseline, destination)
                     console.print(f'Sharing summary: {destination}. Raw evidence and identifiers omitted.', markup=False)
                 else:
@@ -114,6 +132,13 @@ def report_actions(console, path):
                     for item in changes[:20]:
                         console.print(f'{item["provider"]}: {item["previous"]} → {item["current"]} records; {item["previous_percent"]}% → {item["current_percent"]}% of sample', markup=False)
                     console.print(f'{len(changes)} provider changes; showing up to 20. No change does not establish safety.')
+                    try:
+                        signals = compare_signals(previous, baseline)
+                        for item in signals[:20]:
+                            console.print(f'{item["status"]}: {item["signal"]} / {item["previous"]} → {item["current"]}', markup=False)
+                        console.print(f'{len(signals)} signal classes; showing up to 20. Not observed does not mean resolved.')
+                    except ValueError as error:
+                        console.print(str(error), markup=False)
             else:
                 console.print(Text('Choose O, F, V, S or B.', style=MUTED))
         except (OSError, ValueError) as exc:

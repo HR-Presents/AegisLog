@@ -258,6 +258,8 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 
 ### Current Release
 
+The next investigation improvements are documented in [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md): grouped triage, explicit Windows session context, Docker/ECS message adapters, searchable saved cases, collection progress, signal comparisons, export preview, runtime diagnostics and opt-in release checks. These changes require the improvement branch until merged and packaged; existing v2.1.9 downloads remain unchanged.
+
 **[v2.1.9](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.9)** is the published stable release, built from `63cc07d0fb1d51c41e8fed7ea87ee254b740ab1c`.
 
 Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.9/AegisLog-v2.1.9-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.

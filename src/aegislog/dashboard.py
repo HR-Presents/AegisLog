@@ -92,7 +92,7 @@ class DashboardData:
 def analyze_dashboard(
     path: Path, *, timestamp_year_hint: int | None = None,
     max_retained_lines: int = 10_000, max_retained_bytes: int = 8_000_000,
-    max_line_bytes: int = 1_000_000, cancel=None,
+    max_line_bytes: int = 1_000_000, cancel=None, progress=None,
 ) -> DashboardData:
     """Analyze every bounded line, retaining a capped recent sample for visualization."""
     if max_retained_lines < 1 or max_retained_bytes < 1:
@@ -103,8 +103,12 @@ def analyze_dashboard(
     level_counts: Counter[str] = Counter()
     service_counts: Counter[str] = Counter()
     coverage = Coverage()
+    if progress:
+        progress(0, 0)
     for original, canonical, kind, known in iter_records(path, coverage, max_line_bytes, cancel):
         total += 1
+        if progress and (total == 1 or total % 250 == 0):
+            progress(coverage.lines, total)
         state.process(canonical)
         event = replace(parse_line(canonical), source=kind)
         if known and kind.endswith('json-message') and event.service is None:
@@ -126,6 +130,8 @@ def analyze_dashboard(
         while len(retained) > max_retained_lines or retained_bytes > max_retained_bytes:
             retained_bytes -= retained.popleft()[2]
     events = [entry[1] for entry in retained]
+    if progress:
+        progress(coverage.lines, total)
     findings = state.findings()
     return DashboardData(
         source=str(path), lines=coverage.lines, findings=tuple(findings),
@@ -699,4 +705,3 @@ def render_dashboard(data: DashboardData, *, screen_width: int | None = None) ->
         sections.extend((Text(""), raw))
     sections.extend((Text(""), _next_steps(data)))
     return Group(*sections)
-

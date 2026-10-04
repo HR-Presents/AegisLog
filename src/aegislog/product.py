@@ -70,7 +70,7 @@ def explain_finding(finding):
     )
 
 
-def investigate_path(path, output):
+def investigate_path(path, output, *, cancel=None, progress=None):
     path = Path(path).expanduser()
     if str(path).startswith(('\\\\', '//')):
         raise ValueError('Choose a local file; network shares are not part of this workflow.')
@@ -81,7 +81,7 @@ def investigate_path(path, output):
     with path.open('rb') as stream:
         if b'\x00' in stream.read(4096):
             raise ValueError('Binary or UTF-16 input detected. Export a UTF-8 text log first.')
-    return finish_investigation(analyze_dashboard(path), output)
+    return finish_investigation(analyze_dashboard(path, cancel=cancel, progress=progress), output)
 
 
 def check_computer(source, channel, minutes, limit, output):
@@ -120,12 +120,17 @@ def finish_investigation(data, output, scope='Selected file; activity charts use
                                  generic_retained=sum(event.source == 'generic' for event in data.events),
                                  caveat='Format counts cover retained events. Generic parsing is fallback coverage, not proof that every field was understood. No findings does not establish a clean system.'),
                    summary=str(report.resolve()), evidence_report=str(report.with_name(report.stem + '-appendix.html').resolve()))
+    from .triage import finding_groups, windows_session_context
+    payload['triage_groups'] = finding_groups(data.findings, data.timestamp_year_hint)
+    payload['windows_session_context'] = windows_session_context(data.raw_lines)
     # Export is credential-redacted; filenames/usernames/IPs can still identify people or hosts.
     export = output / 'evidence.json'
     export.write_text(redact_sensitive(json.dumps(payload, ensure_ascii=False, default=str)), encoding='utf-8')
     payload['export'] = str(export.resolve())
     from .activity_review import save_activity
     payload['activity_baseline'] = str(save_activity(data, output, scope).resolve())
+    from .case_catalog import save_case
+    save_case(data, output, report, scope)
     return payload
 
 
@@ -154,17 +159,18 @@ def guided_check(console):
     console.print(result['coverage']['retention'])
     console.print(f'Summary: {result["summary"]}', markup=False)
     console.print(result['coverage']['note'])
-    groups = {}
-    for item in result['findings']:
-        key = (item['severity'], item['title'], item['explanation']['classification'], item['explanation']['next_step'])
-        groups[key] = groups.get(key, 0) + 1
-    rank = {'CRITICAL': 5, 'HIGH': 4, 'MEDIUM': 3, 'LOW': 2, 'INFO': 1}
+    groups = result.get('triage_groups', [])
     actions = set()
-    for (severity, title, classification, action), count in sorted(groups.items(), key=lambda entry: (-rank.get(entry[0][0], 0), -entry[1], entry[0][1]))[:3]:
-        console.print(f'{severity}: {title} / {count} occurrence(s) / {classification}', markup=False)
+    for group in groups[:3]:
+        explanation = group['explanation']
+        console.print(f'{group["severity"]}: {group["title"]} / {group["count"]} occurrence(s) / {explanation["classification"]}', markup=False)
+        console.print(f'First: {group["first"] or "unresolved"} / Last: {group["last"] or "unresolved"}', markup=False)
+        action = explanation['next_step']
         if action not in actions:
-            console.print(f'Next: {action}', markup=False)
+            console.print(f'Why: {explanation["impact"]}\nAlternative: {explanation["alternative"]}\nNext: {action}', markup=False)
             actions.add(action)
     console.print(f'Showing {min(3, len(groups))}/{len(groups)} finding groups; all retained findings remain in the reports.')
+    if result.get('windows_session_context'):
+        console.print(f'{len(result["windows_session_context"])} retained Windows session context links. Use review <log> for details; links do not establish compromise.')
     from .report_browser import report_actions
     report_actions(console, Path(result['summary']))

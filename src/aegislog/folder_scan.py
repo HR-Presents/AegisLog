@@ -201,11 +201,20 @@ def run_folder_scan(console):
                     row.update(status='duplicate', duplicate_of=previous['source'], report=previous['report'], sha256=digest)
                     continue
                 console.print(f'[{number}/{len(selected)}] {row["source"]}', markup=False)
-                data = analyze_dashboard(path, cancel=poll)
+                last_progress = [0.0]
+                def progress(lines, records):
+                    import time
+                    now = time.monotonic()
+                    if now - last_progress[0] >= 1:
+                        console.print(f'  Progress: {lines:,} physical lines / {records:,} records processed', markup=False)
+                        last_progress[0] = now
+                data = analyze_dashboard(path, cancel=poll, progress=progress)
                 after = path.stat()
                 if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
                     raise ValueError('Source changed during the batch; retry a stable copy.')
                 report = write_html_report(data, destination / f'{number:03d}')
+                from .case_catalog import save_case
+                save_case(data, report.parent, report, 'Folder scan; independent source analysis.')
                 from .reporting import _finding_groups
                 row.update(status='complete', lines=data.lines, records=data.records, recognized=data.recognized_records, coverage=data.coverage_status,
                            formats=data.format_counts, findings=len(data.findings), report=str(report.relative_to(destination)), sha256=digest,
