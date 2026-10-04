@@ -65,6 +65,7 @@ const path = require('path');
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error('Full report overflows mobile screen');
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({media:'print'});
+  if (!await page.locator('.evidence-group').first().isVisible()) throw Error('Printed evidence group identifier missing');
   await page.pdf({path:'report-layout-qa/demo-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
   const bars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
   if (!bars.length || bars.some(width => width !== '7px')) throw Error('Foreground bars missing');
