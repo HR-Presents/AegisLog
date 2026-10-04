@@ -1,0 +1,64 @@
+name: Publish verified v2.1.11 draft
+on:
+  pull_request:
+    paths: ['.github/workflows/publish-v2.1.11.yml']
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-v2.1.11.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Verify reviewed draft and asset digests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/HR-Presents/AegisLog-AI/releases/403185742 > release.json
+          python - <<'PY'
+          import json
+          release = json.load(open('release.json'))
+          assert release['draft'] is True
+          assert release['tag_name'] == 'v2.1.11'
+          assert release['target_commitish'] == '999537ddc2f6d27a6a03cd1266e4dc71e18a0329'
+          expected = {"AegisLog-v2.1.11-Windows.zip":"sha256:b4903c7c3abf0adbf9215bdcd0632e15169e29648a9606ca7d7e3fcb516c33f8","AegisLog-v2.1.11-Windows.zip.sha256":"sha256:b357a5ef794f22c42c8ba0ac1e1278724e96b7102a71aaf86a53fd99f419c1b9","AegisLog.exe":"sha256:9d207ba7ff49c84b5c466f101572a9e1e61d9129c4abe5e199318cd11a1d4ea7","AegisLog.exe.sha256":"sha256:852153dd8955d8eaad2a8f8f843f82c31eb69295606459c5c6519dcd951067e2","aegislog_ai-2.1.11-py3-none-any.whl":"sha256:fc043f16117367c7c888d8e42eebe5f05bfaf263e7f69e006c1bce442e138e6b","aegislog_ai-2.1.11.tar.gz":"sha256:36bee4cd5f40b1ce598b9e830acd6abcf474ff7abe1c811fc6ff6df5bcb7ee89","SHA256SUMS":"sha256:19db052ba9eb5ff34486ed1e0db75ef8e9de626f6e92376f4839d2dc807a615f"}
+          actual = {a['name']: a['digest'] for a in release['assets']}
+          assert actual == expected, 'Reviewed release assets changed'
+          assert 'unsigned' in release['body'].lower()
+          print('Reviewed draft target, seven assets and unsigned notice verified')
+          PY
+      - name: Download and verify reviewed release bytes and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir reviewed-assets
+          gh release download v2.1.11 --repo HR-Presents/AegisLog-AI --dir reviewed-assets
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          release = json.load(open('release.json'))
+          root = Path('reviewed-assets')
+          for asset in release['assets']:
+              digest = 'sha256:' + hashlib.sha256((root / asset['name']).read_bytes()).hexdigest()
+              assert digest == asset['digest'], asset['name']
+          print('All seven downloaded release assets match reviewed digests')
+          PY
+          (cd reviewed-assets && sha256sum --check AegisLog.exe.sha256 && sha256sum --check AegisLog-v2.1.11-Windows.zip.sha256 && sha256sum --check SHA256SUMS)
+  publish:
+    needs: verify
+    if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the reviewed draft without replacing assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit v2.1.11 --repo HR-Presents/AegisLog-AI --draft=false --latest
+          gh api repos/HR-Presents/AegisLog-AI/releases/403185742 --jq '{tag: .tag_name, draft: .draft, target: .target_commitish, url: .html_url}'
