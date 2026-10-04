@@ -19,3 +19,14 @@ write_html_report(analyze_dashboard(source),root)
 for name, contents in [('empty', ''), ('missing-time', 'ERROR component unavailable\n'), ('many-findings', ''.join(f'2026-10-04T12:00:00Z service[{i}]: ERROR failure '+ 'long-evidence '*150+'\n' for i in range(80)))]:
  source=root/f'{name}.log';source.write_text(contents)
  write_html_report(analyze_dashboard(source),root)
+
+providers = ['Microsoft-Windows-DistributedCOM', 'Microsoft-Windows-Kernel-General',
+             'Microsoft-Windows-DNS-Client', 'Microsoft-Windows-NetworkProfile',
+             'Microsoft-Windows-WindowsUpdateClient', 'Service Control Manager']
+lines = [f'2026-10-04T08:00:00Z {provider}[1]: INFO Normal fixture activity\n'
+         for provider in providers for _ in range(20)]
+lines += ['2026-10-04T08:01:00Z Service Control Manager[7011]: ERROR timeout | AEGIS_EVENT_DATA={"Computer":"fixture-host"}\n'] * 2
+lines += ['2026-10-04T08:02:00Z Microsoft-Windows-DistributedCOM[10010]: ERROR timeout | AEGIS_EVENT_DATA={"Computer":"fixture-host"}\n']
+source = root/'windows-context.log'
+source.write_text(''.join(lines))
+write_html_report(analyze_dashboard(source), root)
