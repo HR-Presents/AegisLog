@@ -159,8 +159,8 @@ REPORT_DESIGN_STYLE = """
 .report.summary .compact-findings .finding-index{float:none;position:absolute;padding:8px 0 0 14px}
 .report.summary .compact-findings details.report-evidence{display:none}
 .report .summary-print-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;break-inside:avoid;border-top:1px solid #dfe6ef;margin-top:10px;padding-top:8px}
-.report .summary-print-evidence h2{grid-column:1/-1;font-size:18px;margin:0 0 6px}
-.report .summary-print-excerpt{break-inside:avoid;margin:8px 0}
+.report .summary-print-evidence h2{grid-column:1/-1;font-size:16px;margin:0 0 2px}
+.report .summary-print-excerpt{break-inside:avoid;margin:2px 0}
 .report .summary-print-excerpt strong{font-size:12px}
 .report .summary-print-excerpt .evidence{font-size:12px;line-height:1.35;margin:4px 0;padding:0!important;background:none;border:0}
 .report.summary #incidents table{table-layout:fixed}
