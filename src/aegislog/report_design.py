@@ -78,7 +78,7 @@ REPORT_DESIGN_STYLE = """
 .report .distribution-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;margin:10px 0;font-size:14px}
 .report .distribution-row span{overflow-wrap:anywhere}
 .report .distribution-track{grid-column:1/-1;background:#e8eef8;height:7px;border-radius:3px;overflow:hidden}
-.report .distribution-track i{display:block;height:100%;background:#397dcc}
+.report .distribution-track i{display:block;height:0;border-top:7px solid #397dcc;box-sizing:border-box}
 @media(max-width:700px){.report .hero,.report .finding-columns{grid-template-columns:1fr}.report.summary #executive .hero h2{font-size:27px}}
 @media print{
 @page{size:A4;margin:14mm 13mm 16mm;@bottom-left{content:"AEGISLOG / HR-PRESENTS";font:9px Arial;color:#000}@bottom-right{content:counter(page) " / " counter(pages);font:9px Arial;color:#000}}
@@ -114,6 +114,8 @@ REPORT_DESIGN_STYLE = """
 
 .report .finding-columns{padding:10px 14px}
 .report .report-evidence .evidence{padding:6px 0!important}
+.report #incidents,.report #anomalies{break-inside:avoid}
+.report #incidents p,.report #anomalies p{break-inside:avoid}
 .report #method{break-inside:auto}
 .report .telemetry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .report .telemetry-card{margin-top:0}

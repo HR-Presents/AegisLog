@@ -55,6 +55,9 @@ const path = require('path');
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({media:'print'});
   await page.pdf({path:'report-layout-qa/demo-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
+  const bars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
+  if (!bars.length || bars.some(width => width !== '7px')) throw Error('Foreground bars missing');
+  await page.pdf({path:'report-layout-qa/demo-complete-no-background.pdf',format:'A4',printBackground:false,displayHeaderFooter:false});
   for (const name of ['empty', 'missing-time', 'many-findings']) {
     await page.emulateMedia({media:'screen'});
     await page.goto(pathToFileURL(path.resolve(`report-layout-qa/${name}-aegislog-report.html`)).href);

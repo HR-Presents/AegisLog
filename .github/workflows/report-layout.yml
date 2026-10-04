@@ -42,7 +42,7 @@ jobs:
           assert 'Source appendix' in text and 'Identical to' in text
           assert 'Filter sources' not in text and 'Open report' not in text
           assert 'duplicate-copy-015' in text, 'Last source missing from print'
-          for name in ['demo-summary', 'demo-complete']:
+          for name in ['demo-summary', 'demo-complete', 'demo-complete-no-background']:
               contents = subprocess.check_output(['pdftotext', f'report-layout-qa/{name}.pdf', '-'], text=True)
               assert 'SYNTHETIC DEMO DATA' in contents
               info = subprocess.check_output(['pdfinfo', f'report-layout-qa/{name}.pdf'], text=True)
@@ -52,6 +52,13 @@ jobs:
                   assert re.search(rf'{page}\s*/\s*{count}', page_text), 'Missing page number'
 
               assert 'Timestamp limitations:' in contents
+              if name != 'demo-summary':
+                  page_texts = [subprocess.check_output(['pdftotext', '-f', str(p), '-l', str(p), f'report-layout-qa/{name}.pdf', '-'], text=True) for p in range(1, count + 1)]
+                  incident_page = next(p for p in page_texts if 'Incident Queue' in p)
+                  assert 'counts may exceed retained excerpts' in incident_page, 'Incident explanation split'
+                  assert 'INC-5E581024' in incident_page, 'Incident heading separated from rows'
+                  anomaly_page = next(p for p in page_texts if 'Anomaly Signals' in p)
+                  assert 'No rare concerning event classes were recorded' in anomaly_page, 'Anomaly results split'
               if name == 'demo-summary':
                   assert 'SUMMARY ONLY' in contents
               else:
