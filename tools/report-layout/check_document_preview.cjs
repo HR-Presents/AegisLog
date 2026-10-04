@@ -18,6 +18,8 @@ const root = 'report-layout-qa/document-preview';
   await page.locator('.supporting').evaluate(item => item.open = true);
   const bounds = await page.locator('.chart').evaluateAll(items => items.map(item => item.getBoundingClientRect().y));
   if (bounds.some(y => Math.abs(y-bounds[0]) > 1)) throw Error('Chart panels must align');
+  const metricY = await page.locator('.metrics strong').evaluateAll(items => items.map(item => item.getBoundingClientRect().y));
+  if (metricY.some(y => Math.abs(y-metricY[0]) > 1)) throw Error('Metric values are not aligned');
   await page.locator('#overview').screenshot({path:path.join(root,'desktop-overview.png')});
   await page.locator('#activity').screenshot({path:path.join(root,'desktop-activity.png')});
   await page.setViewportSize({width:390,height:844});
