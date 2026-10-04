@@ -4,6 +4,7 @@ import hashlib
 import re
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime
 
 from .engine import Finding
 
@@ -49,6 +50,11 @@ def _correlation_key(finding: Finding) -> tuple[str, str, str, str]:
     category = finding.category.lower()
     service = _service_from_evidence(finding.evidence)
     source = _source_from_evidence(finding.evidence)
+    from .event_context import windows_context
+    context = dict(finding.context or windows_context(finding.evidence))
+    if context.get('provider'):
+        return (category, finding.title.lower(), context['provider'].lower() + '\0' + context.get('event_id', ''),
+                '\0'.join((source, context.get('host', ''), context.get('account', ''))))
 
     # Structured evidence should not be collapsed merely because two findings share
     # a broad category.  When structured context is absent, retain the historical
@@ -64,7 +70,37 @@ def correlate(findings: list[Finding]) -> list[Incident]:
         groups[_correlation_key(finding)].append(finding)
 
     incidents: list[Incident] = []
+    scoped = []
+    from .event_context import windows_context
     for key, items in groups.items():
+        if not dict(items[0].context or windows_context(items[0].evidence)).get('provider'):
+            scoped.append((key, items, ''))
+            continue
+        timed = []
+        for item in items:
+            context = dict(item.context or windows_context(item.evidence))
+            try:
+                stamp = datetime.fromisoformat(context.get('timestamp', '').replace('Z', '+00:00'))
+                if stamp.tzinfo is None:
+                    raise ValueError('Unresolved timezone')
+            except ValueError:
+                scoped.append((key, [item], 'unresolved\0' + item.evidence))
+            else:
+                timed.append((stamp.timestamp(), item))
+        timed.sort(key=lambda pair: pair[0])
+        chunk = []
+        start = None
+        for stamp, item in timed:
+            if start is not None and stamp - start > 300:
+                scoped.append((key, chunk, str(start)))
+                chunk = []
+                start = None
+            if start is None:
+                start = stamp
+            chunk.append(item)
+        if chunk:
+            scoped.append((key, chunk, str(start)))
+    for key, items, window in scoped:
         category = key[0]
         top = max(items, key=lambda item: SEVERITY.get(item.severity, 0))
 
@@ -75,7 +111,7 @@ def correlate(findings: list[Finding]) -> list[Incident]:
         if category == "error" and has_structured_context and len(items) < 2:
             continue
 
-        digest_seed = "\0".join(key) + "\0" + top.title.lower()
+        digest_seed = "\0".join(key) + "\0" + top.title.lower() + ('\0' + window if window else '')
         digest = hashlib.sha256(digest_seed.encode()).hexdigest()[:12]
         incidents.append(
             Incident(

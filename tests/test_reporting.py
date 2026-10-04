@@ -277,7 +277,7 @@ def test_summary_embeds_brand_logo_and_readable_print_colors():
     assert 'color:#a62b38!important' in html
     assert 'print-color-adjust:exact' in html
     assert 'class="summary-service-chart"' in html
-    assert 'font-size="14"' in html
+    assert 'font-size:14px' in html and 'distribution-track' in html
 
 
 def test_full_evidence_groups_repeated_recommendations_without_losing_references():
@@ -390,3 +390,4 @@ def test_summary_avoids_duplicate_disposition_and_limits_compact_print():
     long_finding = replace(data.findings[0], evidence='long evidence ' * 100)
     html = build_summary_report(replace(data, findings=(long_finding, data.findings[1])), 'appendix.html')
     assert 'class="summary-findings compact-findings"' not in html
+

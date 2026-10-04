@@ -1,0 +1,73 @@
+"""Optional local count comparisons and identifier-free aggregate sharing."""
+import json
+from pathlib import Path
+from .safe_json import loads
+from .sanitize import terminal_safe
+
+SCHEMA = 'aegislog-activity-baseline-1'
+
+
+def save_activity(data, output, scope):
+    payload = dict(schema=SCHEMA, source=data.source, scope=scope, records=data.records,
+                   recognized=data.recognized_records, services=data.services, levels=data.levels,
+                   severities=data.severities, incidents=len(data.incidents))
+    path = Path(output) / 'activity-baseline.json'
+    path.write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
+    return path
+
+
+def read_activity(path):
+    path = Path(path)
+    if path.is_symlink() or path.stat().st_size > 2_000_000:
+        raise ValueError('Choose a regular baseline JSON smaller than 2 MB.')
+    obj = loads(path.read_text(encoding='utf-8'))
+    if not isinstance(obj, dict) or obj.get('schema') != SCHEMA or not isinstance(obj.get('source'), str):
+        raise ValueError('Choose an AegisLog activity-baseline.json file.')
+    for key in ['records', 'recognized', 'incidents']:
+        if type(obj.get(key)) is not int or obj[key] < 0:
+            raise ValueError('Invalid baseline counts.')
+    if obj['recognized'] > obj['records']:
+        raise ValueError('Invalid recognized count.')
+    for key in ['services', 'levels', 'severities']:
+        values = obj.get(key)
+        if not isinstance(values, dict) or len(values) > 5000:
+            raise ValueError('Invalid baseline metrics.')
+        if any(not isinstance(name, str) or len(name) > 512 or type(count) is not int or count < 0 for name, count in values.items()):
+            raise ValueError('Invalid baseline metrics.')
+        if any(terminal_safe(name) != name for name in values):
+            raise ValueError('Baseline names contain unsupported control characters.')
+    return obj
+
+
+def compare_activity(previous, current):
+    before, after = read_activity(previous), read_activity(current)
+    if before['source'] != after['source']:
+        raise ValueError('Choose a previous baseline for the same source and time-window label.')
+    if not before['records'] or not after['records']:
+        raise ValueError('Both samples need records for a meaningful comparison.')
+    changes = []
+    for name in sorted(set(before['services']) | set(after['services'])):
+        old, new = before['services'].get(name, 0), after['services'].get(name, 0)
+        old_share, new_share = old / before['records'], new / after['records']
+        if old != new or old_share != new_share:
+            changes.append(dict(provider=name, previous=old, current=new, previous_percent=round(old_share * 100, 2),
+                                current_percent=round(new_share * 100, 2), change_percentage_points=round((new_share-old_share)*100, 2)))
+    return sorted(changes, key=lambda row: abs(row['change_percentage_points']), reverse=True)
+
+
+def share_activity(baseline, output):
+    """Omit source, provider names, timestamps and all raw evidence; no reversal map."""
+    data = read_activity(baseline)
+    allowed = {'CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'}
+    severity = {key: value for key, value in data['severities'].items() if key in allowed}
+    payload = dict(schema='aegislog-shared-summary-1', records=data['records'], recognized=data['recognized'],
+                   findings_by_severity=severity, incidents=data['incidents'],
+                   provider_counts=[dict(label=f'Provider {i}', records=count)
+                                    for i, count in enumerate(sorted(data['services'].values(), reverse=True), 1)],
+                   note='Aggregate sharing copy. Source, provider names, accounts, addresses, paths, timestamps and raw evidence are omitted. Counts are investigation metrics, not proof of compromise.')
+    output = Path(output)
+    if output.resolve() == Path(baseline).resolve():
+        raise ValueError('Sharing output must differ from the private baseline.')
+    with output.open('x', encoding='utf-8') as stream:
+        json.dump(payload, stream, indent=2)
+    return output

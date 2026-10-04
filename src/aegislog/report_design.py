@@ -11,6 +11,7 @@ def observed_facts(item, year_hint=None):
     context = _auth_event(evidence, year_hint)
     from .windows_security import parse_windows_security_line
     security = parse_windows_security_line(original)
+    stored = dict(getattr(item, 'context', ()))
     facts = []
     failures = re.match(r'^(\d+) authentication failures\b', item.evidence)
     if failures:
@@ -18,7 +19,7 @@ def observed_facts(item, year_hint=None):
     for label, value in (
         ('Account', (security.account if security else None) or context.account or event.account),
         ('Source address', (security.source_ip if security else None) or context.source_ip or event.source_ip),
-        ('Host', (security.workstation if security else None) or context.host or event.host),
+        ('Host', stored.get('host') or (security.workstation if security else None) or context.host or event.host),
     ):
         if value:
             facts.append((label, value))
@@ -148,6 +149,7 @@ REPORT_DESIGN_STYLE = """
 .report.summary .compact-findings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 .report.summary .compact-findings .summary-finding{min-width:0;break-inside:avoid}
 .report.summary .compact-findings .finding-columns{grid-template-columns:1fr;gap:10px}
+.report.summary .compact-findings .observed-facts{grid-template-columns:auto minmax(0,1fr)}
 .report.summary .compact-findings .record-head{display:grid;grid-template-columns:1fr;gap:5px;padding-left:14px;padding-top:30px;min-height:75px}
 .report.summary .compact-findings .record-head .pill{justify-self:start}
 .report.summary .compact-findings .record-head strong{min-height:2.8em}

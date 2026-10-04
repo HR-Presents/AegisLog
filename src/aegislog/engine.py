@@ -3,7 +3,7 @@ from __future__ import annotations
 import ipaddress
 import re
 from collections import Counter, OrderedDict, deque
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,6 +19,7 @@ class Finding:
     title: str
     evidence: str
     recommendation: str
+    context: tuple[tuple[str, str], ...] = ()
 
 
 RULES = [
@@ -209,6 +210,9 @@ class AnalysisState:
         self.dropped_auth_sources = 0
 
     def _append_finding(self, finding: Finding) -> None:
+        from .event_context import windows_context
+        if not finding.context:
+            finding = replace(finding, context=windows_context(getattr(self, '_current_line', finding.evidence)))
         self._other_severities[finding.severity] += 1
         if len(self._other_findings) < self.max_findings:
             self._other_findings.append(finding)
@@ -327,6 +331,7 @@ class AnalysisState:
 
     def process(self, raw: str) -> None:
         line = redact(raw.strip())
+        self._current_line = line
         if not line:
             return
         if "SURICATA ALERT priority=" in line:
