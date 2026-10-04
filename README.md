@@ -27,6 +27,23 @@
 >
 > AegisLog reads selected logs and accessible native telemetry, analyzes them locally, and writes investigation reports and requested local state. It does not change source logs, accounts, services, firewall rules, or host security settings. Findings support human investigation; they do not authorize remediation.
 
+## Start here
+
+New to log investigation? Follow the [five-step beginner guide](docs/QUICKSTART.md), then try the [downloadable synthetic demo pack](https://github.com/HR-Presents/AegisLog-AI/raw/refs/heads/main/docs/demo/AegisLog-First-Investigation-Demo.zip). The pack includes checked expected results and a no-matching-findings comparison fixture.
+
+**Who it helps:** IT administrators investigating service problems, support engineers reviewing application logs, and security analysts triaging accessible local evidence. AegisLog provides local investigation and reporting; a managed SIEM, EDR, fleet agent or automated remediation service requires other tooling.
+
+| Input | What AegisLog handles | Coverage limit |
+| --- | --- | --- |
+| Text logs | Syslog, ISO service records, common web access logs and Windows collector text | Unknown text may use generic fallback rules |
+| Structured records | Known JSON/JSONL message, Docker, ECS, Suricata EVE, Zeek connection and network-flow fields; corresponding CSV schemas | Arbitrary JSON/CSV is not universally understood; recognized parsing does not imply a detection rule |
+| Native telemetry | Windows System/Application/Security, Linux journald, Docker logs where available | OS, permissions, source availability, time window and event caps apply |
+| Folders | Discover supported readable text candidates, then analyze selected files separately | Bounded discovery; binary/EVTX, compressed and unsupported encodings require appropriate export/conversion |
+
+Check the report's recognized-record counts, retained evidence and collection limits. No matching rules does not establish a clean system. Rarity scores describe the sample, not attack probability.
+
+[First-user feedback checklist](docs/FIRST_USER_CHECKLIST.md) · [Launch announcement draft](docs/LAUNCH_ANNOUNCEMENT.md)
+
 ## Overview
 
 AegisLog is a terminal-first defensive log investigation platform for local files, native telemetry, and live log streams.
@@ -228,7 +245,7 @@ Use **B/Escape** to stop a live view and **Q** to quit AegisLog. Quitting return
 Reports use white document pages, black text and light sea-blue framing. Aligned metrics, boxed findings and side rules separate observed context, recommended review and retained evidence. The summary links to the full investigation record; every retained detector excerpt keeps its evidence reference. Full-report page count grows with evidence. Supporting activity distributions and rarity context can be expanded in the browser and are omitted from the compact print layout with an explicit notice.
 
 
-Each investigation provides a short summary and a separate full retained-evidence HTML report. Reports use a company-facing layout with a larger transparent AegisLog logo, black body text, light sea-blue accents, a compact metrics strip, specific issue labels, and separate evidence and recommended-review areas. The short summary puts priority findings before supporting activity and collection scope; raw structured evidence stays in the complete report. The full report uses five main navigation choices, avoids repeated rule labels, and puts source identity and processing statistics in a technical appendix. The closing signature reads **MADE BY HR-PRESENTS**. Small samples use direct counts; timelines appear only when the retained timestamps support them.
+Each investigation provides a short summary and a separate full retained-evidence HTML report. Reports use a company-facing layout with a larger transparent AegisLog logo, black body text, light sea-blue accents, a compact metrics strip, specific issue labels, and separate evidence and recommended-review areas. The short summary puts priority findings before supporting activity and collection scope; raw structured evidence stays in the complete report. The full report uses four investigation navigation choices, avoids repeated rule labels, and puts source identity and processing statistics in a technical appendix. The closing signature reads **MADE BY HR-PRESENTS**. Small samples use direct counts; timelines appear only when the retained timestamps support them.
 
 | Report | Purpose |
 |---|---|

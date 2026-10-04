@@ -1,0 +1,9 @@
+2026-10-04T12:01:01Z WARNING sshd[1001]: Failed password for demo-user from 203.0.113.7 port 2201 ssh2
+2026-10-04T12:01:02Z WARNING sshd[1002]: Failed password for demo-user from 203.0.113.7 port 2202 ssh2
+2026-10-04T12:01:03Z WARNING sshd[1003]: Failed password for demo-user from 203.0.113.7 port 2203 ssh2
+2026-10-04T12:01:04Z WARNING sshd[1004]: Failed password for demo-user from 203.0.113.7 port 2204 ssh2
+2026-10-04T12:01:05Z WARNING sshd[1005]: Failed password for demo-user from 203.0.113.7 port 2205 ssh2
+2026-10-04T12:01:06Z WARNING sshd[1006]: Failed password for demo-user from 203.0.113.7 port 2206 ssh2
+2026-10-04T12:02:10Z ERROR api[212]: database connection timeout
+2026-10-04T12:03:10Z INFO api[212]: database connection restored
+2026-10-04T12:04:10Z INFO scheduler[300]: scheduled task completed
