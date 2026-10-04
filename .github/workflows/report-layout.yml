@@ -70,6 +70,9 @@ jobs:
                   assert 'No rare concerning event classes were recorded' in anomaly_page, 'Anomaly results split'
               if name == 'demo-summary':
                   assert 'SUMMARY ONLY' in contents
+                  assert count <= 3, 'Small demo summary has unnecessary pages'
+                  last_page = subprocess.check_output(['pdftotext', '-f', str(count), '-l', str(count), f'report-layout-qa/{name}.pdf', '-'], text=True)
+                  assert 'Coverage' in last_page and 'MADE BY HR-PRESENTS' in last_page, 'Closing signature orphaned'
               else:
                   assert 'F-001' in contents and 'F-002' in contents
           for name in ['empty', 'missing-time', 'many-findings', 'windows-context', 'wer-application']:

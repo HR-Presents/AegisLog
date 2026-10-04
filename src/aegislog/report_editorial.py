@@ -83,6 +83,7 @@ EDITORIAL_BRIEF_STYLE = """
 .report .group-intro{padding:12px 0}.report .finding-columns p,.report .finding-columns .why{font-size:14px!important;line-height:1.55!important}.report details.report-evidence,.report.summary .compact-findings details.report-evidence{padding:10px 12px;display:block}.report .report-evidence .evidence{font-size:13px!important;line-height:1.65}
 .report.summary .summary-notes .context-notice,.report .context-notice,.report.summary #scope .scope p{font-size:14px!important;line-height:1.6!important}.report .summary-notes h2{font-size:23px}.report.summary #scope{padding:16px 0}.report .coverage-grid dt{font-size:10px}.report .coverage-grid dd{font-size:12px}
 .timeline-row{grid-template-columns:155px minmax(0,1fr) 26px;font-size:11px;margin:7px 0}.activity-timeline{break-inside:avoid}.report .activity-counts span{font-size:12px}
-.report .footer{padding:18px 0 0;margin:20px 0 0;display:block!important}.maker-signature{font-size:18px}.report .footer p,.report .footer small{font-size:9px!important}
+.report.summary .section,.report.summary #executive,.report.summary .summary-notes{padding:10px 0;margin-bottom:8px}.report.summary #scope{padding:10px 0}.report.summary .activity-note h3{display:none}
+.report .footer{padding:14px 0 0;margin:12px 0 0;display:block!important}.maker-signature{font-size:18px}.report .footer p,.report .footer small{font-size:9px!important}
 }
 """
