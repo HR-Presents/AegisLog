@@ -1,12 +1,15 @@
 # Roadmap
 
-AegisLog is currently released as **v2.1.9**. This roadmap describes priorities, not delivery promises or features already available.
+AegisLog is currently released as **v2.1.10**. This roadmap describes priorities, not delivery promises or features already available.
 
-## v2.1.9 — current stable release
+## v2.1.10 — current stable release
 
 Synthetic evaluations are not independently validated real-world effectiveness evidence.
 
 ## Released
+
+- Grouped review, bounded Windows session context and Docker/ECS application message adapters.
+- Searchable saved cases, collection progress, baseline signal comparison, sharing preview and support/update commands.
 
 - Terminal file analysis, single/multi-source live monitoring and supported native collectors.
 - Deterministic findings, incident groups, bounded retained evidence and rarity signals.

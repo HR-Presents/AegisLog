@@ -10,16 +10,16 @@ def _text(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_v219_is_current_published_stable() -> None:
+def test_v2110_is_current_published_stable() -> None:
     project_status = _text("docs/PROJECT_STATUS.md")
     roadmap = _text("docs/ROADMAP.md")
     docs_index = _text("docs/README.md")
 
-    assert "current published stable release is **v2.1.9**" in project_status
-    assert "**Published stable:** v2.1.9" in project_status
-    assert "currently released as **v2.1.9**" in roadmap
-    assert "v2.1.9 — current stable release" in roadmap
-    assert "[v2.1.9 release notes](RELEASE_V2.1.9.md)" in docs_index
+    assert "current published stable release is **v2.1.10**" in project_status
+    assert "**Published stable:** v2.1.10" in project_status
+    assert "currently released as **v2.1.10**" in roadmap
+    assert "v2.1.10 — current stable release" in roadmap
+    assert "[v2.1.10 release notes](RELEASE_V2.1.10.md)" in docs_index
 
 
 def test_v216_release_target_and_checksum_are_recorded() -> None:
@@ -39,3 +39,14 @@ def test_v216_keeps_security_and_evidence_boundaries() -> None:
     assert "synthetic regression evidence" in project_status.lower()
     assert "real-world" in roadmap.lower()
     assert "AI Analyst" in project_status
+
+
+def test_current_release_identity_matches_publication_guard() -> None:
+    import re
+    status = _text("docs/PROJECT_STATUS.md")
+    version = re.search(r'current published stable release is \*\*(v[\d.]+)\*\*', status).group(1)
+    line = next(line for line in status.splitlines() if line.startswith(f'The {version} build target is '))
+    commit, checksum = re.findall(r'`([a-f0-9]{40}|[a-f0-9]{64})`', line)
+    guard = _text(f'.github/workflows/publish-{version}.yml')
+    assert f"release['target_commitish'] == '{commit}'" in guard
+    assert f'sha256:{checksum}' in guard

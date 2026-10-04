@@ -1,6 +1,6 @@
 # Investigation improvements
 
-These additions are merged on main and being packaged for v2.1.10. The existing v2.1.9 downloads remain unchanged.
+These additions are included in the published v2.1.10 Windows and Python packages.
 
 ## Review and prioritise
 
