@@ -104,7 +104,9 @@ REPORT_DESIGN_STYLE = """
 .report.summary #executive{padding:6px 0 12px;margin-bottom:4px}
 .report.summary .summary-notes{padding:8px 0;margin:4px 0}
 .report.summary .context-notice{padding:6px 0;margin:6px 0}
-.report .observed-facts{gap:3px 10px}
+.report .observed-facts{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:3px 8px}
+.report.summary .priority-lead{display:none}
+.report.summary #scope{padding:6px 0;margin:0}
 
 .report .finding-columns{padding:10px 14px}
 .report .report-evidence .evidence{padding:6px 0!important}
