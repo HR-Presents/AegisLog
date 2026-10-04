@@ -113,6 +113,17 @@ REPORT_DESIGN_STYLE = """
 .report #method{break-inside:auto}
 .report .telemetry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .report .telemetry-card{margin-top:0}
+.report.summary .record-head{min-height:0;padding-top:8px;padding-bottom:8px}
+.report.summary .finding-columns{padding:8px 12px;gap:12px}
+.report.summary .finding-columns p{line-height:1.45;margin:4px 0}
+.report.summary .finding-columns .cell-label{margin-bottom:6px}
+.report.summary details.report-evidence{padding:6px 12px}
+.report.summary .report-evidence .evidence{margin:0;padding:4px 0!important}
+.report.summary .report-evidence .evidence-link{margin-top:4px}
+.report.summary .section-head{margin-bottom:6px}
+.report.summary .section-note{margin-bottom:6px}
+.report.summary th,.report.summary td{padding:6px}
+.report.summary .summary-chart-grid h3{margin:4px 0}
 .report .footer{display:none}
 }
 """
