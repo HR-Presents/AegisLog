@@ -80,3 +80,32 @@ def test_invalid_or_incomparable_baselines_are_rejected(tmp_path):
     with pytest.raises(ValueError):compare_activity(first, second)
     obj=json.loads(second.read_text());obj['records']=True;second.write_text(json.dumps(obj))
     with pytest.raises(ValueError):compare_activity(first, second)
+
+
+def test_rarity_counts_are_explained_in_summary(tmp_path):
+    from aegislog.dashboard import analyze_dashboard
+    from aegislog.reporting import build_summary_report
+    path = tmp_path/'sample.log'
+    path.write_text('\n'.join(['2026-10-04T08:00:00Z normal[1]: INFO okay'] * 10 + [error('2026-10-04T08:00:00Z')]))
+    html = build_summary_report(analyze_dashboard(path), 'appendix.html')
+    assert '1/11 total events' in html
+    assert 'sample rarity' in html and 'Not attack probability.' in html
+
+
+def test_guided_check_passes_selected_event_count(tmp_path, monkeypatch):
+    from io import StringIO
+    from rich.console import Console
+    from aegislog.product import guided_check
+    monkeypatch.setattr('aegislog.product.discover_sources', lambda: [dict(label='System', status='readable', description='events', detail='ready', source='windows', channel='System')])
+    monkeypatch.setattr('aegislog.product.default_report_dir', lambda: tmp_path)
+    replies = iter(['1', '60', '1000', 'b'])
+    monkeypatch.setattr('aegislog.navigation.Prompt.ask', lambda *args, **kwargs: next(replies))
+    calls = []
+    def collect(source, **kwargs):
+        calls.append(kwargs)
+        return [error('2026-10-04T08:00:00Z') + '\n'] * 2
+    monkeypatch.setattr('aegislog.product.collect', collect)
+    stream = StringIO()
+    guided_check(Console(file=stream, width=200))
+    assert calls[0]['limit'] == 1000
+    assert 'Returned 2 events' in stream.getvalue()
