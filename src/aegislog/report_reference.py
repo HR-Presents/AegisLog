@@ -102,6 +102,7 @@ REFERENCE_STYLE = """
 .report .metric,.report.summary .metric{min-height:90px;padding:16px}.report .metric strong,.report.summary .metric strong{font-size:27px}
 .report.summary #scope{padding:18px 22px}
 .report:not(.summary) #findings{page-break-before:auto;break-before:auto}
+.report:not(.summary) #incidents{break-inside:avoid;page-break-inside:avoid}
 .report .observed-facts{grid-template-columns:auto minmax(0,1fr);gap:3px 8px}
 .report .assessment{padding:12px 14px}.report .finding-columns p{font-size:13px!important}.report .observed-facts{font-size:12px}
 .report.summary .compact-findings{display:block}
