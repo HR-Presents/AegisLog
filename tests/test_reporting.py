@@ -53,46 +53,21 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
     html = build_html_report(_data())
 
     for text in (
-        "Security Investigation Report",
-        "Investigation record",
-        "Report ID",
-        "Executive Summary",
-        "What needs attention",
-        "Assessment",
-        "Disposition",
-        "IMMEDIATE REVIEW",
-        "Repeated &lt;script&gt;alert(1)&lt;/script&gt; failures",
-        "Recommended triage",
-        "Incident Queue",
-        "Findings",
-        "Anomaly Signals",
-        "Observed Distribution",
-        "Analysis Profile",
-        "Evidence limitations",
-        "LOCAL / READ-ONLY",
-        "DETERMINISTIC ANALYSIS",
-        "Print Full Evidence / Save PDF",
+        "Investigation Report", "Report reference", "Executive summary",
+        "DETECTOR REVIEW PRIORITY", "HIGH", "Repeated &lt;script&gt;alert(1)&lt;/script&gt; failures",
+        "Recommended review", "Incident groups", "Findings register",
+        "Finding details &amp; evidence", "Collection record", "Technical appendix",
+        "LOCAL / READ-ONLY / DETERMINISTIC", "Print / Save PDF",
     ):
         assert text in html
-
-    for anchor in (
-        "#executive",
-        "#incidents",
-        "#findings",
-        "#anomalies",
-        "#telemetry",
-        "#method",
-    ):
+    for anchor in ("#overview", "#evidence", "#activity", "#method"):
         assert anchor in html
-
-    assert 'class="telemetry-grid"' in html
-    assert 'aria-label="AegisLog terminal mark logo"' in html
-    assert "#43aebb" in html
+    assert 'class="charts"' in html
+    assert 'aria-label="AegisLog logo"' in html
     assert 'content="light"' in html
-    assert 'body{margin:0;background:#fff;color:var(--ink)' in html
-    assert 'Technical appendix' in html
-    assert 'PRESENTED BY HR-PRESENTS' in html
-    assert 'grid-template-columns:repeat(2,minmax(0,1fr))' in html
+    assert 'body,body *{color:#000!important}' in html
+    assert 'border-left:4px solid #82c0cf' in html
+    assert 'grid-template-columns:repeat(4,1fr)' in html
     assert "REMOTE AI" not in html
     assert "@media print" in html
     assert "break-inside:avoid" in html
@@ -166,12 +141,12 @@ def test_incident_only_report_keeps_high_posture_and_primary_incident() -> None:
     )
     html = build_html_report(data)
 
-    assert "Current posture" in html
+    assert "DETECTOR REVIEW PRIORITY" in html
     assert ">HIGH<" in html
-    assert "IMMEDIATE REVIEW" in html
+    assert "DETECTOR REVIEW PRIORITY / HIGH" in html
     assert "INC-DEADBEEF" in html
     assert "Correlated authentication activity" in html
-    assert "Validate the grouped evidence" in html
+    assert "Incident evidence requires review" in html
     assert "No elevated rule-backed finding requires immediate action" not in html
 
 
@@ -189,16 +164,14 @@ def test_empty_report_has_clear_empty_states() -> None:
     )
     html = build_html_report(data)
 
-    assert "Current posture" in html
-    assert ">CLEAR<" in html
+    assert "DETECTOR REVIEW PRIORITY" in html
+    assert "DETECTOR REVIEW PRIORITY / ROUTINE REVIEW" in html
     assert "ROUTINE REVIEW" in html
-    assert "No immediate rule-backed remediation items were generated." in html
     assert "No correlated incidents were recorded." in html
     assert "No rule-backed findings were recorded." in html
     assert "No rare concerning event classes were recorded." in html
     assert "No matching detections were recorded in the supplied evidence" in html
     assert "not a clean-system verdict" in html
-    assert "No elevated rule-backed finding requires immediate action" in html
 
 
 def test_write_html_report_uses_safe_predictable_filename(tmp_path: Path) -> None:
@@ -215,7 +188,7 @@ def test_incident_queue_links_evidence_once_and_preserves_unmatched_excerpt():
     data = _data()
     incident = replace(data.incidents[0], evidence=(data.findings[0].evidence, "unique incident excerpt"))
     html = build_html_report(replace(data, incidents=(incident,)))
-    queue = html.split('id="incidents"', 1)[1].split('id="findings"', 1)[0]
+    queue = html.split('Incident groups</h3>', 1)[1].split('<details class="supporting">', 1)[0]
     assert 'href="#finding-001"' in queue
     assert 'id="finding-001"' in html
     assert "user=admin &amp; source=203.0.113.10" not in queue
@@ -282,14 +255,14 @@ def test_full_evidence_groups_repeated_recommendations_without_losing_references
     data = _data()
     findings = tuple(replace(data.findings[0], evidence=f"evidence {index}") for index in range(44))
     html = build_html_report(replace(data, findings=findings), summary_href='summary.html')
-    findings_html = html.split('id="findings"', 1)[1].split('id="telemetry"', 1)[0]
-    assert findings_html.count('class="finding-group"') == 1
+    findings_html = html.split('id="evidence"', 1)[1].split('id="activity"', 1)[0]
+    assert findings_html.count('class="evidence-record"') == 1
     assert findings_html.count('Review authentication history &amp; rotate exposed credentials.') == 1
-    assert findings_html.count('class="group-evidence"') == 44
+    assert findings_html.count('class="excerpt"') == 44
     for index in range(1, 45):
         assert f'id="finding-{index:03d}"' in findings_html
     assert 'href="summary.html">Back / Print Summary' in html
-    assert 'Print Full Evidence / Save PDF' in html
+    assert 'Print / Save PDF' in html
 
 
 def test_report_body_and_headings_have_separate_sizes():
@@ -365,11 +338,11 @@ def test_report_observed_facts_do_not_invent_missing_fields():
 def test_report_evidence_disclosure_keeps_print_and_anchor_support():
     html = build_html_report(_data())
     assert 'id="aegislog-report"' in html
-    assert '<details class="report-evidence" open>' in html
-    assert "beforeprint" in html and "afterprint" in html
-    assert "hashchange" in html
-    assert 'Observed evidence' in html and 'Why it matters:' in html
-    assert '#aegislog-report *{color:#000!important}' in html
+    # Finding excerpts are always visible; direct anchors need no disclosure script.
+    assert 'class="excerpt" id="finding-001"' in html
+    assert 'Observed evidence' in html and 'Recommended review' in html
+    assert 'body,body *{color:#000!important}' in html
+    assert '.evidence-record{break-inside:auto}' in html
 
 
 def test_summary_avoids_duplicate_disposition_and_bounds_excerpts():

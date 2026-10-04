@@ -1,19 +1,16 @@
 from __future__ import annotations
 
 from .report_paths import default_report_dir
-from .report_design import REPORT_EVIDENCE_SCRIPT, observed_facts, why_it_matters
+from .report_design import observed_facts, why_it_matters
 from .report_reference import document_cover, document_contents
-from .report_styles import report_stylesheet
-from .report_editorial import activity_timeline, report_signature
-from .report_company import issue_name, COMPANY_FULL_STYLE
+from .report_editorial import activity_timeline
+from .report_company import issue_name
 
 import hashlib
 import re
-from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
 
-from . import __version__
 from .dashboard import DashboardData
 
 _SEVERITY_RANK = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1, "INFO": 0}
@@ -327,25 +324,8 @@ def _report_navigation(*, summary: bool, appendix_href: str = '') -> str:
 
 
 def build_html_report(data: DashboardData, summary_href: str | None = None) -> str:
-    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    source_name = data.source_label or Path(data.source).name
-    risk = _risk(data)
-    case_id = _case_id(data)
-    summary_link = (f'<a class="report-button" href="{escape(summary_href)}">Back / Print Summary</a>'
-                    if summary_href else '<a href="#executive">Back to overview</a>')
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Report - {escape(source_name)}</title><style>{report_stylesheet()}{COMPANY_FULL_STYLE}</style></head><body><main id="aegislog-report" class="report">
-{_document_opening(data, generated, summary=False)}
-
-<nav class="toolbar">{summary_link}<a href="#executive">Overview</a><a href="#findings">Findings</a><a href="#incidents">Incidents</a><a href="#telemetry">Activity</a><a href="#method">Method</a><span class="spacer"></span><span class="local-note">DETERMINISTIC ANALYSIS</span><button type="button" onclick="window.print()">Print Full Evidence / Save PDF</button></nav>
-<p class="print-help">PDF export: use A4 and turn off browser Headers and footers in the print dialog to remove the local file URL. Background graphics are optional; charts and evidence remain readable.</p><div class="content">
-<section class="section" id="executive"><div class="section-head"><div><h2>Executive Summary</h2></div><div class="section-note">Review priorities from the retained sample; validate against original telemetry.</div></div><div class="executive-grid"><div class="assessment"><h3>Assessment</h3><p class="posture-value">Current posture <strong>{escape(risk)}</strong></p><p>{escape(_lead_observation(data, risk))}</p>{_primary_decision(data)}<h3 class="severity-heading">Severity distribution</h3><div class="severity-block">{_severity_overview(data)}</div></div><div class="priority-box"><h3>Recommended triage</h3>{_triage_actions(data)}</div></div></section>
-{_record_metrics(data, summary=False)}
-<section class="section" id="findings"><div class="section-head"><div><div class="section-label">Detection</div><h2>Findings</h2></div><div class="section-note">{len(data.findings)} retained findings in {len(_finding_groups(data))} presentation groups. Each excerpt keeps its F-reference. Grouping for readability does not establish a common cause.</div></div><div class="record-list">{_finding_records(data)}</div></section>
-<section class="section" id="incidents"><div class="section-head"><div><div class="section-label">Correlation</div><h2>Incident Queue</h2></div><div class="section-note">Grouped signals; validate shared cause and timing.</div></div><div class="record-list">{_incident_records(data)}</div></section>
-<section class="section" id="telemetry"><div class="section-head"><div><div class="section-label">Telemetry</div><h2>Observed Distribution</h2></div><div class="section-note">A compact view of the parsed source. <a href="#anomalies">Review rarity signals</a></div></div>{activity_timeline(data.raw_lines, data.timestamp_year_hint)}<div class="telemetry-grid"><div class="telemetry-card"><h3>Categories</h3><div class="chips">{_telemetry_chips(data.categories)}</div></div><div class="telemetry-card"><h3>Log levels</h3><div class="chips">{_bar_chart(data.levels, "Log levels")}</div></div><div class="telemetry-card"><h3>Services</h3><div class="chips">{_bar_chart(data.services, "Service activity")}</div></div></section>
-<section class="section" id="anomalies"><div class="section-head"><div><div class="section-label">Behavior</div><h2>Anomaly Signals</h2></div><div class="section-note">Rarity scores (0-100), not attack probability.</div></div><p class="caveat">Scores describe rare concerning event classes within this retained sample. A score of 100 does not mean 100% attack probability, severity, or confidence. No trained machine-learning model is used.</p><div class="table-wrap"><table><thead><tr><th>Rarity score / 100</th><th>Event class</th><th>Reason</th></tr></thead><tbody>{_anomaly_rows(data)}</tbody></table></div></section>
-<section class="section" id="method"><div class="section-head"><div><div class="section-label">Method and scope</div><h2>Analysis Profile</h2></div><div class="section-note">How the report was produced and how to interpret it.</div></div>{_method_context(data)}<div class="method-grid"><div class="method-card"><h3>Processing model</h3><p><strong>LOCAL / READ-ONLY / DETERMINISTIC</strong></p><p>AegisLog v{escape(__version__)} performed local deterministic detection, incident correlation, and anomaly scoring. The source was handled read-only.</p></div><div class="method-card"><h3>Evidence limitations</h3><p>{escape(data.collection_scope)} {escape(data.coverage_note)} This report contains retained derived evidence rather than a complete copy of the raw log. Missing detections do not prove malicious activity is absent. Preserve original telemetry when incident-response, retention, or chain-of-custody procedures require it.</p></div></div><div class="technical-appendix" id="source"><h3>Technical appendix</h3><p>Source identity and processing statistics for verification.</p><div class="table-wrap"><table><tr><th>Retention statistics</th><td>{escape(data.retention_note)}</td></tr>{_identity_rows(data)}<tr><th>Source path</th><td>{escape(data.source)}</td></tr><tr><th>Source file</th><td>{escape(source_name)}</td></tr><tr><th>Physical lines</th><td>{data.lines:,}</td></tr><tr><th>AegisLog version</th><td>{escape(__version__)}</td></tr><tr><th>Generated</th><td>{generated}</td></tr><tr><th>Analysis model</th><td>Deterministic local processing</td></tr></table></div></div></section>
-{report_signature(case_id, __version__)}</div></main>{REPORT_EVIDENCE_SCRIPT}<script>if(new URLSearchParams(location.search).get("print")==="1"){{window.addEventListener("load",()=>window.print());}}</script></body></html>'''
+    from .report_document import build_document
+    return build_document(data, summary_href)
 
 
 def _finding_groups(data: DashboardData):

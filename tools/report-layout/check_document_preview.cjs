@@ -24,7 +24,7 @@ const root = 'report-layout-qa/document-preview';
   await page.locator('#activity').screenshot({path:path.join(root,'desktop-activity.png')});
   await page.setViewportSize({width:390,height:844});
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth+1)) throw Error('Mobile overflow');
-  await page.evaluate(() => scrollTo(0,0));
+  await page.evaluate(() => scrollTo({top:0,behavior:'instant'}));
   await page.screenshot({path:path.join(root,'mobile-overview.png')});
   await page.setViewportSize({width:1440,height:1100});
   await page.emulateMedia({media:'print'});

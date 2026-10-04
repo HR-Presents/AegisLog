@@ -225,6 +225,9 @@ Use **B/Escape** to stop a live view and **Q** to quit AegisLog. Quitting return
 
 ## Reports and Evidence
 
+Reports use white document pages, black text and light sea-blue framing. Aligned metrics, boxed findings and side rules separate observed context, recommended review and retained evidence. The summary links to the full investigation record; every retained detector excerpt keeps its evidence reference. Full-report page count grows with evidence. Supporting activity distributions and rarity context can be expanded in the browser and are omitted from the compact print layout with an explicit notice.
+
+
 Each investigation provides a short summary and a separate full retained-evidence HTML report. Reports use a company-facing layout with a larger transparent AegisLog logo, black body text, light sea-blue accents, a compact metrics strip, specific issue labels, and separate evidence and recommended-review areas. The short summary puts priority findings before supporting activity and collection scope; raw structured evidence stays in the complete report. The full report uses five main navigation choices, avoids repeated rule labels, and puts source identity and processing statistics in a technical appendix. The closing signature reads **MADE BY HR-PRESENTS**. Small samples use direct counts; timelines appear only when the retained timestamps support them.
 
 | Report | Purpose |

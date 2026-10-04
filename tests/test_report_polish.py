@@ -15,7 +15,7 @@ class ContentsParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        if tag == 'nav' and attrs.get('class') == 'toolbar':
+        if tag == 'nav' and attrs.get('class') == 'reader-tools':
             self.in_contents = True
         if self.in_contents and tag == 'a':
             self.targets.append(attrs.get('href', '').removeprefix('#'))
@@ -47,12 +47,12 @@ def test_report_contents_matches_actual_section_order(tmp_path):
     parser = ContentsParser()
     html = build_html_report(data)
     parser.feed(html)
-    assert parser.targets == ['executive', 'executive', 'findings', 'incidents', 'telemetry', 'method']
+    assert parser.targets == ['overview', 'evidence', 'activity', 'method']
     assert set(parser.targets) <= set(parser.sections)
     assert 'document-contents' not in html.split('<body>', 1)[1]
     assert data.source_sha256 in html
     assert 'Report ID identifies analysis output, not source bytes' in html
-    assert 'View investigation results' in html
+    assert 'Findings register' in html
     summary = build_summary_report(data, 'appendix.html')
     assert 'href="appendix.html"' in summary
     assert 'original rule titles, retained excerpts, identifiers' in summary
