@@ -131,6 +131,12 @@ REPORT_DESIGN_STYLE = """
 .report.summary .section-note{margin-bottom:6px}
 .report.summary th,.report.summary td{padding:6px}
 .report.summary .summary-chart-grid h3{margin:4px 0}
+.report.summary .compact-findings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.report.summary .compact-findings .summary-finding{min-width:0;break-inside:avoid}
+.report.summary .compact-findings .finding-columns{grid-template-columns:1fr;gap:10px}
+.report.summary .compact-findings .record-head{padding-left:14px;padding-top:30px;min-height:75px}
+.report.summary .compact-findings .finding-index{float:none;position:absolute;padding:8px 0 0 14px}
+.report.summary .compact-findings .report-evidence .evidence{overflow-wrap:anywhere}
 .report.summary #scope .scope>a{display:none}
 .report .distribution-row{font-size:12px;margin:6px 0}
 .report .footer{display:none}
