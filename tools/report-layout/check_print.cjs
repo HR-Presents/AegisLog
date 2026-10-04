@@ -76,7 +76,7 @@ const path = require('path');
   if (!await page.locator('.evidence-group').first().isVisible()) throw Error('Printed evidence group identifier missing');
   await page.pdf({path:'report-layout-qa/demo-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
   const bars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
-  if (!bars.length || bars.some(width => width !== '7px')) throw Error('Foreground bars missing');
+  if (bars.some(width => width !== '7px')) throw Error('Foreground bars missing');
   await page.pdf({path:'report-layout-qa/demo-complete-no-background.pdf',format:'A4',printBackground:false,displayHeaderFooter:false});
   for (const name of ['empty', 'missing-time', 'many-findings', 'windows-context', 'wer-application']) {
     await page.emulateMedia({media:'screen'});
@@ -86,6 +86,10 @@ const path = require('path');
     await page.setViewportSize({width:1440,height:900});
     if (name === 'windows-context' || name === 'wer-application') await page.screenshot({path:`report-layout-qa/${name}-desktop.png`,fullPage:true});
     await page.emulateMedia({media:'print'});
+    if (name === 'windows-context') {
+      const sourceBars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
+      if (!sourceBars.length || sourceBars.some(width => width !== '7px')) throw Error('Timestamped source foreground bars missing');
+    }
     if (await page.locator('.toolbar').isVisible()) throw Error(`${name} browser controls leaked into print`);
     await page.pdf({path:`report-layout-qa/${name}.pdf`,format:'A4',printBackground:true,displayHeaderFooter:false});
   }
