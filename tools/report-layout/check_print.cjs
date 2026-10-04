@@ -56,11 +56,22 @@ const path = require('path');
     await Promise.all([...document.images].map(img => img.decode()));
   });
   await page.screenshot({path:'report-layout-qa/complete-desktop.png'});
+  async function verifyTelemetryRow() {
+    const bounds = await page.locator('#telemetry .telemetry-card').evaluateAll(cards =>
+      cards.map(card => {const box = card.getBoundingClientRect(); return {x:box.x,y:box.y,right:box.right};}));
+    if (bounds.length !== 3 || bounds.some(box => Math.abs(box.y - bounds[0].y) > 1)
+        || bounds[0].right > bounds[1].x || bounds[1].right > bounds[2].x) {
+      throw Error('Categories, log levels and services must align side by side');
+    }
+  }
+  await verifyTelemetryRow();
+  await page.locator('#telemetry').screenshot({path:'report-layout-qa/telemetry-desktop.png'});
   await page.setViewportSize({width:390,height:844});
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error('Full report overflows mobile screen');
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({media:'print'});
   await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+  await verifyTelemetryRow();
   if (!await page.locator('.evidence-group').first().isVisible()) throw Error('Printed evidence group identifier missing');
   await page.pdf({path:'report-layout-qa/demo-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
   const bars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
