@@ -15,3 +15,7 @@ print(write_batch(root,Path('C:/Users/Demo/Documents'),rows,scan_mode='Other tex
 
 source=root/'demo_auth.log';source.write_text(_DEMO_LOG)
 write_html_report(analyze_dashboard(source),root)
+
+for name, contents in [('empty', ''), ('missing-time', 'ERROR component unavailable\n'), ('many-findings', ''.join(f'2026-10-04T12:00:00Z service[{i}]: ERROR failure '+ 'long-evidence '*150+'\n' for i in range(80)))]:
+ source=root/f'{name}.log';source.write_text(contents)
+ write_html_report(analyze_dashboard(source),root)

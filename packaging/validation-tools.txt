@@ -4,3 +4,7 @@ pytest==9.1.1
 ruff==0.16.6
 bandit==1.9.4
 pip-audit==2.10.1
+
+# Keep resolver checks aligned with the reviewed transitive lock versions.
+filelock==4.0.9
+platformdirs==4.12.2
