@@ -43,3 +43,29 @@ def test_omissions_and_partial_coverage_remain_visible(tmp_path: Path):
     assert '2 truncated lines' in brief
     assert '1 invalid records' in brief
     assert 'recognized records' in brief
+
+
+def test_full_report_keeps_provenance_only_for_renamed_issue(tmp_path):
+    path = tmp_path / 'system.log'
+    path.write_text('2026-10-04T12:00:00Z Service Control Manager[7011]: ERROR timeout\n')
+    html = build_html_report(analyze_dashboard(path))
+    assert 'Rule: Operational error detected' in html
+    path.write_text('2026-10-04T12:00:00Z api[1]: ERROR timeout\n')
+    html = build_html_report(analyze_dashboard(path))
+    assert 'Operational error detected' in html
+    assert 'Rule: Operational error detected' not in html
+
+
+def test_full_demo_notice_and_technical_appendix(tmp_path):
+    from aegislog.commands_v12 import _DEMO_LOG
+    path = tmp_path / 'input.log'
+    path.write_text(_DEMO_LOG)
+    data = analyze_dashboard(path)
+    html = build_html_report(data)
+    assert html.count('SYNTHETIC DEMO DATA') == 1
+    assert 'Timestamp limitations:' in html
+    assert 'does not guess' in html
+    assert 'Technical appendix' in html
+    assert data.source_sha256 in html and data.retention_note in html
+    assert 'id="finding-001"' in html and 'id="finding-002"' in html
+    assert '<div class="section-label">Executive summary</div>' not in html
