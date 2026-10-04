@@ -1,25 +1,27 @@
-# AegisLog
+# AegisLog branding
 
-**Tagline:** Defensive log intelligence for your terminal.
+**Tagline:** Defensive log investigation.
 
-AegisLog should be presented as a terminal-first, local-first, read-only defensive investigation platform built around deterministic, explainable detections and evidence-led review.
+AegisLog is a terminal-first, local-first, read-only investigation platform with deterministic detection and evidence-led review.
 
 ## Public identity
 
 - Product name: **AegisLog**
-- Positioning: defensive log investigation
-- Core posture: `LOCAL-FIRST / READ-ONLY / DETERMINISTIC`
-- Primary audience: operators and analysts reviewing logs and correlated evidence
-- Public AI Analyst / remote-provider workflow: **not supported**
+- Core posture: **LOCAL-FIRST / READ-ONLY / DETERMINISTIC**
+- Closing credit: **MADE BY HR-PRESENTS**
+- Public AI Analyst and remote-provider workflows are not supported.
+- Findings are investigation leads, not proof of compromise.
 
-Avoid describing AegisLog as autonomous remediation, an exploitation tool, or proof that an event is malicious when the evidence is uncertain.
+## Logo and presentation
 
-Suggested short description:
+Use the approved transparent PNG at `src/aegislog/assets/aegislog-logo.png`. Preserve its original artwork and colors. Do not add a blue background panel to the image or replace the terminal masthead.
 
-> AegisLog is a local-first terminal platform that parses logs, surfaces deterministic defensive findings, correlates incidents, scores anomaly context, and helps analysts investigate what happened while keeping evidence under local control.
+The logo appears in the README and offline reports. Current report styling uses white space, black body text, light sea-blue accents, compact metadata, and clear evidence/next-action sections. The report closes with **MADE BY HR-PRESENTS** in both HTML and print.
 
-## Visual claims
+See [Reports](REPORTS.md) for presentation and print behavior.
 
-Automated rendering checks and successful Windows builds do not establish visual acceptance by themselves. Public screenshots should come from verified builds and should only be described as accepted product imagery after real-terminal review.
+## Release and validation claims
 
-The current published stable release is v2.1.3. Its Windows Mission Control presentation did not pass later real-Windows visual acceptance, so outdated or unreviewed terminal mockups should not be used as authoritative product imagery.
+Main can contain reviewed improvements newer than published release assets. See [Installation](INSTALL.md) for the distinction and pinned source installation.
+
+Automated browser and PDF checks verify specific behavior and layout constraints. They do not establish universal visual acceptance on every Windows terminal, browser, printer, or PDF configuration. Do not present historical mockups as current product screenshots.
