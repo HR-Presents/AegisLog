@@ -66,7 +66,16 @@ def windows_event_logs(limit: int = 300, channel: str = "System", since_minutes:
     query = f"-FilterHashtable @{{LogName='{channel}'; StartTime=(Get-Date).AddMinutes(-{since_minutes})}}" if since_minutes else f"-LogName '{channel}'"
     script = (
         f"Get-WinEvent {query} -MaxEvents {count} -ErrorAction Stop | "
-        "Select-Object TimeCreated,Id,LevelDisplayName,ProviderName,Message | ConvertTo-Json -Compress"
+        "Sort-Object TimeCreated | ForEach-Object { "
+        "$event = $_; [xml]$xml = $event.ToXml(); $fields = @{}; "
+        "foreach ($data in $xml.Event.EventData.Data) { "
+        "if ($data.Name) { $fields[[string]$data.Name] = [string]$data.'#text' } }; "
+        "if ($xml.Event.UserData) { foreach ($data in $xml.Event.UserData.SelectNodes('.//*[not(*)]')) { "
+        "$fields[[string]$data.LocalName] = [string]$data.InnerText } }; "
+        "[pscustomobject]@{ TimeCreated=$event.TimeCreated.ToUniversalTime().ToString('o'); "
+        "Id=$event.Id; Level=$event.Level; LevelDisplayName=$event.LevelDisplayName; "
+        "ProviderName=$event.ProviderName; Message=$event.Message; EventData=$fields } "
+        "} | ConvertTo-Json -Depth 5 -Compress"
     )
     try:
         raw = _run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script], timeout=30).strip()
@@ -96,10 +105,15 @@ def windows_event_logs(limit: int = 300, channel: str = "System", since_minutes:
         if not isinstance(item, dict):
             continue
         timestamp = _windows_timestamp(item.get("TimeCreated"))
-        level = str(item.get("LevelDisplayName") or "INFO").upper()
+        level = {1: 'CRITICAL', 2: 'ERROR', 3: 'WARNING', 4: 'INFO', 5: 'VERBOSE'}.get(
+            item.get('Level'), str(item.get("LevelDisplayName") or "INFO").upper()
+        )
         provider = str(item.get("ProviderName") or "windows")
         event_id = str(item.get("Id") or "")
         message = " ".join(str(item.get("Message") or "").split())
+        fields = item.get('EventData')
+        if isinstance(fields, dict) and fields:
+            message += ' | AEGIS_EVENT_DATA=' + json.dumps(fields, ensure_ascii=True, separators=(',', ':'))
         lines.append(f"{timestamp} {provider}[{event_id}]: {level} {message}\n")
     return lines
 

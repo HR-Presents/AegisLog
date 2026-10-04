@@ -98,7 +98,7 @@ def analyze_dashboard(
         raise ValueError("dashboard retention limits must be positive")
     retained: deque[tuple[str, Event, int]] = deque()
     retained_bytes = total = 0
-    state = AnalysisState(timestamp_year_hint=timestamp_year_hint)
+    state = AnalysisState(timestamp_year_hint=timestamp_year_hint, preserve_auth_bursts=True)
     level_counts: Counter[str] = Counter()
     service_counts: Counter[str] = Counter()
     coverage = Coverage()
@@ -698,3 +698,4 @@ def render_dashboard(data: DashboardData, *, screen_width: int | None = None) ->
         sections.extend((Text(""), raw))
     sections.extend((Text(""), _next_steps(data)))
     return Group(*sections)
+

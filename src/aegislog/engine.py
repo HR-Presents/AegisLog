@@ -185,6 +185,7 @@ class AnalysisState:
         max_auth_sources: int = 2_048,
         max_findings: int = 5_000,
         timestamp_year_hint: int | None = None,
+        preserve_auth_bursts: bool = False,
     ):
         if auth_window_seconds < 1 or max_auth_events < 1 or max_auth_sources < 1 or max_findings < 0:
             raise ValueError("correlation limits must be valid")
@@ -195,6 +196,8 @@ class AnalysisState:
         self.max_auth_sources = max_auth_sources
         self.max_findings = max_findings
         self.timestamp_year_hint = timestamp_year_hint
+        self.preserve_auth_bursts = preserve_auth_bursts
+        self._auth_peaks: dict[str, tuple[int, AuthEvent]] = {}
         self._auth: OrderedDict[str, deque[AuthEvent]] = OrderedDict()
         self._missing_ts: OrderedDict[str, deque[AuthEvent]] = OrderedDict()
         self._latest_ts: datetime | None = None
@@ -313,6 +316,14 @@ class AnalysisState:
             )
         self._expire_timestamped()
         self._trim_global_auth_events()
+        if self.preserve_auth_bursts:
+            events = self._auth.get(key)
+            if events:
+                previous = self._auth_peaks.get(key)
+                if previous is None and len(self._auth_peaks) >= self.max_findings:
+                    self.dropped_findings += 1
+                elif previous is None or len(events) > previous[0]:
+                    self._auth_peaks[key] = (len(events), events[-1])
 
     def process(self, raw: str) -> None:
         line = redact(raw.strip())
@@ -362,11 +373,15 @@ class AnalysisState:
 
     def _correlated_findings(self) -> list[Finding]:
         correlated: list[Finding] = []
-        for key, events in self._auth.items():
-            if events:
-                correlated.append(
-                    _auth_finding(None if key == "<unknown>" else key, len(events), events[-1], self.auth_window_seconds)
-                )
+        if self.preserve_auth_bursts:
+            for key, (count, event) in self._auth_peaks.items():
+                correlated.append(_auth_finding(None if key == '<unknown>' else key, count, event, self.auth_window_seconds))
+        else:
+            for key, events in self._auth.items():
+                if events:
+                    correlated.append(
+                        _auth_finding(None if key == "<unknown>" else key, len(events), events[-1], self.auth_window_seconds)
+                    )
         for key, events in self._missing_ts.items():
             if events:
                 correlated.append(
@@ -396,7 +411,7 @@ def analyze_lines(
 def analyze_file(
     path: Path, auth_window_seconds: int = 300, *, timestamp_year_hint: int | None = None
 ) -> tuple[int, list[Finding]]:
-    state = AnalysisState(auth_window_seconds=auth_window_seconds, timestamp_year_hint=timestamp_year_hint)
+    state = AnalysisState(auth_window_seconds=auth_window_seconds, timestamp_year_hint=timestamp_year_hint, preserve_auth_bursts=True)
     count = 0
     for count, item in enumerate(iter_bounded_lines(path), 1):
         state.process(item.text)

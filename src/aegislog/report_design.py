@@ -13,11 +13,15 @@ def observed_facts(item, year_hint=None):
     for label, value in (('Account', event.account), ('Source address', event.source_ip), ('Host', event.host)):
         if value:
             facts.append((label, value))
+    from .parsers import WINDOWS_EVENT
+    windows = WINDOWS_EVENT.match(item.evidence.strip())
     service = re.search(r'\b([\w.-]+)\[(\d+)\]:', item.evidence)
-    if service:
+    if windows:
+        facts.extend([('Provider', windows.group('provider').strip()), ('Event ID', windows.group('event_id'))])
+    elif service:
         facts.extend([('Service', service.group(1)), ('Process', service.group(2))])
     windows_id = re.search(r'\bEvent ID\s+(\d+)\b', item.evidence)
-    if windows_id:
+    if windows_id and not windows:
         facts.append(('Event ID', windows_id.group(1)))
     facts.append(('Timestamp', event.timestamp.isoformat() if event.timestamp else 'Unresolved'))
     return '<dl class="observed-facts">' + ''.join(
