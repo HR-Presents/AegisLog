@@ -8,75 +8,7 @@ import socket
 import ssl
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
-
-from .sanitize import redact_sensitive
-
-
-@dataclass(frozen=True)
-class AIResponse:
-    provider: str
-    model: str
-    text: str
-
-
-class ProviderError(RuntimeError):
-    pass
-
-
-MAX_RESPONSE_BYTES = 2_000_000
-REMOTE_AI_OPT_IN_ENV = "AEGISLOG_ALLOW_REMOTE_AI"
-OLLAMA_TIMEOUT_ENV = "AEGISLOG_OLLAMA_TIMEOUT_SECONDS"
-DEFAULT_OLLAMA_TIMEOUT_SECONDS = 120
-MAX_OLLAMA_TIMEOUT_SECONDS = 600
-_TRUE_VALUES = {"1", "true", "yes", "on"}
-
-
-def _remote_ai_enabled() -> bool:
-    return os.environ.get(REMOTE_AI_OPT_IN_ENV, "").strip().lower() in _TRUE_VALUES
-
-
-def _require_remote_ai_opt_in() -> None:
-    if not _remote_ai_enabled():
-        raise ProviderError(
-            "Remote AI is disabled by default to keep analysis local. "
-            f"Set {REMOTE_AI_OPT_IN_ENV}=1 only if you explicitly consent to sending redacted analysis context "
-            "to a remote provider."
-        )
-
-
-def _ollama_timeout_seconds() -> int:
-    raw = os.environ.get(OLLAMA_TIMEOUT_ENV, "").strip()
-    if not raw:
-        return DEFAULT_OLLAMA_TIMEOUT_SECONDS
-    try:
-        timeout = int(raw)
-    except ValueError as exc:
-        raise ProviderError(f"{OLLAMA_TIMEOUT_ENV} must be an integer number of seconds") from exc
-    if not 1 <= timeout <= MAX_OLLAMA_TIMEOUT_SECONDS:
-        raise ProviderError(
-            f"{OLLAMA_TIMEOUT_ENV} must be between 1 and {MAX_OLLAMA_TIMEOUT_SECONDS} seconds"
-        )
-    return timeout
-
-
-def _resolved_addresses(hostname: str, port: int) -> set[ipaddress.IPv4Address | ipaddress.IPv6Address]:
-    try:
-        return {
-            ipaddress.ip_address(item[4][0])
-            for item in socket.getaddrinfo(hostname, port, type=socket.SOCK_STREAM)
-        }
-    except (OSError, ValueError) as exc:
-        raise ProviderError("provider hostname could not be resolved") from exc
-
-
-def _validated_endpoint(
-    url: str, allow_local: bool
-) -> tuple[urllib.parse.ParseResult, set[ipaddress.IPv4Address | ipaddress.IPv6Address]]:
-    parsed = urllib.parse.urlparse(url)
-    if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password:
-        raise ProviderError("provider URL must be HTTP(S) without embedded credentials")
-    if parsed.scheme != "https" and not allow_local:
+from dataclasse…780 tokens truncated…scheme != "https" and not allow_local:
         raise ProviderError("remote AI providers require HTTPS")
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
     addresses = _resolved_addresses(parsed.hostname, port)

@@ -66,6 +66,8 @@ Public screenshots should come from a verified build and sanitized or synthetic 
 
 ## Release status
 
+- **Upcoming investigation improvements:** [Workflows and validation](INVESTIGATION_WORKFLOWS.md)
+
 - **Published stable:** [v2.1.9 release notes](RELEASE_V2.1.9.md)
 - **Published release build commit:** `63cc07d0fb1d51c41e8fed7ea87ee254b740ab1c`
 - **Latest reviewed report design:** included in v2.1.9; see [installation](INSTALL.md#latest-reviewed-report-design-on-main)

@@ -93,7 +93,9 @@ def dashboard(
         console=console,
     ) as progress:
         task = progress.add_task(f"Analyzing {path.name}...", total=None)
-        data = analyze_dashboard(path, timestamp_year_hint=timestamp_year)
+        def show_progress(lines, records):
+            progress.update(task, description=f'Analyzing {path.name}: {lines:,} lines / {records:,} records')
+        data = analyze_dashboard(path, timestamp_year_hint=timestamp_year, progress=show_progress)
         label, scope = _snapshot_context.get()
         data = replace(data, source_label=label, collection_scope=scope)
         progress.update(task, description="Building investigation summary...")
@@ -102,6 +104,8 @@ def dashboard(
     console.print(bounded(render_dashboard(data, screen_width=console.size.width)))
     try:
         report_path = write_html_report(data)
+        from .case_catalog import save_case
+        save_case(data, report_path.parent, report_path, data.collection_scope or 'Static file analysis.')
     except (OSError, ValueError) as exc:
         console.print(Text(f"Report could not be written: {exc}", style=WARNING))
     else:

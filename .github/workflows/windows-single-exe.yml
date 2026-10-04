@@ -41,6 +41,13 @@ jobs:
           .\dist\AegisLog.exe doctor
           .\dist\AegisLog.exe start --help
           .\dist\AegisLog.exe check-computer --help
+          .\dist\AegisLog.exe review examples\auth.log
+          if ($LASTEXITCODE -ne 0) { throw "Grouped review failed" }
+          .\dist\AegisLog.exe cases --query auth
+          if ($LASTEXITCODE -ne 0) { throw "Case search failed" }
+          .\dist\AegisLog.exe diagnostics --output support-smoke.json
+          if ($LASTEXITCODE -ne 0) { throw "Support diagnostics failed" }
+          .\dist\AegisLog.exe update-check --help
           .\dist\AegisLog.exe dashboard examples\auth.log
           .\dist\AegisLog.exe live --help
           .\dist\AegisLog.exe live-multi --help

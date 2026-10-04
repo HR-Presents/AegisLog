@@ -43,6 +43,8 @@ class WindowsSecurityEvent:
     process: str | None = None
     subject_sid: str | None = None
     actor_account: str | None = None
+    logon_id: str | None = None
+    host: str | None = None
 
 
 @dataclass(frozen=True)
@@ -55,6 +57,10 @@ class SecuritySignal:
 
 
 EVENT_CONTEXT: dict[int, tuple[str, str, str, str]] = {
+    4624: (
+        "INFO", "authentication", "Windows successful logon recorded",
+        "Validate the account and logon type; a successful logon alone does not establish unauthorized access.",
+    ),
     4625: (
         "MEDIUM", "authentication", "Windows failed logon",
         "Review the target account, source address/workstation, logon type, and nearby successful logons.",
@@ -120,7 +126,7 @@ def parse_windows_security_line(line: str) -> WindowsSecurityEvent | None:
     def value(name):
         raw = fields.get(name) if fields is not None else None
         return str(raw)[:512] if isinstance(raw, (str, int)) and str(raw) not in {'', '-'} else None
-    targeted = event_id in {4625, 4720, 4740}
+    targeted = event_id in {4624, 4625, 4720, 4740}
     account = value('TargetUserName' if targeted else 'SubjectUserName')
     if event_id in {4728, 4732}:
         account = value('MemberName') or value('MemberSid')
@@ -134,6 +140,8 @@ def parse_windows_security_line(line: str) -> WindowsSecurityEvent | None:
         process=value('NewProcessName') if fields is not None else _field(message, "process"),
         subject_sid=(value('SubjectUserSid') if fields is not None else _field(message, "subject_sid")) or None,
         actor_account=value('SubjectUserName'),
+        logon_id=value('TargetLogonId' if event_id == 4624 else 'SubjectLogonId'),
+        host=value('Computer'),
     )
 
 

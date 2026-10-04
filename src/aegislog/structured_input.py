@@ -47,6 +47,17 @@ def normalize_object(obj):
     """Return canonical text and schema name without interpreting arbitrary business data."""
     if not isinstance(obj, dict):
         return None, 'unknown-json'
+    # Docker json-file and explicit Elastic Common Schema application records.
+    # Normalize known fields only; parsing does not imply additional detection rules.
+    if isinstance(obj.get('log'), str) and obj.get('stream') in {'stdout', 'stderr'} and obj.get('time'):
+        return f'{_stamp(obj["time"])} docker: {obj["log"].rstrip()}', 'docker-json'
+    if isinstance(obj.get('@timestamp'), str) and isinstance(obj.get('message'), str):
+        service = obj.get('service')
+        log = obj.get('log')
+        name = service.get('name', 'application') if isinstance(service, dict) else 'application'
+        level = log.get('level', '') if isinstance(log, dict) else ''
+        if isinstance(name, str) and isinstance(level, str):
+            return f'{_stamp(obj["@timestamp"])} {name[:128]}: {level.upper()[:32]} {obj["message"]}', 'ecs-message'
     if obj.get('event_type') and ('src_ip' in obj or 'dest_ip' in obj or 'alert' in obj):
         kind = str(obj['event_type'])
         alert = obj.get('alert')
@@ -79,7 +90,7 @@ def normalize_object(obj):
 def iter_records(path: Path, coverage: Coverage, max_line_bytes=1_000_000, cancel=None):
     source_digest = hashlib.sha256()
     def lines():
-        for item in iter_bounded_lines(path, max_line_bytes, on_bytes=source_digest.update):
+        for item in iter_bounded_lines(path, max_line_bytes, on_bytes=source_digest.update, cancel=cancel):
             if cancel:
                 cancel()
             coverage.lines += 1

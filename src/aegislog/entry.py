@@ -4,6 +4,7 @@ from .cli import app
 from .commands import register_commands, start
 from .console_pages import system_check
 from .product import guided_check
+from .support_commands import register as register_support
 
 
 def _remove_ai_surface() -> None:
@@ -35,5 +36,6 @@ def check_computer_command():
 
 
 app.command("check-computer")(check_computer_command)
+register_support(app)
 
 __all__ = ["app", "start"]
