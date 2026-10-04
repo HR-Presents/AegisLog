@@ -6,6 +6,7 @@ on:
       - 'src/aegislog/reporting.py'
       - 'src/aegislog/report_design.py'
       - 'src/aegislog/report_reference.py'
+      - 'src/aegislog/report_styles.py'
       - 'tools/report-layout/**'
       - '.github/workflows/report-layout.yml'
   workflow_dispatch:

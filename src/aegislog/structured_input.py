@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import csv
 import json
+import hashlib
 
 from .ingestion import iter_bounded_lines
 from .parsers import parse_line, PRIORITY_LEVELS
@@ -19,6 +20,7 @@ class Coverage:
     invalid: int = 0
     truncated: int = 0
     metadata: int = 0
+    source_sha256: str = ""
     formats: Counter = field(default_factory=Counter)
 
     @property
@@ -75,13 +77,15 @@ def normalize_object(obj):
 
 
 def iter_records(path: Path, coverage: Coverage, max_line_bytes=1_000_000, cancel=None):
+    source_digest = hashlib.sha256()
     def lines():
-        for item in iter_bounded_lines(path, max_line_bytes):
+        for item in iter_bounded_lines(path, max_line_bytes, on_bytes=source_digest.update):
             if cancel:
                 cancel()
             coverage.lines += 1
             coverage.truncated += int(item.truncated)
             yield item.text
+        coverage.source_sha256 = source_digest.hexdigest()
     def emit(raw, text, kind, known):
         if cancel:
             cancel()

@@ -19,6 +19,7 @@ def document_cover(source, case_id, formats, generated, logo_uri, *, summary=Fal
         '<div><strong>AegisLog</strong><span>PRESENTED BY HR-PRESENTS</span></div></div>'
         '<div class="cover-heading"><p class="cover-kicker">DEFENSIVE LOG INVESTIGATION</p>'
         f'<h1>{title}</h1><p class="cover-subtitle">{escape(subtitle)}</p></div>'
+        '<a class="cover-results" href="#executive">View investigation results →</a>'
         f'<dl class="cover-cards">{cards}</dl>'
         + ('<p class="cover-demo">SYNTHETIC DEMO DATA · Training signals, not findings about your computer.</p>' if demo else '')
         + '<p class="cover-footer">Local investigation output · Read-only sources · Deterministic analysis</p></header>'
@@ -48,6 +49,9 @@ REFERENCE_STYLE = """
 .cover-cards dt{font-size:13px;margin-bottom:6px;opacity:.8}
 .cover-cards dd{font-size:16px;font-weight:700;margin:0;overflow-wrap:anywhere}
 .cover-footer{position:absolute;bottom:48px;left:64px;right:64px;font-size:12px;opacity:.8;margin:0}
+.cover-results{display:inline-block;padding:12px 18px;margin:0 0 24px;border:1px solid #aac7f0;border-radius:8px;font-weight:700;text-decoration:none}
+.evidence-group{display:none}.group-label{padding:12px 20px 0;font-size:12px;font-weight:700}
+.count-key{margin:0 0 24px;font-size:14px}.source-fingerprint,.coverage-grid dd{overflow-wrap:anywhere}
 .cover-demo{font-size:12px;font-weight:700;margin-top:18px}
 .document-contents,.report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{border:1px solid #d3def0;border-radius:16px;padding:28px;margin:0 0 24px;background:#fff}
 .document-label,#aegislog-report .section-label{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px}
@@ -83,16 +87,26 @@ REFERENCE_STYLE = """
 .cover-footer{left:24px;right:24px;bottom:30px}
 .document-contents,.report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{padding:20px}
 .report .hero,.report .finding-columns{grid-template-columns:1fr}
+.report.summary .summary-finding{display:block}.report.summary .finding-index{padding:12px 16px}.report.summary .finding-content{min-width:0}
 .report.summary #scope{padding:20px}
 .report .metric strong{font-size:25px}
 }
 @media print{
 .report{width:auto;max-width:none;margin:0;font-size:13px}
+.cover-results{display:none!important}
+.evidence-group{display:block;font-size:9px;margin-top:5px;overflow-wrap:normal}.report .group-evidence{grid-template-columns:72px minmax(0,1fr)}
+.report #executive,.report #source{break-inside:avoid;page-break-inside:avoid}
+.report .finding-group{box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.report .group-intro{break-inside:avoid;break-after:avoid}
+.report .count-key{font-size:11px;margin-bottom:18px}
 .sentrix-cover{height:267mm;min-height:0;padding:14mm 13mm 28mm;margin:0;break-after:page;break-inside:avoid;border-radius:0}
 .cover-brand{gap:7mm}.cover-logo{width:22mm}.cover-brand strong{font-size:30px}.cover-brand span{font-size:9px}
 .cover-heading{margin-top:28mm}.sentrix-cover h1{font-size:38px;margin-bottom:6mm}.cover-subtitle{font-size:18px;line-height:1.6;margin-bottom:8mm}
 .cover-cards{gap:5mm}.cover-cards>div{padding:5mm;border-radius:12px}.cover-cards dt{font-size:12px}.cover-cards dd{font-size:14px}
-.cover-footer{bottom:13mm;left:13mm;right:13mm;font-size:10px}.cover-demo{font-size:10px}
+.cover-footer{bottom:13mm;left:13mm;right:13mm;font-size:10px}.cover-results{display:inline-block;padding:12px 18px;margin:0 0 24px;border:1px solid #aac7f0;border-radius:8px;font-weight:700;text-decoration:none}
+.evidence-group{display:none}.group-label{padding:12px 20px 0;font-size:12px;font-weight:700}
+.count-key{margin:0 0 24px;font-size:14px}.source-fingerprint,.coverage-grid dd{overflow-wrap:anywhere}
+.cover-demo{font-size:10px}
 .document-contents{padding:18px 22px;margin:0 0 18px;break-inside:avoid}
 .document-contents a{padding:9px 0;font-size:13px}.document-contents h2{font-size:22px;margin-bottom:12px}
 .report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{padding:18px 22px;margin-bottom:18px;border:1px solid #d3def0;border-radius:14px}
