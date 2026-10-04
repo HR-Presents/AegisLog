@@ -117,7 +117,7 @@ def correlate(findings: list[Finding]) -> list[Incident]:
         observed = dict(items[0].context or windows_context(items[0].evidence))
         description = []
         if observed.get('provider'):
-            description = [observed['provider'], 'Event ' + observed.get('event_id', '?')]
+            description = [observed['provider'], 'Event ID ' + observed.get('event_id', '?')]
             for label in ['host', 'account']:
                 if observed.get(label):
                     description.append(label + '=' + observed[label])
