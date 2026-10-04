@@ -574,7 +574,7 @@ def build_summary_report(data: DashboardData, appendix_href: str) -> str:
             limits.append(f'{count:,} {label}')
     limits_note = '<p class="coverage-warning">Collection limits: ' + escape('; '.join(limits)) + '.</p>' if limits else ''
     print_evidence = ''.join(
-        f'<div class="summary-print-excerpt"><strong><a href="{escape(appendix_href)}#finding-{members[0][0]:03d}">F-{members[0][0]:03d} · {escape(key[2])}</a></strong><code class="evidence">{escape(members[0][1].evidence[:280])}{" … [excerpt; see complete report]" if len(members[0][1].evidence) > 280 else ""}</code></div>'
+        f'<div class="summary-print-excerpt"><strong><a href="{escape(appendix_href)}#finding-{members[0][0]:03d}">F-{members[0][0]:03d} · {escape(key[2])}</a></strong><code class="evidence">{escape(members[0][1].evidence[:200])}{" … [excerpt; see complete report]" if len(members[0][1].evidence) > 200 else ""}</code></div>'
         for key, members in groups
     ) if compact else ''
     print_evidence = f'<section class="summary-print-evidence"><h2>Representative evidence</h2>{print_evidence}</section>' if print_evidence else ''

@@ -50,7 +50,7 @@ def test_numeric_log_always_and_punctuated_provider_are_native(monkeypatch):
     from aegislog import native_collectors as native
     monkeypatch.setattr(native.platform, 'system', lambda: 'Windows')
     monkeypatch.setattr(native, '_run', lambda *a, **k: json.dumps({'TimeCreated': '2026-10-04T08:00:00Z', 'ProviderName': 'Vendor & Service', 'Id': 1, 'Level': 0, 'LevelDisplayName': 'LogAlways', 'Message': 'Normal activity'}))
-    lines = native.windows_logs()
+    lines = native.windows_event_logs()
     assert ': INFO Normal activity' in lines[0]
     assert parse_line(lines[0]).source == 'windows'
     assert analyze_lines(lines) == []
