@@ -55,8 +55,8 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
     for text in (
         "Security Investigation Report",
         "Investigation record",
-        "Case ID",
-        "Executive summary",
+        "Report ID",
+        "Executive Summary",
         "What needs attention",
         "Assessment",
         "Disposition",
@@ -90,7 +90,7 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
     assert "#43aebb" in html
     assert 'content="light"' in html
     assert 'body{margin:0;background:#fff;color:var(--ink)' in html
-    assert 'Investigation Information' in html
+    assert 'Technical appendix' in html
     assert 'PRESENTED BY HR-PRESENTS' in html
     assert 'grid-template-columns:repeat(2,minmax(0,1fr))' in html
     assert "REMOTE AI" not in html

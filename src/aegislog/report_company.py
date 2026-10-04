@@ -126,3 +126,17 @@ COMPANY_FULL_STYLE = '''
 @media(max-width:700px){.report:not(.summary){padding:20px;width:100%}.report:not(.summary) .header-layout{grid-template-columns:1fr}.report:not(.summary) .section-head{display:block}.report:not(.summary) .group-evidence{grid-template-columns:1fr}}
 @media print{.report:not(.summary) .section-head{break-after:avoid;break-inside:avoid}.report:not(.summary){padding:0;margin:0;width:100%}.report:not(.summary) .header-layout{grid-template-columns:220px 1fr}.report:not(.summary) .cover-logo{width:210px}.report:not(.summary) .cover-heading h1{font-size:29px}.report:not(.summary) #findings{page-break-before:auto;break-before:auto}.report:not(.summary) .document-contents{display:none}.report:not(.summary) .section{padding:12px 0}.report:not(.summary) .section-head h2{font-size:21px}.report:not(.summary) .finding-columns p{font-size:12px!important}.report:not(.summary) .report-evidence .evidence{font-size:11px!important}.report:not(.summary) .finding-columns{padding:12px 0}.report:not(.summary) .finding-group{break-inside:auto}.report:not(.summary) .group-intro{break-inside:avoid}.report:not(.summary) .group-evidence{break-inside:avoid}.original-rule{font-size:10px}}
 '''
+
+COMPANY_FULL_STYLE += """
+.report:not(.summary) .technical-appendix{margin-top:24px;border-top:2px solid #b9e6ed;padding-top:16px}
+.report:not(.summary) .technical-appendix h3{font-size:18px;margin:0 0 6px}
+.report:not(.summary) .technical-appendix p{font-size:12px}
+.report:not(.summary) .technical-appendix th{width:25%;font-size:12px}
+.report:not(.summary) .technical-appendix td{font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.report:not(.summary) .technical-appendix table{table-layout:fixed;width:100%}
+@media print{.report:not(.summary) .technical-appendix th,.report:not(.summary) .technical-appendix td{font-size:10px;padding:6px 8px}.report:not(.summary) .technical-appendix h3{break-after:avoid}}
+"""
+
+COMPANY_FULL_STYLE += """
+@media print{.report:not(.summary){line-height:1.5}.report:not(.summary) .observed-facts{gap:3px 12px;line-height:1.4}.report:not(.summary) .finding-columns .why{font-size:12px!important;line-height:1.5!important;margin-top:8px}.report:not(.summary) .group-intro{padding:8px 0}.report:not(.summary) .finding-columns{padding:10px 0}.report:not(.summary) .finding-group{margin-bottom:14px}.report:not(.summary) .telemetry-grid{break-inside:avoid}}
+"""
