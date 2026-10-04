@@ -91,6 +91,15 @@ const path = require('path');
     if (await page.locator('.screen-tools').isVisible()) throw Error(`${name} browser controls leaked into print`);
     await page.pdf({path:`report-layout-qa/${name}.pdf`,format:'A4',printBackground:true,displayHeaderFooter:false});
   }
+  // A large full record must paginate without losing any retained detector excerpt.
+  await page.emulateMedia({media:'screen'});
+  await page.goto(pathToFileURL(path.resolve('report-layout-qa/many-findings-aegislog-report-appendix.html')).href);
+  if (await page.locator('.excerpt').count() !== 80) throw Error('Large full report lost retained findings');
+  await page.setViewportSize({width:390,height:844});
+  if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth+1)) throw Error('Large full report mobile overflow');
+  await page.setViewportSize({width:1440,height:900});
+  await page.emulateMedia({media:'print'});
+  await page.pdf({path:'report-layout-qa/many-findings-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
   await browser.close();
   console.log('Chromium filter and 161-source print smoke passed');
 })().catch(error => {console.error(error);process.exit(1);});

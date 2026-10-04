@@ -99,6 +99,10 @@ jobs:
                   assert 'Edge updater diagnostic report recorded' in contents
                   assert 'not counts of unique failures' in contents
                   assert 'Event 1001' in contents
+          contents = subprocess.check_output(['pdftotext', 'report-layout-qa/many-findings-complete.pdf', '-'], text=True)
+          for index in range(1, 81):
+              assert f'F-{index:03d}' in contents, f'Large full PDF lost finding {index}'
+          assert 'long-evidence' in contents and 'Source SHA-256' in contents
           print(f'Printed {pages} readable appendix pages for 161 long-path sources')
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
