@@ -1,6 +1,6 @@
 # Investigation improvements
 
-These additions are on the improvement branch pending merge and release. The existing v2.1.9 downloads remain unchanged.
+These additions are merged on main and being packaged for v2.1.10. The existing v2.1.9 downloads remain unchanged.
 
 ## Review and prioritise
 

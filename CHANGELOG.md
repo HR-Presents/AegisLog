@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.1.10 — 2026-10-04
 
 - Add grouped terminal review with retained occurrence times, impact, alternatives and recommended next steps.
 - Add explicit host/logon-ID/time-bounded Windows session context; retain successful logons as informational records.
