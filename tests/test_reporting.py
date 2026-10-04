@@ -87,7 +87,7 @@ def test_html_report_is_self_contained_and_analyst_oriented() -> None:
 
     assert 'class="telemetry-grid"' in html
     assert 'aria-label="AegisLog terminal mark logo"' in html
-    assert "#287bff" in html
+    assert "#43aebb" in html
     assert 'content="light"' in html
     assert 'body{margin:0;background:#fff;color:var(--ink)' in html
     assert 'Investigation Information' in html
@@ -273,7 +273,7 @@ def test_summary_embeds_brand_logo_and_readable_print_colors():
     assert 'aria-label="AegisLog terminal mark logo"' in html
     assert 'data:image/png;base64,' in html
     assert 'aegislog-report-logo' in html
-    assert 'color:#245ea8!important' in html
+    assert 'color:#126773!important' in html
     assert 'color:#a62b38!important' in html
     assert 'print-color-adjust:exact' in html
     assert 'class="summary-service-chart"' in html
