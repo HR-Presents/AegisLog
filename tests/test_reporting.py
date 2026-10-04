@@ -378,3 +378,15 @@ def test_report_evidence_disclosure_keeps_print_and_anchor_support():
     assert "hashchange" in html
     assert 'Observed evidence' in html and 'Why it matters:' in html
     assert '#aegislog-report *{color:#000!important}' in html
+
+
+def test_summary_avoids_duplicate_disposition_and_limits_compact_print():
+    from aegislog.reporting import build_summary_report
+    html = build_summary_report(_data(), 'appendix.html')
+    assert html.count('IMMEDIATE REVIEW') == 1
+    assert 'Recognized records' in html
+    assert 'summary-findings compact-findings' in html
+    data = _data()
+    long_finding = replace(data.findings[0], evidence='long evidence ' * 100)
+    html = build_summary_report(replace(data, findings=(long_finding, data.findings[1])), 'appendix.html')
+    assert 'class="summary-findings compact-findings"' not in html
