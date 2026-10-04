@@ -8,6 +8,7 @@ on:
       - 'src/aegislog/report_reference.py'
       - 'src/aegislog/report_styles.py'
       - 'src/aegislog/report_editorial.py'
+      - 'src/aegislog/report_company.py'
       - 'tools/report-layout/**'
       - '.github/workflows/report-layout.yml'
   workflow_dispatch:
@@ -55,10 +56,14 @@ jobs:
                   assert re.search(rf'{page}\s*/\s*{count}', page_text), 'Missing page number'
 
               first_page = subprocess.check_output(['pdftotext', '-f', '1', '-l', '1', f'report-layout-qa/{name}.pdf', '-'], text=True)
-              assert 'PRESENTED BY HR-PRESENTS' in first_page and 'Report ID' in first_page
-              assert 'Record formats' in first_page and 'Generated' in first_page
-              assert 'Executive Summary' in first_page, 'Results missing from opening page'
-              assert 'Contents' in contents and 'Record Overview' in contents
+              if name == 'demo-summary':
+                  assert 'Report reference' in first_page and 'Generated' in first_page
+                  assert 'Findings & recommended review' in first_page
+              else:
+                  assert 'PRESENTED BY HR-PRESENTS' in first_page and 'Report ID' in first_page
+                  assert 'Record formats' in first_page and 'Generated' in first_page
+                  assert 'Executive Summary' in first_page, 'Results missing from opening page'
+                  assert 'Contents' in contents and 'Record Overview' in contents
               assert 'Timestamp limitations:' in contents
               assert count <= (6 if name == 'demo-summary' else 10), f'Unexpected demo print length: {name} {count}'
               if name != 'demo-summary':
@@ -88,14 +93,14 @@ jobs:
               assert 'MADE BY HR-PRESENTS' in contents, f'{name}: closing signature missing'
               if name == 'windows-context':
                   assert 'Microsoft-Windows-DistributedCOM' in contents
-                  assert '2/123 total events' in contents
-                  assert 'sample rarity' in contents
+                  assert 'Service response timeout' in contents
+                  assert 'AEGIS_EVENT_DATA' not in contents
               if name == 'wer-application':
                   assert count <= 6, f'Diagnostic summary too long: {count} pages'
                   assert 'Windows kernel live-dump report recorded' in contents
                   assert 'Edge updater diagnostic report recorded' in contents
                   assert 'not counts of unique failures' in contents
-                  assert 'Event ID 1001' in contents
+                  assert 'Event 1001' in contents
           print(f'Printed {pages} readable appendix pages for 161 long-path sources')
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

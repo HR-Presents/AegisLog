@@ -19,44 +19,32 @@ const path = require('path');
   if (!await page.getByText('SYNTHETIC DEMO DATA', {exact:true}).isVisible()) throw Error('Demo label missing');
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map(img => img.decode())); });
-  const cover = page.locator('.aegis-report-header');
+  const cover = page.locator('.company-header');
   if (!await cover.isVisible()) throw Error('AegisLog brief header missing');
-  if (!await cover.locator('.cover-logo').isVisible()) throw Error('AegisLog logo missing');
-  await cover.getByRole('link', {name:'View investigation results'}).click();
-  if (!page.url().endsWith('#executive')) throw Error('Cover shortcut failed');
-  const logoWidth = await cover.locator('.cover-logo').evaluate(item => item.getBoundingClientRect().width);
+  const logoWidth = await cover.locator('img').evaluate(item => item.getBoundingClientRect().width);
   if (logoWidth < 250) throw Error('Report logo is too small');
-  const stops = await cover.locator('stop').evaluateAll(items => items.map(item => item.getAttribute('stop-color')));
-  if (!stops.includes('#b9e6ed')) throw Error('Light sea-blue palette missing');
   const color = await cover.locator('h1').evaluate(item => getComputedStyle(item).color);
   if (color !== 'rgb(0, 0, 0)') throw Error('Header title must be black');
   if (!await page.getByText('MADE BY HR-PRESENTS', {exact:true}).isVisible()) throw Error('Closing maker signature missing');
-  if (await page.locator('.cover-cards > div').count() !== 4) throw Error('Cover metadata cards missing');
-  if (await page.locator('.document-contents a').count() !== 8) throw Error('Contents missing');
-  const colored = await page.locator('#aegislog-report *').evaluateAll(items => items.filter(item =>
-    !item.closest('.aegis-report-header, .document-contents') && !item.classList.contains('section-label') &&
+  if (await page.locator('.metric-strip > div').count() !== 4) throw Error('Metrics missing');
+  const colored = await page.locator('.company-report *').evaluateAll(items => items.filter(item =>
     item.textContent.trim() && !item.children.length && getComputedStyle(item).color !== 'rgb(0, 0, 0)'
   ).map(item => item.className));
   if (colored.length) throw Error(`Non-black body text: ${colored}`);
-  await page.getByRole('link', {name:'Findings & Next Actions', exact:true}).click();
-  if (!page.url().endsWith('#findings')) throw Error('Contents link failed');
-  const disclosure = page.locator('details.report-evidence').first();
-  if (await disclosure.getAttribute('open') !== null) throw Error('Evidence should start collapsed');
-  await disclosure.locator('summary').click();
-  if (!await disclosure.locator('.evidence').isVisible()) throw Error('Evidence did not expand');
-  await disclosure.locator('summary').click();
+  const evidenceLink = page.locator('.issue a[href*="#finding-"]').first();
+  if (!(await evidenceLink.getAttribute('href')).includes('-appendix.html#finding-')) throw Error('Evidence reference missing');
   await page.goto('about:blank');
   await page.goto(pathToFileURL(path.resolve('report-layout-qa/demo_auth-aegislog-report.html')).href);
   await page.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map(img => img.decode())); });
   await page.screenshot({path:'report-layout-qa/summary-desktop.png'});
   await page.setViewportSize({width:390,height:844});
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error('Summary overflows mobile screen');
-  const titleWidth = await page.locator('.summary-finding .record-head strong').first().evaluate(item => item.getBoundingClientRect().width);
+  const titleWidth = await page.locator('.issue-heading h3').first().evaluate(item => item.getBoundingClientRect().width);
   if (titleWidth < 200) throw Error('Mobile finding title is unnecessarily narrow');
   await page.screenshot({path:'report-layout-qa/summary-mobile.png',fullPage:true});
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({media:'print'});
-  if (await page.locator('.cover-results').isVisible()) throw Error('Screen shortcut leaked into print');
+  if (await page.locator('.screen-tools').isVisible()) throw Error('Screen shortcut leaked into print');
   await page.pdf({path:'report-layout-qa/demo-summary.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
   await page.emulateMedia({media:'screen'});
   await page.getByRole('link',{name:'Print complete report / Save PDF'}).click();
@@ -87,10 +75,10 @@ const path = require('path');
     if (name === 'windows-context' || name === 'wer-application') await page.screenshot({path:`report-layout-qa/${name}-desktop.png`,fullPage:true});
     await page.emulateMedia({media:'print'});
     if (name === 'windows-context') {
-      const sourceBars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
-      if (!sourceBars.length || sourceBars.some(width => width !== '7px')) throw Error('Timestamped source foreground bars missing');
+      const sourceBars = await page.locator('.provider-bar i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
+      if (!sourceBars.length || sourceBars.some(width => width !== '5px')) throw Error('Timestamped source foreground bars missing');
     }
-    if (await page.locator('.toolbar').isVisible()) throw Error(`${name} browser controls leaked into print`);
+    if (await page.locator('.screen-tools').isVisible()) throw Error(`${name} browser controls leaked into print`);
     await page.pdf({path:`report-layout-qa/${name}.pdf`,format:'A4',printBackground:true,displayHeaderFooter:false});
   }
   await browser.close();

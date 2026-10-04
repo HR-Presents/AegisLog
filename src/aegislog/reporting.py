@@ -5,6 +5,7 @@ from .report_design import REPORT_EVIDENCE_SCRIPT, observed_facts, why_it_matter
 from .report_reference import document_cover, document_contents
 from .report_styles import report_stylesheet
 from .report_editorial import activity_timeline, report_signature
+from .report_company import issue_name, COMPANY_FULL_STYLE
 
 import hashlib
 import re
@@ -148,7 +149,7 @@ def _triage_actions(data: DashboardData) -> str:
             continue
         seen.add(recommendation)
         actions.append(f'<div class="triage-item"><span class="pill {_risk_class(severity)}">{escape(severity)}</span>'
-                       f'<div><strong>{escape(title)}</strong><a href="#full-action-{number}">Read recommended action and evidence</a></div></div>')
+                       f'<div><strong>{escape(issue_name(_members[0][1]))}</strong><small class="original-rule">Rule: {escape(title)}</small><a href="#full-action-{number}">Read recommended action and evidence</a></div></div>')
         if len(actions) == 3:
             break
     if not actions and data.incidents:
@@ -231,7 +232,7 @@ def _finding_records(data: DashboardData) -> str:
         )
         records.append(
             f'<article class="finding-group"><div class="group-intro"><div class="group-label">Presentation group G-{group_number:03d}</div><div class="record-head">'
-            f'<span class="pill {_risk_class(severity)}">{escape(severity)}</span><strong>{escape(title)}</strong>'
+            f'<span class="pill {_risk_class(severity)}">{escape(severity)}</span><strong>{escape(issue_name(members[0][1]))}</strong><small class="original-rule">Rule: {escape(title)}</small>'
             f'<span class="record-meta">{len(members)} finding(s) · {escape(category)}</span></div>'
             f'<div class="finding-columns"><div><span class="cell-label">Observed evidence · first retained excerpt</span>{observed_facts(members[0][1], data.timestamp_year_hint)}</div>'
             f'<div><span class="cell-label">Next step</span><p class="action-text">{action}</p><p class="why"><strong>Why it matters:</strong> {escape(why_it_matters(category))}</p></div></div></div>'
@@ -320,7 +321,7 @@ def build_html_report(data: DashboardData, summary_href: str | None = None) -> s
     case_id = _case_id(data)
     summary_link = (f'<a class="report-button" href="{escape(summary_href)}">Back / Print Summary</a>'
                     if summary_href else '<a href="#executive">Back to overview</a>')
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Report - {escape(source_name)}</title><style>{report_stylesheet()}</style></head><body><main id="aegislog-report" class="report">
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Report - {escape(source_name)}</title><style>{report_stylesheet()}{COMPANY_FULL_STYLE}</style></head><body><main id="aegislog-report" class="report">
 {_document_opening(data, generated, summary=False)}
 
 <nav class="toolbar">{summary_link}<a href="#executive">Overview</a><a href="#incidents">Incidents</a><a href="#findings">Findings</a><a href="#telemetry">Telemetry</a><a href="#anomalies">Anomalies</a><a href="#method">Method</a><span class="spacer"></span><span class="local-note">DETERMINISTIC ANALYSIS</span><button type="button" onclick="window.print()">Print Full Evidence / Save PDF</button></nav>
@@ -382,7 +383,8 @@ def _lead_observation(data: DashboardData, risk: str) -> str:
         if dict(priority[0].context).get('provider', '').casefold() == 'windows error reporting':
             return ('Windows diagnostic report records need review. Repeated submissions do not establish separate failures; '
                     'compare original dump times and user impact.')
-    return _assessment(data, risk)
+    from .report_company import assessment
+    return assessment(data, _finding_groups(data))[1]
 
 
 def _supporting_activity(data: DashboardData) -> str:
@@ -398,92 +400,8 @@ def _supporting_activity(data: DashboardData) -> str:
 
 
 def build_summary_report(data: DashboardData, appendix_href: str) -> str:
-    groups = _finding_groups(data)
-    compact = len(groups) == 2 and all(
-        len(members[0][1].evidence) <= 600 and len(key[3]) <= 250 and len(key[2]) <= 100
-        for key, members in groups
-    )
-    diagnostic_compact = compact and all(
-        dict(members[0][1].context).get('provider', '').casefold() == 'windows error reporting'
-        for _, members in groups
-    )
-    rows = []
-    seen_actions = {}
-    for group_number, ((severity, category, title, recommendation), members) in enumerate(groups[:6], 1):
-        index, example = members[0]
-        excerpt = example.evidence
-        excerpt_label = 'Representative evidence'
-        if len(excerpt) > 1200:
-            excerpt = excerpt[:1200].rsplit(' ', 1)[0]
-            excerpt_label = 'Evidence excerpt - continued in full report' 
-        if recommendation in seen_actions:
-            action = f'<a href="#action-{seen_actions[recommendation]}">Same next action as group {seen_actions[recommendation]}</a>'
-        else:
-            seen_actions[recommendation] = group_number
-            action = f'<span id="action-{group_number}">{escape(recommendation)}</span>'
-        rows.append(
-            f'<article class="summary-finding"><div class="finding-index">F-{index:03d}</div><div class="finding-content"><div class="record-head"><span class="pill {_risk_class(severity)}">{escape(severity)}</span>'
-            f'<strong>{escape(title)}</strong><span class="record-meta">{len(members)} finding(s) · {escape(category)}</span></div>'
-            f'<div class="finding-columns"><div><span class="cell-label">Observed evidence</span>{observed_facts(example, data.timestamp_year_hint)}</div>'
-            f'<div><span class="cell-label">Next step</span><p class="action-text">{action}</p><p class="why"><strong>Why it matters:</strong> {escape(why_it_matters(category))}</p></div></div>'
-            f'<details class="report-evidence" open><summary>Inspect {escape(excerpt_label.lower())}</summary><code class="evidence">{escape(excerpt)}</code>' 
-            f'<a class="evidence-link" href="{escape(appendix_href)}#finding-{index:03d}">View complete evidence → F-{index:03d}</a></details>'
-            + (f'<p class="summary-evidence-pointer"><a href="{escape(appendix_href)}#finding-{index:03d}">Complete retained evidence: F-{index:03d} in the investigation record.</a></p>' if diagnostic_compact else '')
-            + '</div></article>'
-        )
-    group_note = (f'Showing {min(6, len(groups))} highest-priority groups · '
-                  f'{len(data.findings)} retained findings. Complete evidence is linked below.')
-    incident_rows = "".join(
-        f'<tr><td><a href="{escape(appendix_href)}#incident-{escape(item.id)}">INC-{escape(item.id.upper()[:8])}</a></td>'
-        f'<td><span class="pill {_risk_class(item.severity)}">{escape(item.severity)}</span></td>'
-        f'<td>{escape(item.title)}<small class="incident-context">{escape(item.context)}</small></td><td>{item.count}</td></tr>'
-        for item in _ordered_incidents(data)[:5]
-    )
-    incident_content = ('<div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Signal</th><th>Count</th></tr></thead><tbody>'
-                        + incident_rows + '</tbody></table></div>') if incident_rows else '<p>No correlated incidents were recorded.</p>'
-    anomaly_content = "".join(f'<li><strong>{item.score:.1f}/100 sample rarity</strong> · {escape(item.key)} · {escape(item.reason)}. Not attack probability.</li>'
-                              for item in sorted(data.anomalies, key=lambda item: -item.score)[:3])
-    formats = ', '.join(sorted(data.format_counts or {})) or 'Unspecified'
-    coverage_rows = ''.join(
-        f'<div class="{"fingerprint-row" if label == "Source SHA-256" else ""}"><dt>{escape(label)}</dt><dd>{escape(value)}</dd></div>'
-        for label, value in (
-            ('Recognized records', f'{data.recognized_records:,} / {data.records:,}'),
-            ('Retained excerpts', f'{len(data.raw_lines):,} / {data.records:,}'),
-            ('Formats', formats),
-            ('Source handling', 'Read-only · local analysis'),
-            ('Source SHA-256', data.source_sha256 or 'Unavailable for this analysis'),
-        )
-    )
-    limits = []
-    for count, label in ((data.invalid_records, 'invalid records'), (data.truncated_lines, 'oversized lines truncated'),
-                         (data.dropped_findings, 'findings omitted'), (data.dropped_auth_events, 'authentication events evicted')):
-        if count:
-            limits.append(f'{count:,} {label}')
-    limits_note = '<p class="coverage-warning">Collection limits: ' + escape('; '.join(limits)) + '.</p>' if limits else ''
-    print_evidence = ''.join(
-        f'<div class="summary-print-excerpt"><strong><a href="{escape(appendix_href)}#finding-{members[0][0]:03d}">F-{members[0][0]:03d}</a></strong><code class="evidence">{escape(members[0][1].evidence[:100])}{" … [excerpt; see complete report]" if len(members[0][1].evidence) > 100 else ""}</code></div>'
-        for key, members in groups
-    ) if compact and not diagnostic_compact else ''
-    print_evidence = f'<section class="summary-print-evidence"><h2>Representative evidence</h2>{print_evidence}</section>' if print_evidence else ''
-    risk = _risk(data)
-    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    context = _report_context(data)
-    priority = _ordered_findings(data)
-    headline = ('Authentication activity requires review.' if priority and priority[0].category == 'authentication'
-                else 'Findings require review.' if priority else 'No rule-backed findings recorded.')
-    priority_lead = (f'<p class="priority-lead"><strong>Priority lead:</strong> <a href="#findings">{escape(priority[0].title)}</a> '
-                     f'({escape(priority[0].severity)}). Validate the retained evidence before taking action.</p>') if priority else '' 
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>AegisLog Investigation Summary - {escape(Path(data.source).name)}</title><style>{report_stylesheet(summary=True)}</style></head><body><main id="aegislog-report" class="report summary{' has-findings' if data.findings else ''}">{_document_opening(data, generated, summary=True, appendix_href=appendix_href)}
-<nav class="toolbar"><a href="#findings">Top findings</a><a href="#incidents">Incidents</a><a href="{escape(appendix_href)}?print=1">Print complete report / Save PDF</a><span class="spacer"></span><button type="button" onclick="window.print()">Print summary / Save PDF</button></nav><p class="print-help">This print button exports the short summary. Open the appendix to print full evidence separately. For PDF, turn off browser Headers and footers.</p><div class="content">
-<section class="section" id="executive"><div class="section-head"><div><div class="section-label">Assessment</div><h2>Executive Summary</h2></div></div><div class="hero"><div><h2>{escape(headline)}</h2><div class="assessment"><p>{escape(_lead_observation(data, risk))}</p></div>{priority_lead}</div><aside class="review-priority"><span class="cell-label">Review priority</span><strong>{escape(_disposition(risk))}</strong><p class="caveat">Findings are investigation leads, not proof of compromise.</p></aside></div></section>
-{_record_metrics(data, summary=True)}
-{_report_navigation(summary=True, appendix_href=appendix_href)}
-<section class="section" id="findings"><div class="section-head"><h2>Findings &amp; next actions</h2></div><p class="section-note">{escape(group_note)}</p><div class="summary-findings{' compact-findings' if compact else ''}">{"".join(rows) or '<p>No rule-backed findings were recorded.</p>'}</div></section>
-{print_evidence}<section class="section" id="incidents"><div class="section-head"><h2>Priority incidents</h2></div><p class="section-note">Showing {min(5, len(data.incidents))} of {len(data.incidents)} incident groups. Verify timing and shared cause before treating signals as one incident.</p>{incident_content}</section>
-<section class="section" id="activity"><div class="section-head"><h2>Supporting activity</h2></div>{_supporting_activity(data)}</section>
-<aside class="summary-notes" id="interpretation" aria-label="Report context and limitations"><h2>Interpretation notes</h2>{context}<p class="context-notice"><strong>SUMMARY ONLY</strong> - Complete retained evidence is in the separate full report. Read collection limits below before drawing conclusions.</p></aside>
-<section class="section" id="scope"><div class="section-head"><h2>Coverage</h2></div><div class="scope"><dl class="coverage-grid">{coverage_rows}</dl>{limits_note}{'<p>' + escape(data.collection_scope) + '</p>' if data.collection_scope else ''}{'<p>Top rarity signals:</p><ul>' + anomaly_content + '</ul>' if anomaly_content else ''}<p>No matching rules does not establish a clean system. Rarity describes this sample, not attack probability.</p><p class="identity-note">Report ID identifies the analysis output; it is not a source fingerprint. SHA-256 identifies bytes read during collection, including truncated tails; it does not certify an unchanged or complete live source. Preserve the original logs.</p><a href="{escape(appendix_href)}">Open the complete investigation record</a></div></section>
-{report_signature(_case_id(data), __version__)}</div></main>{REPORT_EVIDENCE_SCRIPT}</body></html>'''
+    from .report_company import build_company_summary
+    return build_company_summary(data, appendix_href)
 
 
 def write_html_report(data: DashboardData, output_dir: Path | None = None, *,
