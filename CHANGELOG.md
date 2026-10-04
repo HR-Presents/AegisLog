@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.11 — 2026-10-04
+
+- Package the approved boxed report layout with black text, light sea-blue framing, aligned metrics and a larger logo.
+- Preserve all retained evidence references, UTC chronology, source identity and coverage limits.
+- Verify responsive layouts, compact print and all 80 long finding references in PDF regression checks.
+
 ## 2.1.10 — 2026-10-04
 
 - Add grouped terminal review with retained occurrence times, impact, alternatives and recommended next steps.
