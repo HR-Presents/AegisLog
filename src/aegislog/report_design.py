@@ -49,7 +49,7 @@ REPORT_DESIGN_STYLE = """
 .report .summary-status,.report .summary-demo-label{font-size:12px}
 .report .summary-demo-label{margin-top:5px}
 .report .hero{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(180px,1fr);gap:26px;align-items:start}
-.report .hero h2{text-transform:none;font-size:32px;line-height:1.2;border:0;padding:0;letter-spacing:-.025em}
+.report.summary #executive .hero h2{text-transform:none;font-size:32px;line-height:1.2;border:0;padding:0;letter-spacing:-.025em}
 .report .hero .assessment p{font-size:17px!important;line-height:1.6;margin-top:12px;font-weight:400}
 .report .review-priority{padding:16px 18px;background:#f5f8fc;border-radius:8px}
 .report .review-priority strong{display:block;font-size:20px;margin:4px 0 8px}
@@ -75,14 +75,14 @@ REPORT_DESIGN_STYLE = """
 .report .group-evidence{padding:10px 0}
 .report .section-head h2{border:0;padding:0;font-size:22px}
 .report .summary-notes{border-radius:0}
-@media(max-width:700px){.report .hero,.report .finding-columns{grid-template-columns:1fr}.report .hero h2{font-size:27px}}
+@media(max-width:700px){.report .hero,.report .finding-columns{grid-template-columns:1fr}.report.summary #executive .hero h2{font-size:27px}}
 @media print{
 @page{size:A4;margin:14mm 13mm 16mm;@bottom-left{content:"AEGISLOG / HR-PRESENTS";font:9px Arial;color:#000}@bottom-right{content:counter(page) " / " counter(pages);font:9px Arial;color:#000}}
 .report .summary-header{grid-template-columns:90px minmax(0,1fr)}
 .report .summary-header .aegislog-report-logo{width:90px}
 .report .summary-header h1{font-size:23px}
 .report .hero{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:18px}
-.report .hero h2{font-size:21px;letter-spacing:-.025em}
+.report.summary #executive .hero h2{font-size:21px;letter-spacing:-.025em}
 .report .hero .assessment p{font-size:13px!important}
 .report .review-priority{padding:10px 12px}
 .report .review-priority strong{font-size:16px}
@@ -104,7 +104,9 @@ REPORT_DESIGN_STYLE = """
 .report.summary #executive{padding:6px 0 12px;margin-bottom:4px}
 .report.summary .summary-notes{padding:8px 0;margin:4px 0}
 .report.summary .context-notice{padding:6px 0;margin:6px 0}
-.report .observed-facts{gap:3px 12px}
+.report .observed-facts{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:3px 10px}
+.report .finding-columns{grid-template-columns:1fr}
+.report .finding-columns>div:first-child{padding-bottom:6px}
 .report .finding-columns{padding:10px 14px}
 .report .report-evidence .evidence{padding:6px 0!important}
 .report .footer{display:none}

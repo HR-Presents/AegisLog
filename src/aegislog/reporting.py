@@ -302,11 +302,13 @@ def _severity_overview(data: DashboardData) -> str:
     rows = []
     for severity in ("CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"):
         count = data.severities.get(severity, 0)
+        if not count:
+            continue
         percent = min(100.0, (count / total) * 100.0)
         rows.append(
             f'<div class="severity-row {_risk_class(severity)}"><small>{severity}</small><strong>{count}</strong><svg width="100%" height="8" role="img" aria-label="{severity}: {count}"><rect width="100%" height="8" fill="#cbd5e1"/><rect width="{percent:.1f}%" height="8" fill="#397dcc"/></svg></div>'
         )
-    return "".join(rows)
+    return "".join(rows) or '<p class="caveat">No rule-backed severity counts in this input.</p>'
 
 
 def _primary_decision(data: DashboardData) -> str:
