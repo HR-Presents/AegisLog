@@ -5,6 +5,7 @@ on:
       - 'src/aegislog/folder_scan.py'
       - 'src/aegislog/reporting.py'
       - 'src/aegislog/report_design.py'
+      - 'src/aegislog/report_reference.py'
       - 'tools/report-layout/**'
       - '.github/workflows/report-layout.yml'
   workflow_dispatch:
@@ -51,8 +52,13 @@ jobs:
                   page_text = subprocess.check_output(['pdftotext', '-f', str(page), '-l', str(page), f'report-layout-qa/{name}.pdf', '-'], text=True)
                   assert re.search(rf'{page}\s*/\s*{count}', page_text), 'Missing page number'
 
+              first_page = subprocess.check_output(['pdftotext', '-f', '1', '-l', '1', f'report-layout-qa/{name}.pdf', '-'], text=True)
+              assert 'PRESENTED BY HR-PRESENTS' in first_page and 'Report ID' in first_page
+              assert 'Record formats' in first_page and 'Generated' in first_page
+              assert 'Contents' not in first_page, 'Cover must be a separate first page'
+              assert 'DOCUMENT NAVIGATION' in contents and 'Contents' in contents
               assert 'Timestamp limitations:' in contents
-              assert count <= (2 if name == 'demo-summary' else 4), f'Unexpected demo print length: {name} {count}'
+              assert count <= (6 if name == 'demo-summary' else 10), f'Unexpected demo print length: {name} {count}'
               if name != 'demo-summary':
                   page_texts = [subprocess.check_output(['pdftotext', '-f', str(p), '-l', str(p), f'report-layout-qa/{name}.pdf', '-'], text=True) for p in range(1, count + 1)]
                   incident_page = next(p for p in page_texts if 'Incident Queue' in p)
@@ -79,7 +85,7 @@ jobs:
                   assert '2/123 total events' in contents
                   assert 'sample rarity' in contents
               if name == 'wer-application':
-                  assert count <= 2, f'Diagnostic summary too long: {count} pages'
+                  assert count <= 6, f'Diagnostic summary too long: {count} pages'
                   assert 'Windows kernel live-dump report recorded' in contents
                   assert 'Edge updater diagnostic report recorded' in contents
                   assert 'not counts of unique failures' in contents
@@ -91,3 +97,4 @@ jobs:
         with:
           name: folder-report-print-review
           path: report-layout-qa/
+
