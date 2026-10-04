@@ -266,11 +266,11 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 
 ### Current Release
 
-The investigation improvements are documented in [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md): grouped triage, explicit Windows session context, Docker/ECS message adapters, searchable saved cases, collection progress, signal comparisons, export preview, runtime diagnostics and opt-in release checks. These changes are included in the v2.1.10 Windows and Python downloads.
+The investigation improvements are documented in [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md): grouped triage, explicit Windows session context, Docker/ECS message adapters, searchable saved cases, collection progress, signal comparisons, export preview, runtime diagnostics and opt-in release checks. These changes and the approved boxed report redesign are included in the v2.1.11 Windows and Python downloads.
 
-**[v2.1.10](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.10)** is the published stable release, built from `248ae3689138f201cf0b1b03632d28180bb8c7c3`.
+**[v2.1.11](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.11)** is the published stable release, built from `999537ddc2f6d27a6a03cd1266e4dc71e18a0329`.
 
-Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.10/AegisLog-v2.1.10-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
+Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.11/AegisLog-v2.1.11-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
 
 > [!NOTE]
 > **Windows signing status**
@@ -301,7 +301,7 @@ python -m pipx ensurepath
 Close and reopen your terminal so PATH changes take effect. Then install the published wheel:
 
 ```bash
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.10/aegislog_ai-2.1.10-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.11/aegislog_ai-2.1.11-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start
@@ -457,7 +457,7 @@ See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), 
 | [Compatibility](docs/COMPATIBILITY.md) | Formats and coverage limits |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Installation and runtime issues |
 | [Testing](docs/TESTING.md) | Validation guidance |
-| [Release Notes](docs/RELEASE_V2.1.10.md) | Published v2.1.10 changes |
+| [Release Notes](docs/RELEASE_V2.1.11.md) | Published v2.1.11 changes |
 | [Roadmap](docs/ROADMAP.md) | Released capabilities and future priorities |
 | [Documentation Index](docs/README.md) | Complete documentation directory |
 
