@@ -50,32 +50,31 @@ const path = require('path');
   await page.getByRole('link',{name:'Print complete report / Save PDF'}).click();
   if (!page.url().includes('-appendix.html?print=1')) throw Error('Complete print action failed');
   await page.waitForLoadState('load');
-  await page.getByRole('heading', {name:'Security Investigation Report', exact:true}).waitFor({state:'visible'});
+  await page.getByRole('heading', {name:'Investigation report', exact:true}).waitFor({state:'visible'});
   await page.evaluate(async () => {
     await document.fonts.ready;
     await Promise.all([...document.images].map(img => img.decode()));
   });
   await page.screenshot({path:'report-layout-qa/complete-desktop.png'});
   async function verifyTelemetryRow() {
-    const bounds = await page.locator('#telemetry .telemetry-card').evaluateAll(cards =>
+    const bounds = await page.locator('.supporting .chart').evaluateAll(cards =>
       cards.map(card => {const box = card.getBoundingClientRect(); return {x:box.x,y:box.y,right:box.right};}));
     if (bounds.length !== 3 || bounds.some(box => Math.abs(box.y - bounds[0].y) > 1)
         || bounds[0].right > bounds[1].x || bounds[1].right > bounds[2].x) {
       throw Error('Categories, log levels and services must align side by side');
     }
   }
+  await page.locator('.supporting').evaluate(item => item.open = true);
   await verifyTelemetryRow();
-  await page.locator('#telemetry').screenshot({path:'report-layout-qa/telemetry-desktop.png'});
+  await page.locator('.supporting').screenshot({path:'report-layout-qa/telemetry-desktop.png'});
   await page.setViewportSize({width:390,height:844});
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw Error('Full report overflows mobile screen');
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({media:'print'});
   await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
-  await verifyTelemetryRow();
-  if (!await page.locator('.evidence-group').first().isVisible()) throw Error('Printed evidence group identifier missing');
+  if (await page.locator('.supporting').isVisible()) throw Error('Browser-only context leaked into compact print');
+  if (!await page.locator('.excerpt').first().isVisible()) throw Error('Printed retained evidence missing');
   await page.pdf({path:'report-layout-qa/demo-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
-  const bars = await page.locator('.distribution-track i').evaluateAll(items => items.map(item => getComputedStyle(item).borderTopWidth));
-  if (bars.some(width => width !== '7px')) throw Error('Foreground bars missing');
   await page.pdf({path:'report-layout-qa/demo-complete-no-background.pdf',format:'A4',printBackground:false,displayHeaderFooter:false});
   for (const name of ['empty', 'missing-time', 'many-findings', 'windows-context', 'wer-application']) {
     await page.emulateMedia({media:'screen'});
@@ -92,6 +91,15 @@ const path = require('path');
     if (await page.locator('.screen-tools').isVisible()) throw Error(`${name} browser controls leaked into print`);
     await page.pdf({path:`report-layout-qa/${name}.pdf`,format:'A4',printBackground:true,displayHeaderFooter:false});
   }
+  // A large full record must paginate without losing any retained detector excerpt.
+  await page.emulateMedia({media:'screen'});
+  await page.goto(pathToFileURL(path.resolve('report-layout-qa/many-findings-aegislog-report-appendix.html')).href);
+  if (await page.locator('.excerpt').count() !== 80) throw Error('Large full report lost retained findings');
+  await page.setViewportSize({width:390,height:844});
+  if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth+1)) throw Error('Large full report mobile overflow');
+  await page.setViewportSize({width:1440,height:900});
+  await page.emulateMedia({media:'print'});
+  await page.pdf({path:'report-layout-qa/many-findings-complete.pdf',format:'A4',printBackground:true,displayHeaderFooter:false});
   await browser.close();
   console.log('Chromium filter and 161-source print smoke passed');
 })().catch(error => {console.error(error);process.exit(1);});
