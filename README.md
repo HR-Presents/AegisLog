@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="src/aegislog/assets/aegislog-logo.png" alt="AegisLog logo" width="380">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/aegislog-readme-dark.png">
+  <img src="src/aegislog/assets/aegislog-logo.png" alt="AegisLog logo" width="380">
+</picture>
 
 # AegisLog
 
@@ -232,6 +235,8 @@ Each investigation provides a short summary and a separate full retained-evidenc
 | JSON exports/manifest | Supported machine-readable investigation and batch context |
 
 Use **R Reports** from the terminal to browse saved summaries and batch overviews. Completed workflows provide report/folder opening actions where supported.
+
+The full report aligns Categories, Log levels, and Services side by side on wide screens and in print. Narrow screens stack these panels for readability.
 
 ### Report Navigation
 
@@ -476,7 +481,10 @@ AegisLog is released under the [MIT License](LICENSE).
 
 <div align="center">
 
-<img src="src/aegislog/assets/aegislog-logo.png" alt="AegisLog logo" width="220">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/aegislog-readme-dark.png">
+  <img src="src/aegislog/assets/aegislog-logo.png" alt="AegisLog logo" width="220">
+</picture>
 
 **AegisLog**
 
