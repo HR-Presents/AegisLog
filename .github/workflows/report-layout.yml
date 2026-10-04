@@ -57,7 +57,7 @@ jobs:
               assert 'PRESENTED BY HR-PRESENTS' in first_page and 'Report ID' in first_page
               assert 'Record formats' in first_page and 'Generated' in first_page
               assert 'Executive Summary' in first_page, 'Results missing from opening page'
-              assert 'DOCUMENTNAVIGATION' in re.sub(r'\s+', '', contents) and 'Contents' in contents
+              assert 'Contents' in contents and 'Record Overview' in contents
               assert 'Timestamp limitations:' in contents
               assert count <= (6 if name == 'demo-summary' else 10), f'Unexpected demo print length: {name} {count}'
               if name != 'demo-summary':

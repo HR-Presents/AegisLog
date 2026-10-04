@@ -3,7 +3,7 @@ from aegislog.report_reference import document_cover, document_contents
 
 def test_cover_uses_aegislog_brand_and_true_source_fields():
     html = document_cover('source.log', 'AL-CASE', 'windows', '2026-10-04 UTC', 'data:image/png;base64,AAAA')
-    assert '<strong>AegisLog</strong>' in html
+    assert 'alt="AegisLog terminal mark logo"' in html
     assert 'PRESENTED BY HR-PRESENTS' in html
     assert 'Security Investigation Report' in html
     assert 'Record formats' in html and '<dd>windows</dd>' in html

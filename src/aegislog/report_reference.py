@@ -16,7 +16,7 @@ def document_cover(source, case_id, formats, generated, logo_uri, *, summary=Fal
         '<rect width="100" height="100" fill="url(#cover-gradient)"/></svg>'
         '<div class="header-layout"><div class="cover-brand">'
         f'<img class="cover-logo aegislog-report-logo" src="{escape(logo_uri)}" alt="AegisLog terminal mark logo" aria-label="AegisLog terminal mark logo">'
-        '<div><strong>AegisLog</strong><span>PRESENTED BY HR-PRESENTS</span></div></div>'
+        '<div><span>PRESENTED BY HR-PRESENTS</span></div></div>'
         '<div class="cover-heading"><p class="cover-kicker">DEFENSIVE LOG INVESTIGATION</p>'
         f'<h1>{title}</h1><p class="cover-subtitle">{escape(subtitle)}</p>'
         '<a class="cover-results" href="#executive">View investigation results →</a></div></div>'
@@ -96,7 +96,7 @@ REFERENCE_STYLE = """
 .report .group-intro{break-inside:avoid;break-after:avoid}
 .report .count-key{font-size:11px;margin-bottom:18px}
 .aegis-report-header{height:auto;min-height:0;padding:18px 22px;margin:0 0 16px;break-after:auto;break-inside:avoid;border-radius:8px}
-.header-layout{grid-template-columns:150px minmax(0,1fr);gap:22px}.cover-logo{width:140px}.cover-brand strong{font-size:23px}.cover-brand span{font-size:8px}
+.header-layout{grid-template-columns:190px minmax(0,1fr);gap:22px}.cover-logo{width:180px}.cover-brand strong{font-size:23px}.cover-brand span{font-size:8px}
 .cover-heading{margin:0}.aegis-report-header h1{font-size:28px;margin-bottom:10px}.cover-subtitle{font-size:13px;margin:0;line-height:1.5}
 .cover-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;margin-top:16px;padding-top:12px}.cover-cards>div{padding:0;border:0}.cover-cards dt{font-size:10px}.cover-cards dd{font-size:12px}
 .cover-footer{font-size:9px;margin-top:12px}.cover-demo{font-size:10px;margin:10px 0 0}
@@ -105,7 +105,7 @@ REFERENCE_STYLE = """
 .report .section,.report.summary .section,.report.summary #executive,.report.summary .summary-notes{padding:18px 22px;margin-bottom:18px;border:1px solid #c7e3e7;border-radius:8px}
 .report .section-head h2,.report .summary-notes h2{font-size:22px}
 .report.summary #executive .section-head h2{font-size:22px}
-.report .metrics,.report.summary .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.report .metrics,.report.summary .metrics{break-inside:avoid;page-break-inside:avoid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
 .report .metric,.report.summary .metric{min-height:90px;padding:16px}.report .metric strong,.report.summary .metric strong{font-size:27px}
 .report.summary #scope{padding:18px 22px}
 .report:not(.summary) #findings{page-break-before:auto;break-before:auto}
