@@ -9,3 +9,6 @@ Windows incident grouping includes provider, Event ID, account/host context and 
 `analyze` includes enabled local declarative rule packs in the displayed findings and HTML report. Use `--no-plugins` to exclude them. Rule packs are trusted operator configuration; review their patterns and severity choices. Findings are investigation leads, not proof of compromise. Synthetic tests verify supported examples, not real-world accuracy.
 
 See [Detection coverage](DETECTION_COVERAGE.md) for target-host boundaries, group SID classification, heuristic score interpretation and per-workflow limitations.
+
+
+Custom rule safeguards: packs are limited to 1 MB, 32 files, 100 rules per pack and 200 rules total. Patterns retain literals, anchors, character classes, dot tokens and alternatives; groups, repetition, lookarounds and backreferences are rejected before execution to avoid backtracking stalls. Escaped metacharacters remain literal. Invalid packs are reported and skipped atomically. Existing packs using unsupported constructs must be rewritten; `--no-plugins` disables custom rules. These restrictions do not affect built-in detectors.

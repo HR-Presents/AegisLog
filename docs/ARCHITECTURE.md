@@ -16,10 +16,13 @@ The supported v2 product is local, deterministic and read-only.
 
 Logs, filenames, rule packs, and collector output are untrusted inputs. Terminal sanitization and common-secret redaction protect normal evidence presentation; HTML values are escaped. Redaction is best effort and does not guarantee all sensitive information is removed.
 
-Declarative rule packs contain regular expressions rather than executable plugin code. Install only trusted rules: Python regular expressions can consume excessive CPU on adversarial input.
+Declarative rule packs contain regular expressions rather than executable plugin code. Install only reviewed rules: custom expressions use a restricted syntax and bounded pack counts.
 
 The public v2 entrypoint removes legacy AI/provider commands. Historical provider adapters are not supported product workflows. Their transport retains explicit remote opt-in, HTTPS validation, pinned resolved addresses, and response-size limits for compatibility tests.
 
 ## Interpretation
 
 Findings, confidence, rarity scores, and ATT&CK mappings guide review; they do not prove compromise or attribution. The application does not modify accounts, firewall rules, services, or plant/host controls.
+
+
+Custom rule safeguards: packs are limited to 1 MB, 32 files, 100 rules per pack and 200 rules total. Patterns retain literals, anchors, character classes, dot tokens and alternatives; groups, repetition, lookarounds and backreferences are rejected before execution to avoid backtracking stalls. Escaped metacharacters remain literal. Invalid packs are reported and skipped atomically. Existing packs using unsupported constructs must be rewritten; `--no-plugins` disables custom rules. These restrictions do not affect built-in detectors.
