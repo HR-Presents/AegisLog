@@ -10,16 +10,16 @@ def _text(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_v2111_is_current_published_stable() -> None:
+def test_current_published_stable() -> None:
     project_status = _text("docs/PROJECT_STATUS.md")
     roadmap = _text("docs/ROADMAP.md")
     docs_index = _text("docs/README.md")
 
-    assert "current published stable release is **v2.1.11**" in project_status
-    assert "**Published stable:** v2.1.11" in project_status
-    assert "currently released as **v2.1.11**" in roadmap
-    assert "v2.1.11 — current stable release" in roadmap
-    assert "[v2.1.11 release notes](RELEASE_V2.1.11.md)" in docs_index
+    assert "current published stable release is **v2.1.12**" in project_status
+    assert "**Published stable:** v2.1.12" in project_status
+    assert "currently released as **v2.1.12**" in roadmap
+    assert "v2.1.12 — current stable release" in roadmap
+    assert "[v2.1.12 release notes](RELEASE_V2.1.12.md)" in docs_index
 
 
 def test_v216_release_target_and_checksum_are_recorded() -> None:
@@ -47,6 +47,8 @@ def test_current_release_identity_matches_publication_guard() -> None:
     version = re.search(r'current published stable release is \*\*(v[\d.]+)\*\*', status).group(1)
     line = next(line for line in status.splitlines() if line.startswith(f'The {version} build target is '))
     commit, checksum = re.findall(r'`([a-f0-9]{40}|[a-f0-9]{64})`', line)
-    guard = _text(f'.github/workflows/publish-{version}.yml')
-    assert f"release['target_commitish'] == '{commit}'" in guard
-    assert f'sha256:{checksum}' in guard
+    import json
+    manifest = json.loads(_text('packaging/release-review.json'))
+    assert manifest['tag'] == version
+    assert manifest['commit'] == commit
+    assert manifest['assets']['AegisLog.exe'] == f'sha256:{checksum}'
