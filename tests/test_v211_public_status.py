@@ -49,6 +49,14 @@ def test_current_release_identity_matches_publication_guard() -> None:
     commit, checksum = re.findall(r'`([a-f0-9]{40}|[a-f0-9]{64})`', line)
     import json
     manifest = json.loads(_text('packaging/release-review.json'))
-    assert manifest['tag'] == version
-    assert manifest['commit'] == commit
-    assert manifest['assets']['AegisLog.exe'] == f'sha256:{checksum}'
+    if manifest['tag'] == version:
+        assert manifest['commit'] == commit
+        assert manifest['assets']['AegisLog.exe'] == f'sha256:{checksum}'
+    else:
+        # A reviewed draft can precede publication; stable links must not move early.
+        source_version = re.search(r'__version__ = "([\d.]+)"', _text('src/aegislog/__init__.py')).group(1)
+        assert manifest['tag'] == f'v{source_version}'
+        assert tuple(map(int, source_version.split('.'))) > tuple(map(int, version[1:].split('.')))
+        assert f"# AegisLog {manifest['tag']}" in _text(f'docs/RELEASE_V{source_version}.md')
+        assert re.fullmatch(r'[a-f0-9]{40}', manifest['commit'])
+        assert re.fullmatch(r'sha256:[a-f0-9]{64}', manifest['assets']['AegisLog.exe'])
