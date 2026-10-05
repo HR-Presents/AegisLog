@@ -1,14 +1,14 @@
 {
-  "tag": "v2.1.12",
-  "commit": "b8ed619b8fc45da9099cb6a14ff0d923c8ebb0c7",
-  "release_id": 403485232,
+  "tag": "v2.1.13",
+  "commit": "47561ba2d6c4089bffd94279668de729ed161a39",
+  "release_id": 403529701,
   "assets": {
-    "AegisLog-v2.1.12-Windows.zip": "sha256:0054bf957af679e1e05b4f6d856f9b3ca2eea199c87053bd803e5ff55015ff39",
-    "AegisLog-v2.1.12-Windows.zip.sha256": "sha256:0a939637e83bb6c8272ba6735c48bf2caae97b81032547df177deddb8fb979eb",
-    "AegisLog.exe": "sha256:935f5a7380e2d7e134f6f7ca6b0bb44bf311d2d2d00556ce5ade3fad9032fb4f",
-    "AegisLog.exe.sha256": "sha256:6e337572cce366eb4cafdedb97df3c4a017e7d0ba71f7e25b629ea367fb1106b",
-    "aegislog_ai-2.1.12-py3-none-any.whl": "sha256:eae9c21814c483630739350e8adcd521314aaa8378c96578ac8e42657799623b",
-    "aegislog_ai-2.1.12.tar.gz": "sha256:78b387ed4031ac6b6d18c7b7d4abdbac0e1465404b3be6b71e2df1cb9687bca9",
-    "SHA256SUMS": "sha256:bfad4b4666e44359a3d17a1a148156820bd6e868b6bca9b9f56f96156b7c6feb"
+    "AegisLog-v2.1.13-Windows.zip": "sha256:0096b439d75922a231bc2a5f393e2bc2dec460b96f5b5e19c48ed8d34d118099",
+    "AegisLog-v2.1.13-Windows.zip.sha256": "sha256:11b41f22ce3fa59d4cfe3ccf835427edcae17258380f55e20056fccd13569a86",
+    "AegisLog.exe": "sha256:d32c1d0d3f9bc812b986ca5de6c91cce7c8ffefd5310d49eda0dc3d2d7c02f8a",
+    "AegisLog.exe.sha256": "sha256:66e1a10a236e75548b43d4661c1c31c6abc191f9c53b80dffe506ebef9084f60",
+    "aegislog_ai-2.1.13-py3-none-any.whl": "sha256:19b00fb0d5b14d7e4c2829dce3701c6c8217d370342f969a8fc2c7a21fc02b50",
+    "aegislog_ai-2.1.13.tar.gz": "sha256:75d9a19771f4d9ae3e4505141e0bdb6b331ea441882db95c7ba31d233535bb3b",
+    "SHA256SUMS": "sha256:eddd171dc4ba589ffe343035bcba24bfc3d1263f6b8d8cfa99a64e99874419ab"
   }
 }
