@@ -1,6 +1,6 @@
 # Release security and reproducibility
 
-The published v2.1.14 Windows executable is unsigned. SHA-256 checksums verify bytes, not publisher identity. Organization-controlled signing credentials are still required for signed releases. The v1.6.0 signing workflow described below is historical infrastructure, not evidence that current downloads are signed.
+The published v2.1.15 Windows executable is unsigned. SHA-256 checksums verify bytes, not publisher identity. Organization-controlled signing credentials are still required for signed releases. The v1.6.0 signing workflow described below is historical infrastructure, not evidence that current downloads are signed.
 
 Release workflows provide tests, linting, Bandit, dependency audit, package validation, executable smoke tests, SHA-256 checksum generation, Authenticode verification, and artifact-provenance steps. These controls improve release quality, but checksums and provenance do not replace code signing or make a build bit-for-bit reproducible.
 

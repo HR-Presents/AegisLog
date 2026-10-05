@@ -283,18 +283,20 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 
 ### Current Release
 
-The investigation improvements are documented in [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md): grouped triage, explicit Windows session context, Docker/ECS message adapters, searchable saved cases, collection progress, signal comparisons, export preview, runtime diagnostics and opt-in release checks. These changes, the approved boxed report design and the repository audit fixes are included in the v2.1.14 Windows and Python downloads. Source/output collision checks, consistent incident IDs, custom-rule report inclusion and bounded ingestion improve investigation reliability.
+The investigation improvements are documented in [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md): grouped triage, explicit Windows session context, Docker/ECS message adapters, searchable saved cases, collection progress, signal comparisons, export preview, runtime diagnostics and opt-in release checks. These changes, the approved boxed report design and the repository audit fixes are included in the v2.1.15 Windows and Python downloads. Source/output collision checks, consistent incident IDs, custom-rule report inclusion and bounded ingestion improve investigation reliability.
 
 Recent reliability fixes preserve target-group evidence boundaries, redact credential-key variants, handle live path rotation and enforce baseline scope matching. Windows detection quality includes explicit group-SID classification, target-host correlation boundaries and clearer heuristic scores. See [Detection coverage](docs/DETECTION_COVERAGE.md).
 
-**[v2.1.14](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.14)** is the published stable release, built from `e5f9ba0b69cc3aa3b41096699694dfb43a2761c3`.
+**[v2.1.15](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.15)** is the published stable release, built from `00d2c688d7f97e1e192f7af2a509e2a0b638d292`.
 
-Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.14/AegisLog-v2.1.14-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
+Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.15/AegisLog-v2.1.15-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
 
 > [!NOTE]
 > **Windows signing status**
 >
 > The Windows executable is unsigned. SmartScreen or endpoint-security reputation warnings may appear. Verify the published checksum; build provenance is separate from Authenticode signing.
+
+The release also bounds baseline reads to 2 MB and validates isolated Windows wheel installations on Python 3.10 and 3.14. See the [remaining validation handoff](docs/VALIDATION_HANDOFF.md) for owner-controlled branch protection, independently labeled real-world evaluation and physical-PC acceptance checks.
 
 ### Windows Standalone
 
@@ -320,7 +322,7 @@ python -m pipx ensurepath
 Close and reopen your terminal so PATH changes take effect. Then install the published wheel:
 
 ```bash
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.14/aegislog_ai-2.1.14-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.15/aegislog_ai-2.1.15-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start
@@ -476,7 +478,7 @@ See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), 
 | [Compatibility](docs/COMPATIBILITY.md) | Formats and coverage limits |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Installation and runtime issues |
 | [Testing](docs/TESTING.md) | Validation guidance |
-| [Release Notes](docs/RELEASE_V2.1.14.md) | Published v2.1.14 changes |
+| [Release Notes](docs/RELEASE_V2.1.15.md) | Published v2.1.15 changes |
 | [Roadmap](docs/ROADMAP.md) | Released capabilities and future priorities |
 | [Documentation Index](docs/README.md) | Complete documentation directory |
 

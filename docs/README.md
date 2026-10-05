@@ -8,7 +8,7 @@ Welcome to the AegisLog documentation hub. Start with the user guide for the com
 
 | Goal | Guide |
 |---|---|
-| Current release / upgrade | [v2.1.14 notes](RELEASE_V2.1.14.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
+| Current release / upgrade | [v2.1.15 notes](RELEASE_V2.1.15.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
 | Proposed improvements | [Roadmap](ROADMAP.md) |
 | Install AegisLog | [Installation](INSTALL.md) |
 | Run your first analysis | [Quick Start](QUICKSTART.md) |
@@ -69,10 +69,10 @@ Public screenshots should come from a verified build and sanitized or synthetic 
 
 - **Investigation improvements:** [Workflows and validation](INVESTIGATION_WORKFLOWS.md)
 
-- **Published stable:** [v2.1.14 release notes](RELEASE_V2.1.14.md)
-- **Published release build commit:** `e5f9ba0b69cc3aa3b41096699694dfb43a2761c3`
-- **Latest reviewed report design:** included in v2.1.14; see [installation](INSTALL.md#latest-reviewed-report-design-on-main)
-- **Downloads and matching checksums:** [v2.1.14 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.14)
+- **Published stable:** [v2.1.15 release notes](RELEASE_V2.1.15.md)
+- **Published release build commit:** `00d2c688d7f97e1e192f7af2a509e2a0b638d292`
+- **Latest reviewed report design:** included in v2.1.15; see [installation](INSTALL.md#latest-reviewed-report-design-on-main)
+- **Downloads and matching checksums:** [v2.1.15 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.15)
 - **Upgrade:** [Installation](INSTALL.md#upgrade-and-verify) / [Upgrading](UPGRADING.md)
 - **History:** [Changelog](../CHANGELOG.md)
 
@@ -83,3 +83,5 @@ The Windows executable is unsigned. CI artifacts are validation outputs; publish
 Want to improve AegisLog? Read [CONTRIBUTING.md](../CONTRIBUTING.md) before opening a pull request. Keep changes focused, defensive, testable, and free of real credentials or sensitive production telemetry.
 
 - [Local performance measurement](PERFORMANCE.md): repeatable synthetic streaming benchmark, retention checks and measurement limits.
+
+- [Remaining validation and repository protection handoff](VALIDATION_HANDOFF.md)
