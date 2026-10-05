@@ -76,3 +76,31 @@ def test_custom_rule_is_in_generated_report(tmp_path, monkeypatch):
     html = commands_v11.last_report.read_text()
     assert 'Unique audit rule' in html
     assert 'CRITICAL' in html
+
+
+def test_custom_rule_limit_reports_omissions():
+    import re
+    from aegislog.plugins import PluginRule, apply_rules
+    rule = PluginRule('bounded', 'MEDIUM', 'custom', 'Bounded rule',
+                      re.compile('marker'), 'Review', 'test.json')
+    findings = apply_rules(('marker' for _ in range(5002)), [rule])
+    assert len(findings) == 5000
+    assert findings.omitted == 2
+
+
+def test_investigation_timeline_preserves_absolute_timestamp():
+    from aegislog.investigation import build_timeline
+    events = build_timeline(['2026-10-04T10:00:00Z app: ERROR timeout'])
+    assert events[0].timestamp == '2026-10-04T10:00:00+00:00'
+
+
+def test_historical_release_jobs_are_disabled():
+    import re
+    root = Path('.github/workflows')
+    paths = [*root.glob('publish-v*.yml'), *root.glob('release-v2*.yml')]
+    for path in paths:
+        text = path.read_text()
+        assert '(retired)' in text.splitlines()[0]
+        jobs = text.split('jobs:', 1)[1]
+        for match in re.finditer(r'^  [\w-]+:\n', jobs, re.M):
+            assert jobs[match.end():].startswith('    if: ${{ false }}'), path

@@ -1,4 +1,4 @@
-name: Community candidate v1.6.1
+name: Community candidate v1.6.1 (retired)
 
 on:
   workflow_dispatch:
@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   validate:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     runs-on: ubuntu-24.04
     steps:
       - name: Require explicit candidate confirmation
@@ -53,6 +54,7 @@ jobs:
           bandit -q -r src
 
   build-windows-candidate:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     needs: validate
     runs-on: windows-2025
     permissions:

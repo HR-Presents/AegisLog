@@ -77,7 +77,9 @@ def build_timeline(lines: list[str]) -> list[TimelineEvent]:
         if not event.message:
             continue
         match = TIME_RE.search(line)
-        timestamp = match.group(1) if match else f"line {order}"
+        from .engine import _parse_absolute_timestamp
+        absolute = _parse_absolute_timestamp(line)
+        timestamp = absolute.isoformat() if absolute else match.group(1) if match else f"line {order}"
         timeline.append(
             TimelineEvent(
                 order=order,

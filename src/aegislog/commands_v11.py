@@ -106,7 +106,7 @@ def dashboard(
             data = replace(data, findings=tuple(retained), incidents=tuple(correlate(list(retained))),
                            severities=dict(Counter(f.severity for f in retained)),
                            categories=dict(Counter(f.category for f in retained)),
-                           dropped_findings=data.dropped_findings + len(combined) - len(retained))
+                           dropped_findings=data.dropped_findings + len(combined) - len(retained) + getattr(custom, "omitted", 0))
         label, scope = _snapshot_context.get()
         data = replace(data, source_label=label, collection_scope=scope)
         progress.update(task, description="Building investigation summary...")
@@ -140,7 +140,7 @@ def analyze_dashboard_command(
     rules, errors = load_rules() if plugins else ([], [])
     from .ingestion import iter_bounded_lines
     custom = apply_rules((item.text for item in iter_bounded_lines(path)), rules) if rules else []
-    token = _custom_findings.set(tuple(custom))
+    token = _custom_findings.set(custom)
     try:
         dashboard(path, timestamp_year=timestamp_year)
     finally:

@@ -53,12 +53,23 @@ def load_rules(directory: Path | None = None) -> tuple[list[PluginRule], list[st
     return rules, errors
 
 
+class RuleFindings(list):
+    """Retained custom findings with an explicit omission count."""
+    omitted = 0
+
+
 def apply_rules(lines: list[str], rules: list[PluginRule]) -> list[Finding]:
-    findings: list[Finding] = []
+    from .sanitize import redact_sensitive
+    findings = RuleFindings()
     for raw in lines:
-        from .sanitize import redact_sensitive
         line = redact_sensitive(raw.strip())
-        if not line: continue
+        if not line:
+            continue
         for rule in rules:
-            if len(findings) < 5000 and rule.pattern.search(line): findings.append(Finding(rule.severity, rule.category, rule.title, line[:500], rule.recommendation))
+            if not rule.pattern.search(line):
+                continue
+            if len(findings) >= 5000:
+                findings.omitted += 1
+            else:
+                findings.append(Finding(rule.severity, rule.category, rule.title, line[:500], rule.recommendation))
     return findings
