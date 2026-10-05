@@ -30,14 +30,14 @@ def case_history(
     table = Table(title="Persistent investigation history", expand=True)
     table.add_column("Incident ID", width=14)
     table.add_column("Severity", width=10)
-    table.add_column("Confidence", justify="right", width=12)
+    table.add_column("Heuristic score", justify="right", width=12)
     table.add_column("Seen", justify="right", width=7)
     table.add_column("Category", width=18)
     table.add_column("Source")
     table.add_column("Summary")
     for row in rows:
         table.add_row(
-            row["incident_id"], row["severity"], f'{row["confidence"]}%', str(row["observation_count"]),
+            row["incident_id"], row["severity"], f'{row["confidence"]}/100', str(row["observation_count"]),
             row["category"], Text(row["source"]), Text(row["title"]),
         )
     if not rows:
@@ -53,7 +53,7 @@ def case_show(incident_id: str = typer.Argument(...)) -> None:
         raise typer.Exit(code=2)
     console.print(Panel(
         Text(
-            f'{item["incident_id"]}  {item["severity"]}  confidence {item["confidence"]}%\n'
+            f'{item["incident_id"]}  {item["severity"]}  heuristic confidence {item["confidence"]}/100\n'
             f'{item["title"]}\nCategory: {item["category"]}\nObservations: {item["observation_count"]}\n'
             f'First saved: {item["first_recorded_at"]}\nLast saved: {item["last_recorded_at"]}'
         ),

@@ -45,6 +45,8 @@ class WindowsSecurityEvent:
     actor_account: str | None = None
     logon_id: str | None = None
     host: str | None = None
+    group_sid: str | None = None
+    group_name: str | None = None
 
 
 @dataclass(frozen=True)
@@ -142,6 +144,8 @@ def parse_windows_security_line(line: str) -> WindowsSecurityEvent | None:
         actor_account=value('SubjectUserName'),
         logon_id=value('TargetLogonId' if event_id == 4624 else 'SubjectLogonId'),
         host=value('Computer'),
+        group_sid=value('TargetSid') if event_id in {4728, 4732} else None,
+        group_name=value('TargetUserName') if event_id in {4728, 4732} else None,
     )
 
 
@@ -154,7 +158,22 @@ def signal_for_event(event: WindowsSecurityEvent) -> SecuritySignal | None:
         severity = "INFO"
         title = "Built-in service account privileged logon"
         recommendation = "Retained baseline evidence for a built-in service SID. Review unexpected privileges and related logon/process activity; this event alone does not indicate compromise."
+    if event.event_id in {4728, 4732}:
+        sid = event.group_sid or ''
+        privileged = sid == 'S-1-5-32-544' or bool(re.fullmatch(r'S-1-5-21-\d+-\d+-\d+-(?:512|518|519)', sid))
+        if privileged:
+            severity, title = 'HIGH', 'Member added to recognized administrative group'
+        elif sid == 'S-1-5-32-545':
+            severity, title = 'INFO', 'Member added to standard Users group'
+            recommendation = 'Retained membership-change evidence for the standard Users SID. Validate authorization and local permissions; default group identity does not prove a benign change.'
+        else:
+            severity, title = 'MEDIUM', 'Security group membership changed; privilege scope unresolved'
+            recommendation = 'Resolve the target group SID and effective permissions, verify authorization and review the initiating account. Event ID alone does not establish administrative privilege.'
     parts = [f"Event ID {event.event_id}"]
+    if event.group_sid:
+        parts.append(f'group_sid={event.group_sid}')
+    if event.group_name:
+        parts.append(f'group_name={event.group_name}')
     if event.subject_sid:
         parts.append(f"subject_sid={event.subject_sid}")
     if event.account:

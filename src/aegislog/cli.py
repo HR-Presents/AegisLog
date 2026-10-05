@@ -94,13 +94,13 @@ def analyze(path: Path = typer.Argument(..., exists=True, dir_okay=False), plugi
 
 @app.command()
 def threats(path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> None:
-    """Show high-confidence security-relevant findings."""
+    """Show high-severity security-relevant findings."""
     _, findings = analyze_file(path)
     security = [f for f in findings if f.severity in {"CRITICAL", "HIGH"}]
     for finding in security:
         console.print(f"[{finding.severity}] {escape(finding.title)}\n  {escape(finding.evidence)}\n  Next: {escape(finding.recommendation)}")
     if not security:
-        console.print("No high-confidence high/critical findings detected by local rules.")
+        console.print("No high/critical findings detected by local rules.")
 
 
 @app.command()

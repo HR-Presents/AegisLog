@@ -54,7 +54,8 @@ def _correlation_key(finding: Finding) -> tuple[str, str, str, str]:
     from .event_context import windows_context
     context = dict(finding.context or windows_context(finding.evidence))
     if context.get('provider'):
-        return (category, finding.title.lower(), context['provider'].lower() + '\0' + context.get('event_id', ''),
+        return (category, finding.title.lower(), context['provider'].lower() + '\0' + context.get('event_id', '')
+                + ('\0' + (context.get('group_sid') or context.get('group_name', '')) if context.get('group_sid') or context.get('group_name') else ''),
                 '\0'.join((source, context.get('host', ''), context.get('account', ''))))
 
     # Structured evidence should not be collapsed merely because two findings share

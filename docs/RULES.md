@@ -7,3 +7,5 @@ Authentication correlation uses extracted account, host and source context. Reso
 Windows incident grouping includes provider, Event ID, account/host context and a maximum five-minute span. Generic fallback grouping has no time-window guarantee. Incident IDs use the same correlation implementation in reports and investigation commands.
 
 `analyze` includes enabled local declarative rule packs in the displayed findings and HTML report. Use `--no-plugins` to exclude them. Rule packs are trusted operator configuration; review their patterns and severity choices. Findings are investigation leads, not proof of compromise. Synthetic tests verify supported examples, not real-world accuracy.
+
+See [Detection coverage](DETECTION_COVERAGE.md) for target-host boundaries, group SID classification, heuristic score interpretation and per-workflow limitations.

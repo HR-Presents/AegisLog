@@ -53,13 +53,19 @@ def windows_session_context(lines, *, limit=100):
     links = []
     for (host, session), events in sessions.items():
         events.sort()
+        logon_times = [when for when, _, kind in events if kind == 4624]
         related_events = [(when, number, kind) for when, number, kind in events if kind != 4624]
         related_times = [when for when, _, _ in related_events]
         for stamp, index, kind in events:
             if kind != 4624:
                 continue
+            if bisect_right(logon_times, stamp) - bisect_left(logon_times, stamp) > 1:
+                continue
             start = bisect_left(related_times, stamp)
             end = bisect_right(related_times, stamp + timedelta(minutes=5))
+            next_logon = bisect_right(logon_times, stamp)
+            if next_logon < len(logon_times):
+                end = min(end, bisect_left(related_times, logon_times[next_logon]))
             related = [(number, event_id) for _, number, event_id in related_events[start:min(end, start+1000)]]
             if related:
                 links.append(dict(host=host, logon_id=session, logon_record=index,

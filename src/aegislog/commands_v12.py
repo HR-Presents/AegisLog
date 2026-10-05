@@ -264,13 +264,13 @@ def _explain_menu() -> None:
     table = Table(title="Detected incidents", title_style=f"bold {INCIDENT}", border_style=INCIDENT)
     table.add_column("Incident ID", width=14, style=INCIDENT)
     table.add_column("Severity", width=10)
-    table.add_column("Confidence", justify="right", width=12, style=ACCENT)
+    table.add_column("Heuristic score", justify="right", width=12, style=ACCENT)
     table.add_column("Summary")
     for item in incidents[:12]:
         table.add_row(
             Text(item.id, style=INCIDENT),
             severity_text(item.severity),
-            f"{item.confidence}%",
+            f"{item.confidence}/100",
             Text(item.title),
         )
     console.print(table)

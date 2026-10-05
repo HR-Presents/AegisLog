@@ -36,7 +36,7 @@ def explain(
     summary = Text(result.summary, style="white")
     subtitle = Text()
     subtitle.append(incident.severity, style=severity_text(incident.severity).style)
-    subtitle.append(f" | confidence {incident.confidence}%", style=ACCENT)
+    subtitle.append(f" | heuristic confidence {incident.confidence}/100", style=ACCENT)
     subtitle.append(" | local-only", style=MUTED)
     console.print(
         bounded(
@@ -76,9 +76,9 @@ def explain(
     )
     attack.add_column("Technique", min_width=14, ratio=3, style=INCIDENT, overflow="fold")
     attack.add_column("Tactic", min_width=10, ratio=2, style=ACCENT, overflow="fold")
-    attack.add_column("Confidence", min_width=8, max_width=12, justify="right", style=SUCCESS, no_wrap=True)
+    attack.add_column("Heuristic score", min_width=8, max_width=12, justify="right", style=SUCCESS, no_wrap=True)
     for item in result.techniques:
-        attack.add_row(f"{item.id} {item.name}", item.tactic, f"{item.confidence}%")
+        attack.add_row(f"{item.id} {item.name}", item.tactic, f"{item.confidence}/100")
     if not result.techniques:
         attack.add_row(Text("No evidence-supported mapping", style=MUTED), Text("-", style=MUTED), Text("-", style=MUTED))
     console.print(bounded(attack))

@@ -160,7 +160,7 @@ def _auth_finding(ip: str | None, count: int, event: AuthEvent, window_seconds: 
         severity, label = "LOW", "Authentication failure observed"
     qualifiers = []
     if event.account:
-        qualifiers.append(f"account={event.account}")
+        qualifiers.append(f"latest_account={event.account}")
     if event.host:
         qualifiers.append(f"host={event.host}")
     if event.timestamp:
@@ -293,7 +293,7 @@ class AnalysisState:
             self.dropped_auth_events += 1
 
     def _add_auth(self, event: AuthEvent) -> None:
-        key = event.source_ip or "<unknown>"
+        key = (event.source_ip or "<unknown>") + ("\0" + event.host.casefold() if event.host else "")
         if not self._ensure_source_capacity(key):
             self.dropped_auth_events += 1
             return
@@ -351,7 +351,7 @@ class AnalysisState:
                         windows_timestamp,
                         _valid_ip(windows_event.source_ip),
                         windows_event.account[:256] if windows_event.account else None,
-                        windows_event.workstation[:256] if windows_event.workstation else None,
+                        (windows_event.host or windows_event.workstation)[:256] if windows_event.host or windows_event.workstation else None,
                         line[:500],
                     )
                 )
@@ -386,17 +386,17 @@ class AnalysisState:
         correlated: list[Finding] = []
         if self.preserve_auth_bursts:
             for key, (count, event) in self._auth_peaks.items():
-                correlated.append(_auth_finding(None if key == '<unknown>' else key, count, event, self.auth_window_seconds))
+                correlated.append(_auth_finding(event.source_ip, count, event, self.auth_window_seconds))
         else:
             for key, events in self._auth.items():
                 if events:
                     correlated.append(
-                        _auth_finding(None if key == "<unknown>" else key, len(events), events[-1], self.auth_window_seconds)
+                        _auth_finding(events[-1].source_ip, len(events), events[-1], self.auth_window_seconds)
                     )
         for key, events in self._missing_ts.items():
             if events:
                 correlated.append(
-                    _auth_finding(None if key == "<unknown>" else key, len(events), events[-1], self.auth_window_seconds)
+                    _auth_finding(events[-1].source_ip, len(events), events[-1], self.auth_window_seconds)
                 )
         correlated.sort(key=lambda item: item.title)
         return correlated
