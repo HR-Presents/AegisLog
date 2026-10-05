@@ -72,7 +72,7 @@ Public screenshots should come from a verified build and sanitized or synthetic 
 - **Published stable:** [v2.1.17 release notes](RELEASE_V2.1.17.md)
 - **Published release build commit:** `63448e60ab2c905355d6dda8bab2837a7a106058`
 - **Latest reviewed report design:** included in v2.1.17; see [installation](INSTALL.md#latest-reviewed-report-design-on-main)
-- **Downloads and matching checksums:** [v2.1.17 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.17)
+- **Downloads and matching checksums:** [v2.1.17 release](https://github.com/HR-Presents/AegisLog/releases/tag/v2.1.17)
 - **Upgrade:** [Installation](INSTALL.md#upgrade-and-verify) / [Upgrading](UPGRADING.md)
 - **History:** [Changelog](../CHANGELOG.md)
 

@@ -6,7 +6,7 @@ Public reviews help future users understand how AegisLog performs in real enviro
 
 Use the GitHub **User review** form:
 
-https://github.com/HR-Presents/AegisLog-AI/issues/new?template=user_review.yml
+https://github.com/HR-Presents/AegisLog/issues/new?template=user_review.yml
 
 The form asks for:
 

@@ -18,7 +18,7 @@ Audited code: `3fa654012458ca91e38ca40dd31e25d016dec70a`.
 
 ## Verified development download
 
-[Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/actions/runs/37114547828/artifacts/11271098131) (GitHub sign-in may be required).
+[Windows ZIP](https://github.com/HR-Presents/AegisLog/actions/runs/37114547828/artifacts/11271098131) (GitHub sign-in may be required).
 
 ZIP SHA-256: `1f7fbca6b74cb8bd3cde8a4ed51640a0b9175956bc4d0eb5d828dfeaafba2510`
 

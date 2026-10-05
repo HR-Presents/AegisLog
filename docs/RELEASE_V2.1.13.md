@@ -11,7 +11,7 @@ This release improves Windows detection precision and evidence correlation while
 ## Install or upgrade
 
 ```powershell
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.13/aegislog_ai-2.1.13-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.13/aegislog_ai-2.1.13-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start

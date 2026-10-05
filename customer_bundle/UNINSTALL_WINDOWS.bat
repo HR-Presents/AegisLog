@@ -6,5 +6,5 @@ echo It does not remove reports or logs you created elsewhere.
 set /p "CONFIRM=Type YES to continue: "
 if /I not "%CONFIRM%"=="YES" exit /b 1
 if exist ".aegislog-venv" rmdir /s /q ".aegislog-venv"
-echo AegisLog AI local environment removed.
+echo AegisLog local environment removed.
 pause

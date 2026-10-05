@@ -7,4 +7,4 @@ printf "Type YES to continue: "
 IFS= read -r CONFIRM
 [ "$CONFIRM" = "YES" ] || exit 1
 rm -rf .aegislog-venv
-echo "AegisLog AI local environment removed."
+echo "AegisLog local environment removed."

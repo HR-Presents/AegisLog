@@ -1,6 +1,6 @@
-# AegisLog AI v1.4.0
+# AegisLog v1.4.0
 
-AegisLog AI v1.4.0 focuses on stronger real-Windows telemetry, clearer investigation workflows, and useful Windows Security Event intelligence while preserving the local-first, read-only defensive model.
+AegisLog v1.4.0 focuses on stronger real-Windows telemetry, clearer investigation workflows, and useful Windows Security Event intelligence while preserving the local-first, read-only defensive model.
 
 ## Highlights
 

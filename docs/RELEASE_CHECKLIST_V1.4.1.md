@@ -1,4 +1,4 @@
-# AegisLog AI v1.4.1 release checklist
+# AegisLog v1.4.1 release checklist
 
 - Merge the v1.4.1 release-preparation pull request only after CI, security, package, and Windows executable workflows pass on the exact head commit.
 - Confirm `main` contains version `1.4.1` in both `pyproject.toml` and `src/aegislog/__init__.py`.

@@ -13,4 +13,4 @@ def test_v146_release_artifacts_remain_available_as_history():
     assert "RELEASE-v1.4.6" in workflow
     assert "AegisLog-v1.4.6-release-assets" in workflow
     assert "docs/RELEASE_V1.4.6.md" in workflow
-    assert notes.startswith("# AegisLog AI v1.4.6")
+    assert notes.startswith("# AegisLog v1.4.6")

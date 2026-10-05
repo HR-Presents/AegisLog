@@ -1,4 +1,4 @@
-# AegisLog AI v1.6.1 Release Readiness Checklist
+# AegisLog v1.6.1 Release Readiness Checklist
 
 This checklist is the operator-facing gate for publishing permanent GitHub Release assets for `v1.6.1`.
 

@@ -1,6 +1,6 @@
-# AegisLog AI v1.4.1
+# AegisLog v1.4.1
 
-AegisLog AI v1.4.1 is a focused Windows customer-experience release built from real-machine acceptance testing of the v1.4.0 single-file executable.
+AegisLog v1.4.1 is a focused Windows customer-experience release built from real-machine acceptance testing of the v1.4.0 single-file executable.
 
 ## Highlights
 

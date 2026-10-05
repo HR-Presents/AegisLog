@@ -1,6 +1,6 @@
-# AegisLog AI v1.4.3
+# AegisLog v1.4.3
 
-AegisLog AI v1.4.3 is a terminal UX and release-maintenance update built on the stable v1.4.2 line.
+AegisLog v1.4.3 is a terminal UX and release-maintenance update built on the stable v1.4.2 line.
 
 ## Added
 

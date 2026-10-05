@@ -43,11 +43,11 @@ def test_v201_release_metadata_is_consistent():
     assert "RELEASE_TAG: v1.7.0" in historical_workflow
     assert historical_notes.startswith("# AegisLog v1.7.0")
     assert "RELEASE_TAG: v1.6.3" in older_workflow
-    assert older_notes.startswith("# AegisLog AI v1.6.3")
+    assert older_notes.startswith("# AegisLog v1.6.3")
     assert "RELEASE_TAG: v1.6.2" in older_notes_workflow
-    assert older_release_notes.startswith("# AegisLog AI v1.6.2")
+    assert older_release_notes.startswith("# AegisLog v1.6.2")
     assert "Release v1.6.0 (retired)" in retired_workflow
     assert "v1.6.0 was already published on 2026-09-02" in retired_workflow
     assert "exit 1" in retired_workflow
-    assert retired_notes.startswith("# AegisLog AI v1.6.0")
+    assert retired_notes.startswith("# AegisLog v1.6.0")
     assert "currently unsigned" in retired_notes

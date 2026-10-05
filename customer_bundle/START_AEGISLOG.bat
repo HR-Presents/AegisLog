@@ -31,7 +31,7 @@ if not exist ".aegislog-venv\Scripts\python.exe" (
 
   set "VPY=%CD%\.aegislog-venv\Scripts\python.exe"
   set "WHEEL="
-  for %%F in ("%CD%\package\aegislog_ai-*.whl") do set "WHEEL=%%~fF"
+  for %%F in ("%CD%\package\aegislog-*.whl") do set "WHEEL=%%~fF"
   if not defined WHEEL (
     echo ERROR: AegisLog package wheel is missing.
     goto :fail

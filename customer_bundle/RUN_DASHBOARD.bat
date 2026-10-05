@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 if not exist ".aegislog-venv\Scripts\aegislog.exe" (
-  echo AegisLog AI is not installed. Run INSTALL_WINDOWS.bat first.
+  echo AegisLog is not installed. Run INSTALL_WINDOWS.bat first.
   pause
   exit /b 1
 )

@@ -99,7 +99,7 @@ def update_check():
     latest = tuple(int(x) for x in tag[1:].split('.'))
     typer.echo(f'Installed: {__version__} / latest published: {tag}')
     typer.echo('Newer release available.' if latest > current else 'No newer stable release found.')
-    typer.echo(f'https://github.com/HR-Presents/AegisLog-AI/releases/tag/{tag}')
+    typer.echo(f'https://github.com/HR-Presents/AegisLog/releases/tag/{tag}')
     typer.echo('Use the matching release checksum before installing. Nothing was downloaded for installation or changed.')
 
 

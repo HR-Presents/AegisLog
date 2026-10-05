@@ -96,7 +96,7 @@ def _write_manifest(tmp_path: Path, payload: dict[str, object] | None = None) ->
 
 def _args(path: Path | None = None) -> Namespace:
     return Namespace(
-        repository="HR-Presents/AegisLog-AI",
+        repository="HR-Presents/AegisLog",
         ref="refs/heads/main",
         sha=RELEASE_SHA,
         release_tag="v2.1.0",

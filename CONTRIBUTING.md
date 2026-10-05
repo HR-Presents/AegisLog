@@ -111,7 +111,7 @@ If you used AegisLog but are not contributing code, you can still help by:
 - opening a sanitized bug report;
 - suggesting a defensive feature;
 - improving documentation;
-- submitting an honest [User Review](https://github.com/HR-Presents/AegisLog-AI/issues/new?template=user_review.yml);
+- submitting an honest [User Review](https://github.com/HR-Presents/AegisLog/issues/new?template=user_review.yml);
 - starring or forking the repository if you find it useful.
 
 A star is a public signal of interest or support, not proof of installation or usage.

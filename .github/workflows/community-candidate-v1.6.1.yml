@@ -98,7 +98,7 @@ jobs:
           $hash = (Get-FileHash "candidate-assets\AegisLog-community-candidate.exe" -Algorithm SHA256).Hash.ToLower()
           "$hash  AegisLog-community-candidate.exe" | Set-Content -Encoding ascii "candidate-assets\AegisLog-community-candidate.exe.sha256"
           @"
-          AegisLog AI v1.6.1 community candidate
+          AegisLog v1.6.1 community candidate
 
           This artifact is intentionally UNSIGNED and is NOT a production-trusted release.
           It is provided for development, testing, demos, and community evaluation.

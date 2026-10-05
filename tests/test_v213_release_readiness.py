@@ -48,6 +48,6 @@ def test_v213_workflow_is_guarded_version_locked_and_smokes_approved_ui() -> Non
 
 def test_package_workflow_uses_current_artifact_names() -> None:
     package = _text(".github/workflows/package.yml")
-    assert "aegislog_ai-2.1.17-py3-none-any.whl" in package
-    assert "AegisLog-AI-v2.1.17-Customer-Bundle.zip" in package
-    assert "AegisLog-AI-v2.1.2-Customer-Bundle.zip" not in package
+    assert "aegislog-2.1.17-py3-none-any.whl" in package
+    assert "AegisLog-v2.1.17-Customer-Bundle.zip" in package
+    assert "AegisLog-v2.1.2-Customer-Bundle.zip" not in package

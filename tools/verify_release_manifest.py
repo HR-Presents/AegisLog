@@ -31,8 +31,9 @@ def validate_identity(manifest, release, *, require_draft=True):
     names = {'AegisLog.exe', 'AegisLog.exe.sha256', f'AegisLog-{tag}-Windows.zip',
              f'AegisLog-{tag}-Windows.zip.sha256', f'aegislog_ai-{version}-py3-none-any.whl',
              f'aegislog_ai-{version}.tar.gz', 'SHA256SUMS'}
+    renamed_names = {name.replace('aegislog_ai-', 'aegislog-') for name in names}
     expected = manifest.get('assets', {})
-    if set(expected) != names or any(not re.fullmatch(r'sha256:[a-f0-9]{64}', d) for d in expected.values()):
+    if set(expected) not in (names, renamed_names) or any(not re.fullmatch(r'sha256:[a-f0-9]{64}', d) for d in expected.values()):
         raise ValueError('Invalid reviewed seven-asset digest manifest')
     if release.get('id') != manifest.get('release_id') or release.get('tag_name') != tag:
         raise ValueError('Release identity differs from reviewed draft')

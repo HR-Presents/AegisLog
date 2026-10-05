@@ -25,7 +25,7 @@ fi
 if [ ! -x ".aegislog-venv/bin/python" ]; then
   echo "First run detected. Installing AegisLog locally..."
   "$PYTHON" -m venv .aegislog-venv
-  WHEEL=$(find package -maxdepth 1 -type f -name 'aegislog_ai-*.whl' | head -n 1)
+  WHEEL=$(find package -maxdepth 1 -type f -name 'aegislog-*.whl' | head -n 1)
   if [ -z "$WHEEL" ]; then
     echo "ERROR: AegisLog package wheel is missing."
     exit 1

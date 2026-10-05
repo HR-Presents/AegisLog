@@ -11,7 +11,7 @@ def test_historical_v140_release_workflow_is_removed():
 
 def test_v140_release_notes_remain_available_as_history():
     notes = (ROOT / "docs" / "RELEASE_V1.4.0.md").read_text(encoding="utf-8")
-    assert notes.startswith("# AegisLog AI v1.4.0")
+    assert notes.startswith("# AegisLog v1.4.0")
     assert "AegisLog.exe" in notes
     assert "No Python installation" in notes
     assert "read-only" in notes
@@ -25,7 +25,7 @@ def test_historical_v142_release_workflow_is_removed():
 
 def test_v142_release_notes_remain_available_as_history():
     notes = (ROOT / "docs" / "RELEASE_V1.4.2.md").read_text(encoding="utf-8")
-    assert notes.startswith("# AegisLog AI v1.4.2")
+    assert notes.startswith("# AegisLog v1.4.2")
     assert "AegisLog.exe" in notes
     assert "read-only" in notes
 
@@ -36,7 +36,7 @@ def test_historical_v143_release_workflow_is_removed():
 
 def test_v143_release_notes_remain_available_as_history():
     notes = (ROOT / "docs" / "RELEASE_V1.4.3.md").read_text(encoding="utf-8")
-    assert notes.startswith("# AegisLog AI v1.4.3")
+    assert notes.startswith("# AegisLog v1.4.3")
     assert "AegisLog.exe" in notes
     assert "read-only" in notes
 
@@ -47,7 +47,7 @@ def test_historical_v144_release_workflow_is_removed():
 
 def test_v144_release_notes_remain_available_as_history():
     notes = (ROOT / "docs" / "RELEASE_V1.4.4.md").read_text(encoding="utf-8")
-    assert notes.startswith("# AegisLog AI v1.4.4")
+    assert notes.startswith("# AegisLog v1.4.4")
     assert "AegisLog.exe" in notes
     assert "read-only" in notes
 
@@ -58,7 +58,7 @@ def test_historical_v145_release_workflow_is_removed():
 
 def test_v145_release_notes_remain_available_as_history():
     notes = (ROOT / "docs" / "RELEASE_V1.4.5.md").read_text(encoding="utf-8")
-    assert notes.startswith("# AegisLog AI v1.4.5")
+    assert notes.startswith("# AegisLog v1.4.5")
     assert "AegisLog.exe" in notes
     assert "read-only" in notes
 

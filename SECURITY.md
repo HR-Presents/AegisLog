@@ -1,6 +1,6 @@
 # Security Policy
 
-AegisLog AI is defensive analysis software. Treat findings as investigation leads and validate them before changing production systems.
+AegisLog is defensive analysis software. Treat findings as investigation leads and validate them before changing production systems.
 
 ## Supported versions
 

@@ -59,7 +59,7 @@ jobs:
               assert 'aegislog/assets/aegislog-logo.png' in package.namelist()
               assert 'aegislog/report_document.py' in package.namelist()
           PYTHON
-          (cd dist && sha256sum aegislog_ai-* > SHA256SUMS)
+          (cd dist && sha256sum aegislog-* > SHA256SUMS)
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: AegisLog-v2.1.11-Python
@@ -212,7 +212,7 @@ jobs:
   prepare-draft:
     if: ${{ false }} # Historical release; never rerun against published assets.
     needs: [validate, build-windows-exe]
-    # Historical guard: if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Historical guard: if: github.repository == 'HR-Presents/AegisLog' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     permissions:
       contents: write

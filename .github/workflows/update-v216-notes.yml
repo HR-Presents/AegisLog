@@ -14,14 +14,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api repos/HR-Presents/AegisLog-AI/releases/402588503 > release.json
+          gh api repos/HR-Presents/AegisLog/releases/402588503 > release.json
           python - <<'PY'
           import json
           r=json.load(open('release.json'))
           assert r['tag_name']=='v2.1.6' and r['draft'] is False
           assert r['target_commitish']=='e7af0798c731720690f298c093deec74f42fa56a'
           body=r['body'].replace('This workflow prepares a draft release with fresh checksums and preserves earlier releases.', 'This release is published with fresh checksums and preserves earlier releases.')
-          body += '\n\n## Upgrade\n\nExit AegisLog, then run:\n\n```cmd\npython -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.6/aegislog_ai-2.1.6-py3-none-any.whl"\naegislog --version\n```\n\nRegenerate existing reports. Standalone users should download the new executable and verify its matching checksum. The Windows executable is unsigned; checksums and provenance do not imply Authenticode signing.\n'
+          body += '\n\n## Upgrade\n\nExit AegisLog, then run:\n\n```cmd\npython -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.6/aegislog_ai-2.1.6-py3-none-any.whl"\naegislog --version\n```\n\nRegenerate existing reports. Standalone users should download the new executable and verify its matching checksum. The Windows executable is unsigned; checksums and provenance do not imply Authenticode signing.\n'
           open('release-notes.md','w').write(body)
           PY
-          gh release edit v2.1.6 --repo HR-Presents/AegisLog-AI --notes-file release-notes.md
+          gh release edit v2.1.6 --repo HR-Presents/AegisLog --notes-file release-notes.md

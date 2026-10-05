@@ -15,7 +15,7 @@ Reopen PowerShell, then install the current main candidate:
 
 ```powershell
 cd $HOME
-py -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/archive/refs/heads/main.zip"
+py -m pipx install --force "https://github.com/HR-Presents/AegisLog/archive/refs/heads/main.zip"
 aegislog start
 ```
 
@@ -51,9 +51,9 @@ The guided result includes retained-format counts, generic fallback counts, trun
 
 Run `aegislog doctor` for runtime diagnostics. If a file is binary or UTF-16, export a UTF-8 text version. If a native source is unavailable, review its displayed reason and try file analysis.
 
-Report bugs at https://github.com/HR-Presents/AegisLog-AI/issues with version/build, OS, installation method, chosen workflow and a sanitized reproduction. Never attach production logs or credentials without authorization. No feedback or log upload happens automatically.
+Report bugs at https://github.com/HR-Presents/AegisLog/issues with version/build, OS, installation method, chosen workflow and a sanitized reproduction. Never attach production logs or credentials without authorization. No feedback or log upload happens automatically.
 
-Uninstall with `py -m pipx uninstall aegislog-ai`. Locally generated reports are separate files and are not deleted by package removal.
+Uninstall with `py -m pipx uninstall aegislog`. Locally generated reports are separate files and are not deleted by package removal.
 
 ## Launching from a protected directory
 

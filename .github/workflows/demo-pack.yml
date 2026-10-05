@@ -27,7 +27,7 @@ jobs:
       - name: Install published runtime with locked dependencies
         run: |
           python -m pip install --require-hashes -r packaging/runtime-lock.txt
-          python -m pip install --no-deps "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.11/aegislog_ai-2.1.11-py3-none-any.whl"
+          python -m pip install --no-deps "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.11/aegislog_ai-2.1.11-py3-none-any.whl"
       - name: Verify expectations, reports, source preservation and ZIP
         run: python tools/build_demo_pack.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -36,7 +36,7 @@ jobs:
           path: out/demo/*
           retention-days: 7
   prepare-download-blob:
-    if: github.repository == 'HR-Presents/AegisLog-AI' && github.event_name == 'push'
+    if: github.repository == 'HR-Presents/AegisLog' && github.event_name == 'push'
     needs: verify
     permissions:
       contents: write
@@ -50,6 +50,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          blob_sha="$(gh api --method POST repos/HR-Presents/AegisLog-AI/git/blobs --input out/demo/blob.json --jq '.sha')"
+          blob_sha="$(gh api --method POST repos/HR-Presents/AegisLog/git/blobs --input out/demo/blob.json --jq '.sha')"
           echo "DEMO_BLOB_SHA=$blob_sha"
           cat out/demo/AegisLog-First-Investigation-Demo.zip.sha256

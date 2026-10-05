@@ -3,7 +3,7 @@ set -eu
 cd "$(dirname "$0")"
 
 if [ ! -x ".aegislog-venv/bin/aegislog" ]; then
-  echo "AegisLog AI is not installed. Run ./INSTALL_LINUX_MACOS.sh first." >&2
+  echo "AegisLog is not installed. Run ./INSTALL_LINUX_MACOS.sh first." >&2
   exit 1
 fi
 

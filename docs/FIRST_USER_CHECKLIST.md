@@ -20,7 +20,7 @@ Use this checklist for independent Windows trials and record each environment an
 - Report readability / print issue:
 - Whether you could return to your terminal:
 
-Share feedback through a [GitHub issue](https://github.com/HR-Presents/AegisLog-AI/issues). Do not upload real logs without permission and review. AegisLog's aggregate sharing summary omits identifiers and raw evidence, but review any exported file before posting it.
+Share feedback through a [GitHub issue](https://github.com/HR-Presents/AegisLog/issues). Do not upload real logs without permission and review. AegisLog's aggregate sharing summary omits identifiers and raw evidence, but review any exported file before posting it.
 
 ## Launch decision
 

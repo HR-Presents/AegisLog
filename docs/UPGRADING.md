@@ -3,7 +3,7 @@
 Use the published release wheel in an isolated pipx environment; see [installation](INSTALL.md#upgrade-and-verify) for setup and standalone executable upgrades.
 
 ```cmd
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.7/aegislog_ai-2.1.7-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.7/aegislog_ai-2.1.7-py3-none-any.whl"
 aegislog --version
 python -m pipx uninstall aegislog-ai
 ```

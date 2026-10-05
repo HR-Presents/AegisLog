@@ -4,14 +4,14 @@ AegisLog reads logs locally, highlights rule-backed investigation leads, and cre
 
 ## 1. Install and open
 
-**Windows without Python:** [download the Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.16/AegisLog-v2.1.16-Windows.zip), extract it, and open `AegisLog.exe`. The executable is currently unsigned; verify the release checksum before running it.
+**Windows without Python:** [download the Windows ZIP](https://github.com/HR-Presents/AegisLog/releases/download/v2.1.16/AegisLog-v2.1.16-Windows.zip), extract it, and open `AegisLog.exe`. The executable is currently unsigned; verify the release checksum before running it.
 
 **Python 3.10 or newer:** use these commands in your terminal. On Windows, use `python` when it works; substitute `py` if that is your installed launcher.
 
 ```powershell
 python -m pip install --user pipx
 python -m pipx ensurepath
-python -m pipx install "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.16/aegislog_ai-2.1.16-py3-none-any.whl"
+python -m pipx install "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.16/aegislog_ai-2.1.16-py3-none-any.whl"
 ```
 
 Close the terminal and open a new one so PATH updates take effect:
@@ -25,7 +25,7 @@ If Windows still cannot find the command, run `& "$env:USERPROFILE\.local\bin\ae
 
 ## 2. Analyze the demo
 
-[Download the demo pack](https://github.com/HR-Presents/AegisLog-AI/raw/refs/heads/main/docs/demo/AegisLog-First-Investigation-Demo.zip) and extract it. Select **01 Analyze**, then drag `first-investigation.log` into the prompt or paste its full path.
+[Download the demo pack](https://github.com/HR-Presents/AegisLog/raw/refs/heads/main/docs/demo/AegisLog-First-Investigation-Demo.zip) and extract it. Select **01 Analyze**, then drag `first-investigation.log` into the prompt or paste its full path.
 
 Expect **9 records, 9 recognized records, 2 findings and 1 incident group**: one HIGH authentication burst containing six failures, and one MEDIUM operational timeout. These are synthetic training signals, not observations about your computer. Read the pack's README and expected-results.json.
 

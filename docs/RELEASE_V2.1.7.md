@@ -15,7 +15,7 @@ The Windows executable is unsigned. Published SHA-256 checksums and build proven
 ## Install or upgrade with pipx
 
 ```powershell
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.7/aegislog_ai-2.1.7-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.7/aegislog_ai-2.1.7-py3-none-any.whl"
 aegislog --version
 aegislog start
 ```

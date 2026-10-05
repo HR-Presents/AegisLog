@@ -27,12 +27,12 @@ jobs:
           python -m twine check dist/*
 
       - name: Generate package checksums
-        run: cd dist && sha256sum aegislog_ai-* > SHA256SUMS
+        run: cd dist && sha256sum aegislog-* > SHA256SUMS
 
       - name: Build customer distribution folder
         run: |
           set -eux
-          ROOT="customer-dist/AegisLog-AI-Customer"
+          ROOT="customer-dist/AegisLog-Customer"
           mkdir -p "$ROOT/package" "$ROOT/vendor" "$ROOT/sample_logs"
           cp dist/*.whl "$ROOT/package/"
           cp customer_bundle/* "$ROOT/"
@@ -48,7 +48,7 @@ jobs:
       - name: Verify offline Linux customer install
         run: |
           set -eux
-          ROOT="$GITHUB_WORKSPACE/customer-dist/AegisLog-AI-Customer"
+          ROOT="$GITHUB_WORKSPACE/customer-dist/AegisLog-Customer"
           cd "$ROOT"
           ./INSTALL_LINUX_MACOS.sh
           ./.aegislog-venv/bin/aegislog --version
@@ -60,43 +60,43 @@ jobs:
       - name: Verify clean customer archive contents
         run: |
           set -eux
-          test ! -e customer-dist/AegisLog-AI-Customer/.aegislog-venv
-          test -f customer-dist/AegisLog-AI-Customer/package/aegislog_ai-2.1.17-py3-none-any.whl
-          test -f customer-dist/AegisLog-AI-Customer/RUNTIME_LOCK.txt
-          test "$(find customer-dist/AegisLog-AI-Customer/vendor -maxdepth 1 -type f -name '*.whl' | wc -l)" -eq 8
-          test -f customer-dist/AegisLog-AI-Customer/START_AEGISLOG.bat
-          test -f customer-dist/AegisLog-AI-Customer/START_AEGISLOG.sh
-          test -f customer-dist/AegisLog-AI-Customer/INSTALL_WINDOWS.bat
-          test -f customer-dist/AegisLog-AI-Customer/OPEN_AEGISLOG_TERMINAL.bat
+          test ! -e customer-dist/AegisLog-Customer/.aegislog-venv
+          test -f customer-dist/AegisLog-Customer/package/aegislog-2.1.17-py3-none-any.whl
+          test -f customer-dist/AegisLog-Customer/RUNTIME_LOCK.txt
+          test "$(find customer-dist/AegisLog-Customer/vendor -maxdepth 1 -type f -name '*.whl' | wc -l)" -eq 8
+          test -f customer-dist/AegisLog-Customer/START_AEGISLOG.bat
+          test -f customer-dist/AegisLog-Customer/START_AEGISLOG.sh
+          test -f customer-dist/AegisLog-Customer/INSTALL_WINDOWS.bat
+          test -f customer-dist/AegisLog-Customer/OPEN_AEGISLOG_TERMINAL.bat
 
       - name: Archive customer bundle
         run: |
           cd customer-dist
-          zip -r ../dist/AegisLog-AI-v2.1.17-Customer-Bundle.zip AegisLog-AI-Customer
+          zip -r ../dist/AegisLog-v2.1.17-Customer-Bundle.zip AegisLog-Customer
           cd ../dist
-          sha256sum AegisLog-AI-v2.1.17-Customer-Bundle.zip > AegisLog-AI-v2.1.17-Customer-Bundle.zip.sha256
+          sha256sum AegisLog-v2.1.17-Customer-Bundle.zip > AegisLog-v2.1.17-Customer-Bundle.zip.sha256
 
       - name: Attest tagged package artifacts
         if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
         with:
           subject-path: |
-            dist/aegislog_ai-*
-            dist/AegisLog-AI-v2.1.17-Customer-Bundle.zip
+            dist/aegislog-*
+            dist/AegisLog-v2.1.17-Customer-Bundle.zip
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: python-package
           path: |
-            dist/aegislog_ai-*
+            dist/aegislog-*
             dist/SHA256SUMS
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: customer-bundle
           path: |
-            dist/AegisLog-AI-v2.1.17-Customer-Bundle.zip
-            dist/AegisLog-AI-v2.1.17-Customer-Bundle.zip.sha256
+            dist/AegisLog-v2.1.17-Customer-Bundle.zip
+            dist/AegisLog-v2.1.17-Customer-Bundle.zip.sha256
 
   verify-windows-customer:
     runs-on: windows-2025
@@ -111,7 +111,7 @@ jobs:
         run: |
           python -m pip install --require-hashes -r packaging/build-lock-windows.txt
           python -m build --no-isolation
-          $root = Join-Path $env:GITHUB_WORKSPACE "customer-dist\AegisLog-AI-Customer"
+          $root = Join-Path $env:GITHUB_WORKSPACE "customer-dist\AegisLog-Customer"
           New-Item -ItemType Directory -Force -Path "$root\package", "$root\vendor", "$root\sample_logs" | Out-Null
           Copy-Item "dist\*.whl" "$root\package\"
           Copy-Item "customer_bundle\*" "$root\"
@@ -126,7 +126,7 @@ jobs:
         env:
           AEGISLOG_NONINTERACTIVE: "1"
         run: |
-          cd /d "%GITHUB_WORKSPACE%\customer-dist\AegisLog-AI-Customer"
+          cd /d "%GITHUB_WORKSPACE%\customer-dist\AegisLog-Customer"
           call INSTALL_WINDOWS.bat
           if errorlevel 1 exit /b 1
           .aegislog-venv\Scripts\aegislog.exe --version
@@ -154,8 +154,8 @@ jobs:
         shell: pwsh
         run: |
           $testRoot = Join-Path $env:RUNNER_TEMP "AegisLog fresh install é"
-          Expand-Archive -Path "isolated-bundle/AegisLog-AI-v2.1.17-Customer-Bundle.zip" -DestinationPath $testRoot -Force
-          $bundleRoot = Join-Path $testRoot "AegisLog-AI-Customer"
+          Expand-Archive -Path "isolated-bundle/AegisLog-v2.1.17-Customer-Bundle.zip" -DestinationPath $testRoot -Force
+          $bundleRoot = Join-Path $testRoot "AegisLog-Customer"
           python -m venv "$testRoot/venv"
           if ($LASTEXITCODE -ne 0) { throw "Fresh environment creation failed" }
           $testPython = Join-Path $testRoot "venv/Scripts/python.exe"

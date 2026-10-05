@@ -11,9 +11,9 @@
 
 **LOCAL-FIRST · READ-ONLY · DETERMINISTIC · EVIDENCE-DRIVEN · EXPLAINABLE**
 
-[![CI](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/ci.yml)
-[![Security](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/security.yml/badge.svg)](https://github.com/HR-Presents/AegisLog-AI/actions/workflows/security.yml)
-[![Latest release](https://img.shields.io/github/v/release/HR-Presents/AegisLog-AI?display_name=tag&style=flat-square&color=4C8DFF)](https://github.com/HR-Presents/AegisLog-AI/releases/latest)
+[![CI](https://github.com/HR-Presents/AegisLog/actions/workflows/ci.yml/badge.svg)](https://github.com/HR-Presents/AegisLog/actions/workflows/ci.yml)
+[![Security](https://github.com/HR-Presents/AegisLog/actions/workflows/security.yml/badge.svg)](https://github.com/HR-Presents/AegisLog/actions/workflows/security.yml)
+[![Latest release](https://img.shields.io/github/v/release/HR-Presents/AegisLog?display_name=tag&style=flat-square&color=4C8DFF)](https://github.com/HR-Presents/AegisLog/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-4C8DFF.svg?style=flat-square)](LICENSE)
 
 [Overview](#overview) · [Architecture](#platform-architecture) · [Detection](#detection-and-analysis) · [Monitoring](#live-monitoring) · [Reports](#reports-and-evidence) · [Installation](#installation) · [Security](#security-and-responsible-use)
@@ -29,7 +29,7 @@
 
 ## Start here
 
-New to log investigation? Follow the [five-step beginner guide](docs/QUICKSTART.md), then try the [downloadable synthetic demo pack](https://github.com/HR-Presents/AegisLog-AI/raw/refs/heads/main/docs/demo/AegisLog-First-Investigation-Demo.zip). The pack includes checked expected results and a no-matching-findings comparison fixture.
+New to log investigation? Follow the [five-step beginner guide](docs/QUICKSTART.md), then try the [downloadable synthetic demo pack](https://github.com/HR-Presents/AegisLog/raw/refs/heads/main/docs/demo/AegisLog-First-Investigation-Demo.zip). The pack includes checked expected results and a no-matching-findings comparison fixture.
 
 **Who it helps:** IT administrators investigating service problems, support engineers reviewing application logs, and security analysts triaging accessible local evidence. AegisLog provides local investigation and reporting; a managed SIEM, EDR, fleet agent or automated remediation service requires other tooling.
 
@@ -282,9 +282,9 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 
 ### Current Release
 
-**[v2.1.17](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.17)** is the published stable release. Install the Python wheel below to run AegisLog in your existing terminal.
+**[v2.1.17](https://github.com/HR-Presents/AegisLog/releases/tag/v2.1.17)** is the published stable release. Install the Python wheel below to run AegisLog in your existing terminal.
 
-[Release downloads](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.17) · [Release notes](docs/RELEASE_V2.1.17.md) · [Installation guide](docs/INSTALL.md)
+[Release downloads](https://github.com/HR-Presents/AegisLog/releases/tag/v2.1.17) · [Release notes](docs/RELEASE_V2.1.17.md) · [Installation guide](docs/INSTALL.md)
 
 Matching SHA-256 checksums are available on the release page.
 
@@ -309,7 +309,7 @@ python -m pipx ensurepath
 Close and reopen your terminal so PATH changes take effect. Then install the published wheel:
 
 ```bash
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.17/aegislog_ai-2.1.17-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.17/aegislog_ai-2.1.17-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start
@@ -325,8 +325,8 @@ Use `py` instead of `python` if that is the Python command available on your Win
 ### Development Installation
 
 ```bash
-git clone https://github.com/HR-Presents/AegisLog-AI.git
-cd AegisLog-AI
+git clone https://github.com/HR-Presents/AegisLog.git AegisLog
+cd AegisLog
 python -m venv .venv
 source .venv/bin/activate   # Windows CMD: .venv\Scripts\activate
 pip install -e '.[dev]'
@@ -486,7 +486,7 @@ See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), 
 
 Read [Contributing](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Keep changes focused and include relevant validation.
 
-[Report a bug](https://github.com/HR-Presents/AegisLog-AI/issues/new?template=bug_report.md) or [request a feature](https://github.com/HR-Presents/AegisLog-AI/issues/new?template=feature_request.md). Include your version and a sanitized reproducible example. Never commit credentials, customer information, or sensitive production logs.
+[Report a bug](https://github.com/HR-Presents/AegisLog/issues/new?template=bug_report.md) or [request a feature](https://github.com/HR-Presents/AegisLog/issues/new?template=feature_request.md). Include your version and a sanitized reproducible example. Never commit credentials, customer information, or sensitive production logs.
 
 ## License
 

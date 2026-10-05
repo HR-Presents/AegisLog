@@ -4,7 +4,7 @@ AegisLog v2.0.1 is a public-surface consistency patch for the v2 line. It carrie
 
 ## Highlights
 
-- Removes stale `AegisLog AI` branding from the supported CLI version/help surface and customer bundle launchers/installers.
+- Aligns AegisLog branding from the supported CLI version/help surface and customer bundle launchers/installers.
 - Aligns the README Mission Control example with the v2.0.x terminal layout and removes the obsolete duplicate `SELECT` prompt from the documented flow.
 - Updates the documentation index, project status, and roadmap so they no longer present v1.6.0 as the current release line.
 - Adds regression coverage that locks the current public branding, version output, README terminal example, and release-status documentation.

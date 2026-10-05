@@ -1,6 +1,6 @@
-# AegisLog AI v1.4.4
+# AegisLog v1.4.4
 
-AegisLog AI v1.4.4 is a focused Windows terminal runtime reliability update built on v1.4.3.
+AegisLog v1.4.4 is a focused Windows terminal runtime reliability update built on v1.4.3.
 
 ## Fixed
 

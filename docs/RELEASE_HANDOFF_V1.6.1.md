@@ -1,4 +1,4 @@
-# AegisLog AI v1.6.1 — Release Handoff
+# AegisLog v1.6.1 — Release Handoff
 
 Use this handoff together with the v1.6.1 release checklist, go/no-go record, blocker-owner list, and external-evidence guide. It is an operational handoff, not authorization to bypass a release gate.
 

@@ -45,6 +45,6 @@ def test_reports_escape_untrusted_html():
 
     md = markdown_report("sample.log", 1, [Finding()], [])
     page = html_report("sample.log", 1, [Finding()], [])
-    assert "AegisLog AI Security Report" in md
+    assert "AegisLog Security Report" in md
     assert "<script>alert(1)</script>" not in page
     assert "&lt;script&gt;" in page

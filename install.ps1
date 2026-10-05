@@ -30,9 +30,9 @@ setlocal
 $Shell = Join-Path $PSScriptRoot "OPEN_AEGISLOG_TERMINAL.bat"
 @"
 @echo off
-title AegisLog AI
+title AegisLog
 cd /d "%~dp0"
-echo AegisLog AI terminal is ready.
+echo AegisLog terminal is ready.
 echo.
 echo Examples:
 echo   aegislog analyze path\to\auth.log
@@ -43,6 +43,6 @@ cmd /k "set PATH=%~dp0;%PATH%"
 "@ | Set-Content -Encoding ASCII $Shell
 
 Write-Host ""
-Write-Host "AegisLog AI installed successfully." -ForegroundColor Green
+Write-Host "AegisLog installed successfully." -ForegroundColor Green
 Write-Host "Run .\aegislog.cmd --version"
 Write-Host "Or double-click OPEN_AEGISLOG_TERMINAL.bat to open a ready terminal."

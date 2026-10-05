@@ -240,7 +240,7 @@ jobs:
       RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
       RELEASE_TAG: ${{ needs.metadata.outputs.tag }}
     needs: [metadata, validate, build-windows-exe]
-    if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.repository == 'HR-Presents/AegisLog' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     permissions:
       contents: write

@@ -12,9 +12,9 @@ Analyze a file, watch a growing source, discover logs in a folder, or collect a 
 
 Logs are handled read-only. Analysis stays local and does not require an external AI provider. Findings are investigation leads: AegisLog does not certify that a computer is clean, replace an EDR/SIEM, or automatically remediate problems.
 
-Start with the [beginner guide](https://github.com/HR-Presents/AegisLog-AI/blob/main/docs/QUICKSTART.md) and the [synthetic demo pack](https://github.com/HR-Presents/AegisLog-AI/raw/refs/heads/main/docs/demo/AegisLog-First-Investigation-Demo.zip).
+Start with the [beginner guide](https://github.com/HR-Presents/AegisLog/blob/main/docs/QUICKSTART.md) and the [synthetic demo pack](https://github.com/HR-Presents/AegisLog/raw/refs/heads/main/docs/demo/AegisLog-First-Investigation-Demo.zip).
 
-[Download the current release](https://github.com/HR-Presents/AegisLog-AI/releases/latest) · [Explore the project](https://github.com/HR-Presents/AegisLog-AI)
+[Download the current release](https://github.com/HR-Presents/AegisLog/releases/latest) · [Explore the project](https://github.com/HR-Presents/AegisLog)
 
 If you try it, feedback on installation, report readability, supported formats and confusing findings will help us improve it. Remove sensitive details before sharing an example.
 

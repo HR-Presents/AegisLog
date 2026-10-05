@@ -1,4 +1,4 @@
-# AegisLog AI v1.6.1 — Release blocker owners
+# AegisLog v1.6.1 — Release blocker owners
 
 This file converts the remaining v1.6.1 release blockers into an owner-by-owner action list. Completing one item does not authorize publication unless every mandatory release gate is satisfied on the exact release commit.
 

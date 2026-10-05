@@ -1,6 +1,6 @@
-# AegisLog AI v1.3.1
+# AegisLog v1.3.1
 
-AegisLog AI v1.3.1 is a focused usability and reliability update for the terminal control center.
+AegisLog v1.3.1 is a focused usability and reliability update for the terminal control center.
 
 ## What changed
 
