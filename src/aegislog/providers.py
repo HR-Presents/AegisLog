@@ -30,7 +30,7 @@ MAX_RESPONSE_BYTES = 2_000_000
 def fetch_public_release():
     """Explicit update-check only: fixed public URL, no log/configuration payload."""
     request = urllib.request.Request(
-        'https://api.github.com/repos/HR-Presents/AegisLog-AI/releases/latest',
+        'https://api.github.com/repos/HR-Presents/AegisLog/releases/latest',
         headers={'Accept': 'application/vnd.github+json', 'User-Agent': 'AegisLog-update-check'},
     )
     # Do not follow redirects to a different service or downgrade to HTTP.

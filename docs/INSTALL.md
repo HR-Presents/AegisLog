@@ -4,7 +4,7 @@
 
 The recommended Windows installation is the one-file console application:
 
-1. Open the [published releases](https://github.com/HR-Presents/AegisLog-AI/releases).
+1. Open the [published releases](https://github.com/HR-Presents/AegisLog/releases).
 2. Download `AegisLog.exe`.
 3. Optionally download `AegisLog.exe.sha256` and verify the executable before running it.
 4. Run `AegisLog.exe` to open Mission Control.
@@ -44,7 +44,7 @@ The approved company-facing summary and polished full report are included in the
 Exit AegisLog first, then install the published wheel:
 
 ```cmd
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.17/aegislog_ai-2.1.17-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.17/aegislog_ai-2.1.17-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start

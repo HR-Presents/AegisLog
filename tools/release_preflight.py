@@ -193,8 +193,8 @@ def validate_evidence_binding(payload: dict[str, object], release_commit: str, r
 
 
 def validate_preflight(args: argparse.Namespace) -> None:
-    if args.repository != "HR-Presents/AegisLog-AI":
-        raise PreflightError("release must run in HR-Presents/AegisLog-AI")
+    if args.repository != "HR-Presents/AegisLog":
+        raise PreflightError("release must run in HR-Presents/AegisLog")
     if args.ref != "refs/heads/main":
         raise PreflightError("release must be dispatched from refs/heads/main")
     if not GIT_SHA_RE.fullmatch(args.sha):

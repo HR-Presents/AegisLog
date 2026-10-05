@@ -13,7 +13,7 @@ This maintenance release includes the repository audit fixes while preserving th
 ## Install or upgrade
 
 ```powershell
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.12/aegislog_ai-2.1.12-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.12/aegislog_ai-2.1.12-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start

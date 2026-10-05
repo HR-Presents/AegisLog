@@ -10,7 +10,7 @@ This release bundles evidence-grouping, privacy and live-monitor reliability fix
 ## Install or upgrade
 
 ```powershell
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.14/aegislog_ai-2.1.14-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.14/aegislog_ai-2.1.14-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start

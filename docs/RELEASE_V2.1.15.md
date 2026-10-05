@@ -10,7 +10,7 @@ This release includes bounded baseline loading and the latest compatibility and 
 ## Install or upgrade
 
 ```powershell
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.15/aegislog_ai-2.1.15-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog/releases/download/v2.1.15/aegislog_ai-2.1.15-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start

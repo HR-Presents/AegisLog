@@ -18,7 +18,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api repos/HR-Presents/AegisLog-AI/releases/403113186 > release.json
+          gh api repos/HR-Presents/AegisLog/releases/403113186 > release.json
           python - <<'PY'
           import json
           release = json.load(open('release.json'))
@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir reviewed-assets
-          gh release download v2.1.9 --repo HR-Presents/AegisLog-AI --dir reviewed-assets
+          gh release download v2.1.9 --repo HR-Presents/AegisLog --dir reviewed-assets
           python - <<'PY'
           import hashlib, json
           from pathlib import Path
@@ -53,7 +53,7 @@ jobs:
   publish:
     if: ${{ false }} # Historical release; never rerun against published assets.
     needs: verify
-    # Historical guard: if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Historical guard: if: github.repository == 'HR-Presents/AegisLog' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -62,5 +62,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release edit v2.1.9 --repo HR-Presents/AegisLog-AI --draft=false --latest
-          gh api repos/HR-Presents/AegisLog-AI/releases/403113186 --jq '{tag: .tag_name, draft: .draft, target: .target_commitish, url: .html_url}'
+          gh release edit v2.1.9 --repo HR-Presents/AegisLog --draft=false --latest
+          gh api repos/HR-Presents/AegisLog/releases/403113186 --jq '{tag: .tag_name, draft: .draft, target: .target_commitish, url: .html_url}'

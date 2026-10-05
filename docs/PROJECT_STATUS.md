@@ -2,7 +2,7 @@
 
 The current published stable release is **v2.1.17**.
 
-**Published stable:** v2.1.17. Download its Windows and Python assets from [GitHub Releases](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.17).
+**Published stable:** v2.1.17. Download its Windows and Python assets from [GitHub Releases](https://github.com/HR-Presents/AegisLog/releases/tag/v2.1.17).
 
 This release adds actual-read JSON container limits and bounded custom rule packs with restricted regex syntax, and refreshes the audit documentation. It includes separate target-group presentation, credential-key redaction variants, live rotation race handling and matching baseline collection settings. It retains explicit group-SID severity, target-host authentication boundaries, reused-session limits and clearer heuristic scores. It preserves the approved boxed report design: black text, light sea-blue framing, aligned metrics, larger logo, UTC chronology and retained evidence references. It retains grouped review, bounded Windows session context, Docker/ECS adapters, case search, collection progress, signal comparisons, sharing preview, diagnostics and optional release checks. The height-adaptive terminal home and G Beginner walkthrough remain available.
 

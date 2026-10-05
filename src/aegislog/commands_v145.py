@@ -137,7 +137,7 @@ def _quick_info_panel(width: int) -> Panel:
     grid = Table.grid(expand=True, padding=(0, 1))
     grid.add_column(width=9, no_wrap=True)
     grid.add_column(ratio=1, no_wrap=True, overflow="crop")
-    for label, value in (("REPORTS", "R: local / user report folders"), ("CONFIG", str(CONFIG_DIR)), ("PROJECT", "HR-Presents/AegisLog-AI"), ("OWNER", "HR-PRESENTS")):
+    for label, value in (("REPORTS", "R: local / user report folders"), ("CONFIG", str(CONFIG_DIR)), ("PROJECT", "HR-Presents/AegisLog"), ("OWNER", "HR-PRESENTS")):
         grid.add_row(Text(label, style=MUTED), Text(value, style=ACCENT if label != "OWNER" else NEUTRAL, no_wrap=True, overflow="crop"))
     return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=grid, title=Text(" QUICK INFO ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width, height=9)
 
@@ -236,7 +236,7 @@ def _fitted_home(screen_width: int, screen_height: int) -> RenderableType:
         monitoring = panel("MONITOR & INVESTIGATE", [_action_line(*row) for row in tools], left)
         info = panel("QUICK INFO", [Text("REPORTS  R opens saved investigations", style=MUTED),
                                     Text("CONFIG   08 Health shows the full path", style=MUTED),
-                                    Text("PROJECT  HR-Presents/AegisLog-AI", style=MUTED)], left)
+                                    Text("PROJECT  HR-Presents/AegisLog", style=MUTED)], left)
         status = _status_panel(right)
         status.padding = (0, 1)
         utility = panel("UTILITIES", [Text(f"[{key}] {label}", style=NEUTRAL) for key, label in utilities], right)
