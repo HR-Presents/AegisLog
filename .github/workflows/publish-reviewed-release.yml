@@ -1,0 +1,75 @@
+name: Publish reviewed release
+on:
+  pull_request:
+    paths: ['.github/workflows/publish-reviewed-release.yml', 'packaging/release-review.json', 'tools/verify_release_manifest.py']
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-reviewed-release.yml', 'packaging/release-review.json', 'tools/verify_release_manifest.py']
+permissions:
+  contents: read
+concurrency:
+  group: publish-reviewed-release
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.review.outputs.tag }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - id: review
+        name: Validate reviewed metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from tools.verify_release_manifest import validate_identity
+          manifest = json.load(open('packaging/release-review.json'))
+          release = json.loads(subprocess.check_output(['gh', 'api', f"repos/HR-Presents/AegisLog-AI/releases/{manifest['release_id']}"], text=True))
+          tag = validate_identity(manifest, release)
+          with open('release.json', 'w') as output:
+              json.dump(release, output)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'tag={tag}\n')
+          PY
+      - name: Verify downloaded assets and checksum files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.review.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir reviewed-assets
+          gh release download "$RELEASE_TAG" --repo HR-Presents/AegisLog-AI --dir reviewed-assets
+          python tools/verify_release_manifest.py packaging/release-review.json release.json --directory reviewed-assets
+          (cd reviewed-assets && sha256sum --check AegisLog.exe.sha256 && sha256sum --check "AegisLog-$RELEASE_TAG-Windows.zip.sha256" && sha256sum --check SHA256SUMS)
+  publish:
+    needs: verify
+    if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Recheck draft identity and publish without replacing assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.verify.outputs.tag }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, subprocess
+          from tools.verify_release_manifest import validate_identity
+          manifest = json.load(open('packaging/release-review.json'))
+          release = json.loads(subprocess.check_output(['gh', 'api', f"repos/HR-Presents/AegisLog-AI/releases/{manifest['release_id']}"], text=True))
+          validate_identity(manifest, release)
+          PY
+          gh release edit "$RELEASE_TAG" --repo HR-Presents/AegisLog-AI --draft=false --latest
