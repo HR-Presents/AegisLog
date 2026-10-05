@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.14 - 2026-10-05
+
+- Preserve target group identity in terminal triage and report presentation groups.
+- Redact common separator and camel-case credential keys in nested JSON.
+- Keep live cursor metadata and content on one file handle during rotation.
+- Reject baseline comparisons with different collection windows or event limits.
+- Preserve approved terminal and report designs.
+
 ## 2.1.13 - 2026-10-05
 
 - Classify Windows group changes using explicit target group SIDs.
