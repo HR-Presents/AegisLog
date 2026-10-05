@@ -30,7 +30,7 @@ cat > OPEN_AEGISLOG_TERMINAL.sh <<'EOF'
 set -eu
 BASE_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$BASE_DIR"
-echo "AegisLog AI terminal is ready."
+echo "AegisLog terminal is ready."
 echo ""
 echo "Examples:"
 echo "  ./aegislog analyze /var/log/auth.log"
@@ -40,6 +40,6 @@ exec "${SHELL:-/bin/sh}"
 EOF
 chmod +x OPEN_AEGISLOG_TERMINAL.sh
 
-echo "AegisLog AI installed successfully."
+echo "AegisLog installed successfully."
 echo "Run: ./aegislog --version"
 echo "Or launch: ./OPEN_AEGISLOG_TERMINAL.sh"

@@ -3,7 +3,7 @@ requires = ["setuptools==84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "aegislog-ai"
+name = "aegislog"
 version = "2.1.17"
 description = "Terminal-first defensive log investigation and monitoring"
 readme = "README.md"

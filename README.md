@@ -325,8 +325,8 @@ Use `py` instead of `python` if that is the Python command available on your Win
 ### Development Installation
 
 ```bash
-git clone https://github.com/HR-Presents/AegisLog-AI.git
-cd AegisLog-AI
+git clone https://github.com/HR-Presents/AegisLog-AI.git AegisLog
+cd AegisLog
 python -m venv .venv
 source .venv/bin/activate   # Windows CMD: .venv\Scripts\activate
 pip install -e '.[dev]'

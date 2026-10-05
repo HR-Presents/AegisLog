@@ -1,6 +1,6 @@
-# AegisLog AI v1.4.2
+# AegisLog v1.4.2
 
-AegisLog AI v1.4.2 is a Windows control-center reliability patch based on real-machine acceptance testing.
+AegisLog v1.4.2 is a Windows control-center reliability patch based on real-machine acceptance testing.
 
 ## Fixed
 

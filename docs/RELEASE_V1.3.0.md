@@ -1,6 +1,6 @@
-# AegisLog AI v1.3.0
+# AegisLog v1.3.0
 
-AegisLog AI v1.3.0 is the customer-ready terminal release focused on real-time defensive monitoring, investigation, and one-file Windows delivery.
+AegisLog v1.3.0 is the customer-ready terminal release focused on real-time defensive monitoring, investigation, and one-file Windows delivery.
 
 ## Customer download
 

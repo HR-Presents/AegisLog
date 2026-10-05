@@ -1,6 +1,6 @@
-# AegisLog AI v1.5.0
+# AegisLog v1.5.0
 
-AegisLog AI v1.5.0 is a terminal analyst-workflow, live-monitoring, and long-running stability release built on the v1.4.x production line.
+AegisLog v1.5.0 is a terminal analyst-workflow, live-monitoring, and long-running stability release built on the v1.4.x production line.
 
 ## Analyst workflow
 

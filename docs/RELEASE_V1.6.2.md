@@ -1,6 +1,6 @@
-# AegisLog AI v1.6.2
+# AegisLog v1.6.2
 
-AegisLog AI v1.6.2 is a focused patch release based on real Windows testing of the v1.6.1 executable.
+AegisLog v1.6.2 is a focused patch release based on real Windows testing of the v1.6.1 executable.
 
 ## What changed
 

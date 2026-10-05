@@ -58,7 +58,7 @@ jobs:
           with zipfile.ZipFile(wheel) as package:
               assert 'aegislog/assets/aegislog-logo.png' in package.namelist()
           PYTHON
-          (cd dist && sha256sum aegislog_ai-* > SHA256SUMS)
+          (cd dist && sha256sum aegislog-* > SHA256SUMS)
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: AegisLog-v2.1.10-Python

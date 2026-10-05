@@ -1,6 +1,6 @@
-# AegisLog AI v1.4.5
+# AegisLog v1.4.5
 
-AegisLog AI v1.4.5 is a focused multi-source SOC usability and Windows terminal reliability update built on v1.4.4.
+AegisLog v1.4.5 is a focused multi-source SOC usability and Windows terminal reliability update built on v1.4.4.
 
 ## Fixed
 

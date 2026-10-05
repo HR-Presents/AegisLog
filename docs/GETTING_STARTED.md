@@ -53,7 +53,7 @@ Run `aegislog doctor` for runtime diagnostics. If a file is binary or UTF-16, ex
 
 Report bugs at https://github.com/HR-Presents/AegisLog-AI/issues with version/build, OS, installation method, chosen workflow and a sanitized reproduction. Never attach production logs or credentials without authorization. No feedback or log upload happens automatically.
 
-Uninstall with `py -m pipx uninstall aegislog-ai`. Locally generated reports are separate files and are not deleted by package removal.
+Uninstall with `py -m pipx uninstall aegislog`. Locally generated reports are separate files and are not deleted by package removal.
 
 ## Launching from a protected directory
 

@@ -1,6 +1,6 @@
-# AegisLog AI v1.6.3
+# AegisLog v1.6.3
 
-AegisLog AI v1.6.3 is a focused acceptance-test patch following real Windows validation of v1.6.2.
+AegisLog v1.6.3 is a focused acceptance-test patch following real Windows validation of v1.6.2.
 
 ## What changed
 

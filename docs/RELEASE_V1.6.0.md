@@ -1,6 +1,6 @@
-# AegisLog AI v1.6.0
+# AegisLog v1.6.0
 
-AegisLog AI v1.6.0 improves analyst workflow quality, native telemetry diagnostics, live-source resilience, and long-running multi-source runtime bounds while preserving the project's local-first, read-only defensive model.
+AegisLog v1.6.0 improves analyst workflow quality, native telemetry diagnostics, live-source resilience, and long-running multi-source runtime bounds while preserving the project's local-first, read-only defensive model.
 
 ## Highlights
 

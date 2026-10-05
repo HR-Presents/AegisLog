@@ -12,4 +12,4 @@ def test_v150_release_artifacts_remain_as_historical_records():
     assert "RELEASE-v1.5.0" in workflow
     assert "AegisLog-v1.5.0-release-assets" in workflow
     assert "docs/RELEASE_V1.5.0.md" in workflow
-    assert notes.startswith("# AegisLog AI v1.5.0")
+    assert notes.startswith("# AegisLog v1.5.0")

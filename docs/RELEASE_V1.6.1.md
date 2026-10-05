@@ -1,6 +1,6 @@
-# AegisLog AI v1.6.1
+# AegisLog v1.6.1
 
-AegisLog AI v1.6.1 is a production-hardening release focused on reliable defensive log analysis, safer investigation workflows, privacy, deterministic validation, and a polished terminal-first experience.
+AegisLog v1.6.1 is a production-hardening release focused on reliable defensive log analysis, safer investigation workflows, privacy, deterministic validation, and a polished terminal-first experience.
 
 AegisLog remains **local-first, read-only, and defensive by design**.
 
@@ -100,6 +100,6 @@ Authenticode signing was not a mandatory v1.6.1 publication gate. Verify the SHA
 
 ## Contributing and feedback
 
-AegisLog AI is an open-source defensive security project focused on practical, transparent, local-first investigation workflows.
+AegisLog is an open-source defensive security project focused on practical, transparent, local-first investigation workflows.
 
 Bug reports, reproducible test cases, defensive detection improvements, documentation contributions, and responsible security feedback are welcome.

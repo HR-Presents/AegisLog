@@ -51,7 +51,7 @@ jobs:
           python -m build --no-isolation
           python -m twine check dist/*
           python -c 'import aegislog, tomllib; assert aegislog.__version__ == tomllib.load(open("pyproject.toml", "rb"))["project"]["version"] == "2.1.6"'
-          (cd dist && sha256sum aegislog_ai-* > SHA256SUMS)
+          (cd dist && sha256sum aegislog-* > SHA256SUMS)
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: AegisLog-v2.1.6-Python

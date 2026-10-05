@@ -1,6 +1,6 @@
-# AegisLog AI v1.4.6
+# AegisLog v1.4.6
 
-AegisLog AI v1.4.6 is a focused Windows terminal polish and launch-readiness update built on v1.4.5.
+AegisLog v1.4.6 is a focused Windows terminal polish and launch-readiness update built on v1.4.5.
 
 ## Fixed
 

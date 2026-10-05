@@ -36,7 +36,7 @@ def _clear() -> None:
 
 
 def _header() -> Panel:
-    body = Text("AEGISLOG AI", style=f"bold {ACCENT}")
+    body = Text("AEGISLOG", style=f"bold {ACCENT}")
     body.append("\nSingle-file defensive log intelligence", style=MUTED)
     body.append("\nChoose a number or type a command", style=MUTED)
     return Panel(body, border_style=ACCENT)
