@@ -69,10 +69,10 @@ def test_success_resets_failure_sequence():
     assert len(login_signals(lines)) == 1
 
 
-def test_windows_login_sequence():
+def test_windows_login_sequence_requires_explicit_target_host():
     lines = [f'2026-10-02T12:00:{n:02d}Z Microsoft-Windows-Security-Auditing[4625]: INFO Account Name: alice Source Network Address: 203.0.113.9 Workstation Name: node1' for n in range(5)]
     lines.append('2026-10-02T12:00:30Z Microsoft-Windows-Security-Auditing[4624]: INFO Account Name: alice Source Network Address: 203.0.113.9 Workstation Name: node1')
-    assert login_signals(lines)
+    assert not login_signals(lines)
 
 
 def test_workbench_preserves_windows_findings(demo):

@@ -25,7 +25,7 @@ def _summary(incident: InvestigationIncident, techniques: tuple[MitreTechnique, 
         attack_text = f" The evidence is consistent with {', '.join(item.name for item in techniques[:2])}."
     return (
         f"AegisLog correlated {len(incident.findings)} detection signal(s) into a {incident.severity.lower()}-severity "
-        f"{incident.category} incident{entity_text}. Confidence is {incident.confidence}%.{attack_text}"
+        f"{incident.category} incident{entity_text}. Heuristic confidence is {incident.confidence}/100; this is an uncalibrated rule-based score, not attack probability.{attack_text}"
     )
 
 

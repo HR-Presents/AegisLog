@@ -63,7 +63,7 @@ def _incident_table(incidents: list[InvestigationIncident]) -> Table:
     table = Table(title="Investigation incidents", title_style=f"bold {INCIDENT}", expand=True, border_style=INCIDENT)
     table.add_column("Incident ID", width=14, style=INCIDENT)
     table.add_column("Severity", width=10)
-    table.add_column("Confidence", justify="right", width=12, style=ACCENT)
+    table.add_column("Heuristic score", justify="right", width=12, style=ACCENT)
     table.add_column("Category", width=18)
     table.add_column("ATT&CK", width=16, style=WARNING)
     table.add_column("Signals", justify="right", width=8, style=ACCENT)
@@ -71,7 +71,7 @@ def _incident_table(incidents: list[InvestigationIncident]) -> Table:
     for item in incidents:
         techniques = map_findings(item.findings)
         attack = ", ".join(t.id for t in techniques[:2]) or "-"
-        table.add_row(item.id, severity_text(item.severity), f"{item.confidence}%", Text(item.category), attack, str(len(item.findings)), Text(item.title))
+        table.add_row(item.id, severity_text(item.severity), f"{item.confidence}/100", Text(item.category), attack, str(len(item.findings)), Text(item.title))
     if not incidents:
         table.add_row("-", "-", "-", "-", "-", "0", Text("No correlated incidents detected", style=MUTED))
     return table
@@ -96,11 +96,11 @@ def _attack_table(incident: InvestigationIncident) -> Table:
     table = Table(title="MITRE ATT&CK mapping", title_style=f"bold {WARNING}", expand=True, show_lines=True, border_style=WARNING)
     table.add_column("Technique", width=14, style=WARNING)
     table.add_column("Tactic", width=22)
-    table.add_column("Confidence", justify="right", width=12, style=ACCENT)
+    table.add_column("Heuristic score", justify="right", width=12, style=ACCENT)
     table.add_column("Evidence")
     techniques = map_findings(incident.findings)
     for technique in techniques:
-        table.add_row(f"{technique.id} {technique.name}", Text(technique.tactic), f"{technique.confidence}%", Text(technique.evidence))
+        table.add_row(f"{technique.id} {technique.name}", Text(technique.tactic), f"{technique.confidence}/100", Text(technique.evidence))
     if not techniques:
         table.add_row("-", "-", "-", Text("No evidence-supported ATT&CK technique mapped", style=MUTED))
     return table
@@ -125,7 +125,7 @@ def investigate(
     header = Text()
     header.append(f"{incident.id}  ", style=INCIDENT)
     header.append_text(severity_text(incident.severity))
-    header.append(f"  confidence {incident.confidence}%\n", style=ACCENT)
+    header.append(f"  heuristic confidence {incident.confidence}/100\n", style=ACCENT)
     header.append(f"{incident.title}\n", style="bold white")
     header.append("Category: ", style=MUTED)
     header.append(incident.category, style="white")
@@ -186,12 +186,12 @@ def mitre(path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> None
     table.add_column("Incident", width=14, style=INCIDENT)
     table.add_column("Technique", width=24, style=WARNING)
     table.add_column("Tactic", width=22)
-    table.add_column("Confidence", justify="right", width=12, style=ACCENT)
+    table.add_column("Heuristic score", justify="right", width=12, style=ACCENT)
     table.add_column("Evidence")
     rows = 0
     for incident in incidents_list:
         for technique in map_findings(incident.findings):
-            table.add_row(incident.id, f"{technique.id} {technique.name}", Text(technique.tactic), f"{technique.confidence}%", Text(technique.evidence))
+            table.add_row(incident.id, f"{technique.id} {technique.name}", Text(technique.tactic), f"{technique.confidence}/100", Text(technique.evidence))
             rows += 1
     if not rows:
         table.add_row("-", "-", "-", "-", Text("No evidence-supported ATT&CK mappings found", style=MUTED))

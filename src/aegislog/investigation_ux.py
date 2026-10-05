@@ -30,9 +30,9 @@ def incident_triage_panel(incident: InvestigationIncident) -> RenderableType:
     priority_line = Text("Priority: ", style=MUTED)
     priority_line.append(priority, style=f"bold {style}")
     if narrow:
-        priority_line.append(f"\nConfidence: {incident.confidence}%", style=MUTED)
+        priority_line.append(f"\nHeuristic confidence: {incident.confidence}/100", style=MUTED)
     else:
-        priority_line.append(f"   Confidence: {incident.confidence}%", style=MUTED)
+        priority_line.append(f"   Heuristic confidence: {incident.confidence}/100", style=MUTED)
 
     metrics = Table.grid(padding=(0, 1 if narrow else 2), expand=narrow)
     metrics.add_column(style=MUTED, min_width=8 if narrow else 12, overflow="fold")
@@ -53,7 +53,7 @@ def incident_triage_panel(incident: InvestigationIncident) -> RenderableType:
     guidance.append(next_step, style=NEUTRAL)
 
     caveat = Text(
-        "Priority reflects available local evidence only; it is not proof of compromise, attribution, or attacker intent.",
+        "Heuristic confidence is not attack probability. Priority reflects available local evidence only; it is not proof of compromise, attribution, or attacker intent.",
         style=MUTED,
     )
 

@@ -22,6 +22,7 @@ Welcome to the AegisLog documentation hub. Start with the user guide for the com
 
 - [Detection pipeline](DETECTION_PIPELINE.md) — how telemetry moves through the analysis path
 - [Parsers](PARSERS.md) — normalization and supported input structures
+- [Detection coverage](DETECTION_COVERAGE.md) — signals, required evidence and limitations
 - [Rules](RULES.md) — declarative detection behavior
 - [Collectors](COLLECTORS.md) — supported native telemetry sources
 - [Incidents](INCIDENTS.md) — correlation and incident handling

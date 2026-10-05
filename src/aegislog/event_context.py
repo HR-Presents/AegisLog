@@ -27,4 +27,7 @@ def windows_context(evidence):
         account = found.group(1) if found else None
     values = {'provider': match.group('provider').strip(), 'event_id': match.group('event_id'),
               'timestamp': match.group('timestamp'), 'host': fields.get('Computer'), 'account': account}
+    if match.group('event_id') in {'4728', '4732'}:
+        values['group_sid'] = fields.get('TargetSid')
+        values['group_name'] = fields.get('TargetUserName')
     return tuple((key, str(value)[:512]) for key, value in values.items() if isinstance(value, (str, int)) and str(value) not in {'', '-'})

@@ -135,7 +135,7 @@ def make_record(number: int, line: str, year: int | None = None):
     action = None
     account, ip, host = auth.account, auth.source_ip, auth.host
     if win:
-        account, ip, host = win.account, win.source_ip, win.workstation
+        account, ip, host = win.account, win.source_ip, win.host
         action = {4625: "login failure", 4624: "login success", 4720: "account created",
                   4728: "global group changed", 4732: "local group changed",
                   4672: "privileged session", 4740: "account locked", 1102: "audit log cleared",
@@ -203,9 +203,12 @@ def extra_signals(records: list[Record], tuning: Tuning, indicators: set[str]):
     signals = []
     failures = defaultdict(list)
     for record in sorted((r for r in records if r.timestamp), key=lambda r: (r.timestamp, r.line)):
-        if not record.account or not record.source_ip:
+        if not record.account or not record.source_ip or (record.source == "windows" and not record.host):
             continue
-        key = (record.account, record.source_ip, record.host or "")
+        if record.source == "windows" and not re.search(r"(?:Z|[+-]\d{2}:?\d{2})$", record.evidence.split()[0]):
+            continue
+        key = (record.account.casefold() if record.source == "windows" else record.account,
+               record.source_ip, (record.host or "").casefold() if record.source == "windows" else record.host or "")
         stamp = parse_boundary(record.timestamp)
         if record.action == "login failure":
             failures[key].append(record)
@@ -213,7 +216,7 @@ def extra_signals(records: list[Record], tuning: Tuning, indicators: set[str]):
             matches = [r for r in failures[key] if 0 <= (stamp - parse_boundary(r.timestamp)).total_seconds() <= tuning.login_window_seconds]
             if len(matches) >= tuning.login_failure_threshold:
                 retained_matches = matches[-100:]
-                evidence = f"account={record.account}; source={record.source_ip}; {len(matches)} preceding failures within {tuning.login_window_seconds}s; success={record.timestamp}; references=last {len(retained_matches)} failures + success; lines=" + ",".join(str(r.line) for r in retained_matches + [record])
+                evidence = f"account={record.account}; host={record.host or 'unresolved'}; source={record.source_ip}; {len(matches)} preceding failures within {tuning.login_window_seconds}s; success={record.timestamp}; references=last {len(retained_matches)} failures + success; lines=" + ",".join(str(r.line) for r in retained_matches + [record])
                 signals.append(Signal(Finding("HIGH", "authentication", "Successful login after repeated failures", evidence,
                     "Verify account ownership, approved access and surrounding activity. This sequence does not prove compromise."), tuple(r.line for r in retained_matches + [record])))
             failures[key] = []

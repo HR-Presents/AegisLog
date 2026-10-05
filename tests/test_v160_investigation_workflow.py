@@ -48,6 +48,6 @@ def test_triage_panel_is_evidence_led_and_non_attributing() -> None:
     output = _render(incident_triage_panel(_incident()))
     assert "Analyst triage" in output
     assert "Priority: Urgent review" in output
-    assert "Confidence: 91%" in output
+    assert "Heuristic confidence: 91/100" in output
     assert "Validate the associated entities" in output
     assert "not proof of compromise, attribution, or attacker intent" in output
