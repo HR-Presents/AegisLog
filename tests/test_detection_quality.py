@@ -68,3 +68,25 @@ def test_reused_session_id_context_stops_at_next_logon():
 
 def test_ambiguous_same_time_session_anchors_do_not_link():
     assert windows_session_context([windows(4624), windows(4624, account='bob'), windows(4688, 5)]) == []
+
+
+@pytest.mark.parametrize('identity', ['group_sid', 'group_name'])
+def test_terminal_and_report_keep_distinct_target_groups_separate(identity):
+    from types import SimpleNamespace
+    from aegislog.engine import Finding
+    from aegislog.reporting import _finding_groups
+    from aegislog.triage import finding_groups
+
+    def finding(group):
+        return Finding('MEDIUM', 'security', 'Group membership changed',
+                       '2026-10-05T08:00:00Z Security[4732]: INFO changed',
+                       'Validate group permissions', ((identity, group), ('account', 'alice')))
+
+    findings = [finding('group-a'), finding('group-a'), finding('group-b')]
+    terminal = finding_groups(findings)
+    assert [g['count'] for g in terminal] == [2, 1]
+    assert sorted(ref for g in terminal for ref in g['references']) == ['F-001', 'F-002', 'F-003']
+    report = _finding_groups(SimpleNamespace(findings=findings))
+    assert [len(members) for _, members in report] == [2, 1]
+    assert sorted(index for _, members in report for index, _ in members) == [1, 2, 3]
+    assert all(len(key) == 4 for key, _ in report)

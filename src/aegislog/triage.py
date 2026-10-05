@@ -20,7 +20,8 @@ def finding_groups(findings, year_hint=None):
         # their detector titles match. Evidence references retain original order.
         context = dict(finding.context)
         key = (finding.severity, finding.category, finding.title, finding.recommendation,
-               context.get('provider', event.service), context.get('host'), context.get('account'), context.get('source_ip'))
+               context.get('provider', event.service), context.get('host'), context.get('account'), context.get('source_ip'),
+               context.get('group_sid') or context.get('group_name'))
         groups[key].append((index, finding))
     result = []
     for key, members in groups.items():

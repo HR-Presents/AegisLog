@@ -332,9 +332,13 @@ def _finding_groups(data: DashboardData):
     """Presentation groups only: no new incident or shared-cause inference."""
     groups = {}
     for index, item in enumerate(_ordered_findings(data), 1):
-        key = (item.severity, item.category, item.title, _recommendation(item))
+        context = dict(item.context)
+        key = (item.severity, item.category, item.title, _recommendation(item),
+               context.get('group_sid') or context.get('group_name'))
         groups.setdefault(key, []).append((index, item))
-    return list(groups.items())
+    # Renderers retain their four-field presentation interface; identity remains
+    # part of the internal grouping key so distinct target groups stay separate.
+    return [(key[:4], members) for key, members in groups.items()]
 
 
 def _summary_brand() -> str:
