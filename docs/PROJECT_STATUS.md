@@ -1,8 +1,8 @@
 # Project status
 
-The current published stable release is **v2.1.15**.
+The current published stable release is **v2.1.16**.
 
-**Published stable:** v2.1.15. Download its Windows and Python assets from [GitHub Releases](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.15).
+**Published stable:** v2.1.16. Download its Windows and Python assets from [GitHub Releases](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.16).
 
 This release includes separate target-group presentation, credential-key redaction variants, live rotation race handling and matching baseline collection settings. It retains explicit group-SID severity, target-host authentication boundaries, reused-session limits and clearer heuristic scores. It preserves the approved boxed report design: black text, light sea-blue framing, aligned metrics, larger logo, UTC chronology and retained evidence references. It retains grouped review, bounded Windows session context, Docker/ECS adapters, case search, collection progress, signal comparisons, sharing preview, diagnostics and optional release checks. The height-adaptive terminal home and G Beginner walkthrough remain available.
 
@@ -12,11 +12,11 @@ The D browser dashboard and public AI Analyst are removed. Terminal panels and i
 
 The owner exercised the Windows workflows and reviewed printed summary output. CI validates Python 3.10–3.14, security/dependency checks, package installation and Windows executable commands. Maintained evaluations are synthetic regression evidence; these checks do not establish real-world detection effectiveness. Independent evaluation and broader terminal coverage remain [roadmap priorities](ROADMAP.md).
 
-The Windows executable is unsigned, with published checksums and build provenance. Installation is local-first and collectors are read-only. See [limitations](LIMITATIONS.md), [installation](INSTALL.md), and [release notes](RELEASE_V2.1.15.md).
+The Windows executable is unsigned, with published checksums and build provenance. Installation is local-first and collectors are read-only. See [limitations](LIMITATIONS.md), [installation](INSTALL.md), and [release notes](RELEASE_V2.1.16.md).
 
 ## Release verification and history
 
-The v2.1.15 build target is `00d2c688d7f97e1e192f7af2a509e2a0b638d292`. Its executable SHA-256 is `3f69333b68890ede08c409de731aeee702e85bf44a10f25752dfe2d4012003f1`. Verify its executable against the matching `AegisLog.exe.sha256` on the release page.
+The v2.1.16 build target is `f511c971ca19bfb3560a65c1f3681ff3a9b1ace5`. Its executable SHA-256 is `632675414cbb4720152bcab403f944f990b0d32d5facf796e41094635a710a91`. Verify its executable against the matching `AegisLog.exe.sha256` on the release page.
 
 
 The v2.1.6 build target is `1eb0a4a4124599544b3608eb84582979770e4a04`. Its executable SHA-256 is `c16c944415bcd929c1b53588f60c3f920a3ca4abcc8923c745ca1594329c66a2`; verify against `AegisLog.exe.sha256` on the release page.

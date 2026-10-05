@@ -20,4 +20,6 @@ Without Python, extract `AegisLog-v2.1.16-Windows.zip` and run `dist\AegisLog.ex
 
 Free, local and terminal-first. No browser dashboard, paid service or remote AI dependency is added. The Windows executable is unsigned and not Authenticode-signed. SHA-256 checksums verify bytes, not publisher identity. Findings remain investigation leads rather than proof of compromise. Synthetic regression and hosted-runner usability checks do not establish independent real-world detection effectiveness or every physical-PC/terminal combination. Independent labeled validation and repository protection remain owner/external work.
 
+Build commit: `f511c971ca19bfb3560a65c1f3681ff3a9b1ace5`. Executable SHA-256: `632675414cbb4720152bcab403f944f990b0d32d5facf796e41094635a710a91`. The [review manifest](../packaging/release-review.json) records all seven verified asset digests.
+
 **MADE BY HR-PRESENTS**
