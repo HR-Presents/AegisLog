@@ -10,7 +10,7 @@ The product supports terminal file analysis, bounded native collection, single/m
 
 The D browser dashboard and public AI Analyst are removed. Terminal panels and investigation tools remain. Reports provide separate summary and full retained-evidence views with explicit synthetic demo and timestamp context.
 
-The owner exercised the Windows workflows and reviewed printed summary output. CI validates Python 3.10–3.13, security/dependency checks, package installation and Windows executable commands. Maintained evaluations are synthetic regression evidence; these checks do not establish real-world detection effectiveness. Independent evaluation and broader terminal coverage remain [roadmap priorities](ROADMAP.md).
+The owner exercised the Windows workflows and reviewed printed summary output. CI validates Python 3.10–3.14, security/dependency checks, package installation and Windows executable commands. Maintained evaluations are synthetic regression evidence; these checks do not establish real-world detection effectiveness. Independent evaluation and broader terminal coverage remain [roadmap priorities](ROADMAP.md).
 
 The Windows executable is unsigned, with published checksums and build provenance. Installation is local-first and collectors are read-only. See [limitations](LIMITATIONS.md), [installation](INSTALL.md), and [release notes](RELEASE_V2.1.14.md).
 

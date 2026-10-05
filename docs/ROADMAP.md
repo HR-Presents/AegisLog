@@ -28,7 +28,7 @@ The D browser dashboard is removed. The Windows executable is unsigned. Syntheti
 | 2 | Broader structured log coverage | Sanitized fixtures for each documented format, explicit partial/unsupported coverage |
 | 3 | Reduce noisy findings without hiding evidence | Context-aware regressions covering benign and concerning events; visible tuning decisions |
 | 4 | Improve report portability and print pagination | Browser/PDF checks for small and large investigations, complete retained references |
-| 5 | Expand platform/version validation | Python 3.14 and terminal compatibility jobs before claiming support |
+| 5 | Expand platform/version validation | Broader terminal-emulator coverage beyond the Python 3.14 Linux and Windows smoke jobs |
 | 6 | Windows signing | Secure certificate integration and validated Authenticode signatures before claiming signed binaries |
 | 7 | Independent real-world evaluation | Authorized sanitized datasets, independent labels and measured limitations |
 

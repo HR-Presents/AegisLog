@@ -56,7 +56,7 @@ If `aegislog` is not recognized after installation, reopen the terminal. In Comm
 
 For the standalone distribution, download the new EXE/ZIP, verify its matching checksum and run the new copy. An older extracted EXE does not update automatically. The executable is unsigned; a matching checksum does not imply a valid publisher signature.
 
-Python 3.10–3.13 are covered by CI; 3.14 is not yet in that matrix. On Linux/macOS use `python3` where appropriate and the same published wheel with pipx.
+Python 3.10–3.14 are covered by Linux CI. Python 3.14 also has Windows installation, terminal start/quit, report and portable-benchmark smoke coverage. On Linux/macOS use `python3` where appropriate and the same published wheel with pipx.
 
 ## Start, use, and exit
 
