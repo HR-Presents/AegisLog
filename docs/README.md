@@ -81,3 +81,5 @@ The Windows executable is unsigned. CI artifacts are validation outputs; publish
 ## Contributing
 
 Want to improve AegisLog? Read [CONTRIBUTING.md](../CONTRIBUTING.md) before opening a pull request. Keep changes focused, defensive, testable, and free of real credentials or sensitive production telemetry.
+
+- [Local performance measurement](PERFORMANCE.md): repeatable synthetic streaming benchmark, retention checks and measurement limits.
