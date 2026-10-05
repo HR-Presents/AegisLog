@@ -40,7 +40,7 @@ New to log investigation? Follow the [five-step beginner guide](docs/QUICKSTART.
 | Native telemetry | Windows System/Application/Security, Linux journald, Docker logs where available | OS, permissions, source availability, time window and event caps apply |
 | Folders | Discover supported readable text candidates, then analyze selected files separately | Bounded discovery; binary/EVTX, compressed and unsupported encodings require appropriate export/conversion |
 
-Check the report's recognized-record counts, retained evidence and collection limits. No matching rules does not establish a clean system. Rarity scores describe the sample, not attack probability.
+Check the report's recognized-record counts, retained evidence and collection limits.
 
 [First-user feedback checklist](docs/FIRST_USER_CHECKLIST.md) · [Launch announcement draft](docs/LAUNCH_ANNOUNCEMENT.md)
 
@@ -98,7 +98,7 @@ flowchart TD
     D --> E[Terminal review and local reports]
 ```
 
-Source sizes, retained excerpts, truncation, and collection limits affect the evidence available for analysis. Reports disclose these limits rather than presenting a bounded sample as a complete history.
+Reports disclose source sizes, retained excerpts, truncation and collection limits.
 
 ### Collection and Trust Boundaries
 
@@ -164,7 +164,7 @@ Authentication correlation can group related failures into an investigation lead
 
 ### Incident Correlation
 
-Incident groups connect related retained evidence for investigation. Grouping does not establish a common cause, malicious intent, or confirmed compromise. Explanations and ATT&CK context remain review aids.
+Incident groups connect related retained evidence, explanations and ATT&CK context to support analyst review.
 
 ### Rarity and Activity
 
@@ -236,16 +236,15 @@ Relative source paths remain visible even when identical content shares a report
 
 **02 Live Monitor** watches appended file events. **03 Multi-Source** compares supported live sources. **05 Native Monitor** watches supported native telemetry.
 
-Live views use bounded rolling evidence. They do not create a complete historical archive and do not replace a centralized SIEM or endpoint agent. Security Workbench and live monitors retain their documented line-oriented detection scope rather than universal structured-schema import.
+Live views use bounded rolling evidence rather than a complete historical archive. Security Workbench and live monitors use their documented line-oriented detection scope.
 
 Use **B/Escape** to stop a live view and **Q** to quit AegisLog. Quitting returns control to the terminal where it was started.
 
 ## Reports and Evidence
 
-Reports use white document pages, black text and light sea-blue framing. Aligned metrics, boxed findings and side rules separate observed context, recommended review and retained evidence. The summary links to the full investigation record; every retained detector excerpt keeps its evidence reference. Full-report page count grows with evidence. Supporting activity distributions and rarity context can be expanded in the browser and are omitted from the compact print layout with an explicit notice.
+Each investigation provides a compact HTML summary and a separate full retained-evidence report. White pages, black text, light blue accents and boxed findings keep observed evidence distinct from recommended review.
 
-
-Each investigation provides a short summary and a separate full retained-evidence HTML report. Reports use a company-facing layout with a larger transparent AegisLog logo, black body text, light sea-blue accents, a compact metrics strip, specific issue labels, and separate evidence and recommended-review areas. The short summary puts priority findings before supporting activity and collection scope; raw structured evidence stays in the complete report. The full report uses four investigation navigation choices, avoids repeated rule labels, and puts source identity and processing statistics in a technical appendix. The closing signature reads **MADE BY HR-PRESENTS**. Distribution bars include observed counts; timelines appear only when the retained timestamps support them.
+The summary puts priority findings, coverage and next steps first. The full report preserves retained detector excerpts and evidence references, with source identity and processing statistics in a technical appendix. Activity charts appear only where the retained evidence supports them. Both reports carry the AegisLog logo and **MADE BY HR-PRESENTS** signature.
 
 | Report | Purpose |
 |---|---|
@@ -283,34 +282,20 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 
 ### Current Release
 
-The investigation improvements are documented in [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md): grouped triage, explicit Windows session context, Docker/ECS message adapters, searchable saved cases, collection progress, signal comparisons, export preview, runtime diagnostics and opt-in release checks. These changes, the approved boxed report design and the repository audit fixes are included in the v2.1.17 Windows and Python downloads. Source/output collision checks, consistent incident IDs, custom-rule report inclusion and bounded ingestion improve investigation reliability.
+**[v2.1.17](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.17)** is the published stable release. Install the Python wheel below to run AegisLog in your existing terminal.
 
-The latest release also preserves native collection scope in both reports, improves summary pagination and explains explicit shadow-copy storage-limit observations.
+[Release downloads](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.17) · [Release notes](docs/RELEASE_V2.1.17.md) · [Installation guide](docs/INSTALL.md)
 
-Recent reliability fixes preserve target-group evidence boundaries, redact credential-key variants, handle live path rotation and enforce baseline scope matching. Windows detection quality includes explicit group-SID classification, target-host correlation boundaries and clearer heuristic scores. See [Detection coverage](docs/DETECTION_COVERAGE.md).
+Matching SHA-256 checksums are available on the release page.
 
-**[v2.1.17](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.17)** is the published stable release, built from `63448e60ab2c905355d6dda8bab2837a7a106058`.
+<details>
+<summary><strong>Release improvements and validation scope</strong></summary>
 
-Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.17/AegisLog-v2.1.17-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
+Version 2.1.17 includes grouped triage, Windows session context, Docker/ECS message adapters, searchable saved cases, export preview and runtime diagnostics. Reliability changes cover bounded ingestion, source/output collision checks, incident IDs, custom rules, credential redaction, live path rotation and baseline scope matching.
 
-> [!NOTE]
-> **Windows signing status**
->
-> The Windows executable is unsigned. SmartScreen or endpoint-security reputation warnings may appear. Verify the published checksum; build provenance is separate from Authenticode signing.
+Read [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md), [Detection coverage](docs/DETECTION_COVERAGE.md) and the [validation handoff](docs/VALIDATION_HANDOFF.md) for implementation details and remaining evaluation work.
 
-The release also bounds baseline reads to 2 MB and validates isolated Windows wheel installations on Python 3.10 and 3.14. See the [remaining validation handoff](docs/VALIDATION_HANDOFF.md) for owner-controlled branch protection, independently labeled real-world evaluation and physical-PC acceptance checks.
-
-### Windows Standalone
-
-Download `AegisLog.exe` from the release page, then run from its folder:
-
-```powershell
-.\AegisLog.exe --version
-.\AegisLog.exe doctor
-.\AegisLog.exe start
-```
-
-Extract the Windows ZIP before using its packaged files.
+</details>
 
 ### Install a Terminal Command
 
@@ -408,7 +393,7 @@ The built-in authentication demo contains **7 records, 2 findings, and 2 inciden
 | Analysis | Local Python parsers, rules, correlation, and bounded state |
 | Reports | Local HTML, CSS, and JavaScript |
 | Optional investigation storage | SQLite |
-| Windows packaging | Standalone executable release workflow |
+| Distribution | Python wheel and source package |
 | Testing and linting | pytest and Ruff |
 | Security checks | Bandit and dependency auditing |
 
@@ -436,7 +421,7 @@ ruff check .
 bandit -q -r src
 ```
 
-Python 3.10–3.13 are covered by CI. Python 3.14 was exercised by the owner but is not yet in that matrix.
+The CI test matrix includes Python 3.10 through 3.14.
 
 > [!NOTE]
 > **Tests validate implementation behavior**
@@ -464,7 +449,7 @@ Read [Security](SECURITY.md), [Threat Model](docs/THREAT_MODEL.md), [Privacy](do
 - Live monitoring and Security Workbench have their own documented line-oriented scope.
 - Yearless or missing timestamps require context; AegisLog does not invent missing time information.
 - Rarity scores and ATT&CK mappings are investigation aids, not proof of compromise.
-- The Windows executable remains unsigned; macOS has no native collector.
+- macOS has no native collector.
 
 See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), and the [Roadmap](docs/ROADMAP.md) for released scope and planned work.
 
@@ -472,7 +457,7 @@ See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), 
 
 | Document | Purpose |
 |---|---|
-| [Installation](docs/INSTALL.md) | Standalone, pipx, upgrades, and verification |
+| [Installation](docs/INSTALL.md) | Terminal installation, pipx, upgrades, and verification |
 | [User Guide](docs/USER_GUIDE.md) | Investigation workflows |
 | [Reports](docs/REPORTS.md) | Reading, printing, coverage, and report design |
 | [Commands](docs/COMMANDS.md) | CLI reference |
