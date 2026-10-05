@@ -1,5 +1,7 @@
 """Optional local count comparisons and identifier-free aggregate sharing."""
 import json
+import os
+import stat
 import re
 from collections import Counter
 from pathlib import Path
@@ -24,9 +26,18 @@ def save_activity(data, output, scope):
 
 def read_activity(path):
     path = Path(path)
-    if path.is_symlink() or path.stat().st_size > 2_000_000:
+    limit = 2_000_000
+    if path.is_symlink() or not path.is_file():
         raise ValueError('Choose a regular baseline JSON smaller than 2 MB.')
-    obj = loads(path.read_text(encoding='utf-8'))
+    with path.open('rb') as stream:
+        metadata = os.fstat(stream.fileno())
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > limit:
+            raise ValueError('Choose a regular baseline JSON smaller than 2 MB.')
+        # The file can grow after fstat; bound the read itself before decoding.
+        raw = stream.read(limit + 1)
+    if len(raw) > limit:
+        raise ValueError('Choose a regular baseline JSON smaller than 2 MB.')
+    obj = loads(raw.decode('utf-8'))
     if not isinstance(obj, dict) or obj.get('schema') != SCHEMA or not isinstance(obj.get('source'), str):
         raise ValueError('Choose an AegisLog activity-baseline.json file.')
     scope = obj.get('scope')
