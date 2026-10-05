@@ -6,7 +6,7 @@ from rich.console import Console
 from aegislog.commands_v145 import _HomeViewport
 
 
-@pytest.mark.parametrize('width,height', [(125, 30), (140, 30), (120, 27), (100, 24), (80, 27), (60, 27)])
+@pytest.mark.parametrize('width,height', [(125, 30), (140, 30), (120, 27), (100, 24), (80, 27), (60, 27), (80, 24), (120, 40), (200, 50)])
 def test_laptop_home_keeps_all_actions_visible(width, height):
     console = Console(file=StringIO(), width=width, height=height + 3, color_system=None)
     view = _HomeViewport(width, height).prepare(console, console.options)

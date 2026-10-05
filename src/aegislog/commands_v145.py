@@ -118,7 +118,7 @@ def _tools_panel(width: int) -> Panel:
 
 
 def _utility_panel(width: int) -> Panel:
-    rows = (("07", "DEMO", "Quick start dataset"), ("08", "HEALTH", "Engine diagnostics"), ("09", "HELP", "Command reference"), ("C", "CHECK COMPUTER", "Guided native-log investigation"), ("F", "SCAN FOLDER", "Find and analyze local log files"), ("R", "REPORTS", "Open saved HTML reports"), ("A", "ABOUT / GUIDE", "What it does and how to use it"))
+    rows = (("07", "DEMO", "Quick start dataset"), ("08", "HEALTH", "Engine diagnostics"), ("09", "HELP", "Command reference"), ("C", "CHECK COMPUTER", "Guided native-log investigation"), ("F", "SCAN FOLDER", "Find and analyze local log files"), ("R", "REPORTS", "Open saved HTML reports"), ("A", "ABOUT / GUIDE", "What it does and how to use it"), ("G", "BEGINNER", "Guided first investigation"))
     return Panel(style=f"{NEUTRAL} on {SURFACE}", renderable=Group(*[_action_line(*row) for row in rows]), title=Text(" UTILITIES ", style=f"bold {ACCENT}"), title_align="left", box=box.ASCII, border_style=ACCENT_SOFT, padding=(1, 1), width=width)
 
 

@@ -61,7 +61,7 @@ jobs:
         run: |
           set -eux
           test ! -e customer-dist/AegisLog-AI-Customer/.aegislog-venv
-          test -f customer-dist/AegisLog-AI-Customer/package/aegislog_ai-2.1.14-py3-none-any.whl
+          test -f customer-dist/AegisLog-AI-Customer/package/aegislog_ai-2.1.15-py3-none-any.whl
           test -f customer-dist/AegisLog-AI-Customer/RUNTIME_LOCK.txt
           test "$(find customer-dist/AegisLog-AI-Customer/vendor -maxdepth 1 -type f -name '*.whl' | wc -l)" -eq 8
           test -f customer-dist/AegisLog-AI-Customer/START_AEGISLOG.bat
@@ -72,9 +72,9 @@ jobs:
       - name: Archive customer bundle
         run: |
           cd customer-dist
-          zip -r ../dist/AegisLog-AI-v2.1.14-Customer-Bundle.zip AegisLog-AI-Customer
+          zip -r ../dist/AegisLog-AI-v2.1.15-Customer-Bundle.zip AegisLog-AI-Customer
           cd ../dist
-          sha256sum AegisLog-AI-v2.1.14-Customer-Bundle.zip > AegisLog-AI-v2.1.14-Customer-Bundle.zip.sha256
+          sha256sum AegisLog-AI-v2.1.15-Customer-Bundle.zip > AegisLog-AI-v2.1.15-Customer-Bundle.zip.sha256
 
       - name: Attest tagged package artifacts
         if: startsWith(github.ref, 'refs/tags/v')
@@ -82,7 +82,7 @@ jobs:
         with:
           subject-path: |
             dist/aegislog_ai-*
-            dist/AegisLog-AI-v2.1.14-Customer-Bundle.zip
+            dist/AegisLog-AI-v2.1.15-Customer-Bundle.zip
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -95,8 +95,8 @@ jobs:
         with:
           name: customer-bundle
           path: |
-            dist/AegisLog-AI-v2.1.14-Customer-Bundle.zip
-            dist/AegisLog-AI-v2.1.14-Customer-Bundle.zip.sha256
+            dist/AegisLog-AI-v2.1.15-Customer-Bundle.zip
+            dist/AegisLog-AI-v2.1.15-Customer-Bundle.zip.sha256
 
   verify-windows-customer:
     runs-on: windows-2025
@@ -133,3 +133,46 @@ jobs:
           .aegislog-venv\Scripts\aegislog.exe doctor
           .aegislog-venv\Scripts\aegislog.exe start --help
           .aegislog-venv\Scripts\aegislog.exe dashboard sample_logs\auth.log
+
+  verify-isolated-windows-wheel:
+    needs: build-linux
+    runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.14"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: customer-bundle
+          path: isolated-bundle
+      - name: Install built wheel outside source checkout and verify commands
+        shell: pwsh
+        run: |
+          $testRoot = Join-Path $env:RUNNER_TEMP "AegisLog fresh install é"
+          Expand-Archive -Path "isolated-bundle/AegisLog-AI-v2.1.15-Customer-Bundle.zip" -DestinationPath $testRoot -Force
+          $bundleRoot = Join-Path $testRoot "AegisLog-AI-Customer"
+          python -m venv "$testRoot/venv"
+          if ($LASTEXITCODE -ne 0) { throw "Fresh environment creation failed" }
+          $testPython = Join-Path $testRoot "venv/Scripts/python.exe"
+          & $testPython -m pip install --no-index --find-links "$bundleRoot/vendor" --require-hashes -r "$bundleRoot/RUNTIME_LOCK.txt"
+          if ($LASTEXITCODE -ne 0) { throw "Offline locked runtime install failed" }
+          $wheel = (Get-ChildItem "$bundleRoot/package/*.whl" | Select-Object -First 1).FullName
+          & $testPython -m pip install --no-index --no-deps $wheel
+          if ($LASTEXITCODE -ne 0) { throw "Built wheel install failed" }
+          Set-Location $testRoot
+          & $testPython -c "import aegislog; from pathlib import Path; assert 'site-packages' in str(Path(aegislog.__file__)); print(aegislog.__version__)"
+          if ($LASTEXITCODE -ne 0) { throw "Import did not use installed distribution" }
+          & $testPython -c "import subprocess,sys; r=subprocess.run([sys.executable,'-m','aegislog','start'],input='q\n',text=True,capture_output=True,timeout=30); assert r.returncode == 0, r.stderr; assert 'ANALYZE LOG' in r.stdout; assert 'REPORTS' in r.stdout"
+          if ($LASTEXITCODE -ne 0) { throw "Fresh installed navigation failed" }
+          $source = Join-Path $bundleRoot "sample_logs/auth.log"
+          $before = (Get-FileHash $source -Algorithm SHA256).Hash
+          & $testPython -m aegislog dashboard $source
+          if ($LASTEXITCODE -ne 0) { throw "Fresh installed report failed" }
+          if ((Get-FileHash $source -Algorithm SHA256).Hash -ne $before) { throw "Source changed" }
+          & $testPython -c "from pathlib import Path; reports=list(Path('aegislog-reports').rglob('*-report.html')); assert reports; html=reports[0].read_text(encoding='utf-8'); assert 'MADE BY HR-PRESENTS' in html; assert 'data:image/png;base64,' in html"
+          if ($LASTEXITCODE -ne 0) { throw "Installed report branding failed" }

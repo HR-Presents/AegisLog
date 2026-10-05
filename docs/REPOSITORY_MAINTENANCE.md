@@ -13,3 +13,5 @@ Draft preparation now uses `prepare-release.yml`, deriving its tag from project 
 ## External validation
 
 Authenticode signing requires an organization-controlled certificate and credentials. Real-world precision and recall require an independently labeled, authorized dataset. Synthetic regression results do not satisfy either requirement.
+
+See [validation handoff](VALIDATION_HANDOFF.md) for the observed unprotected-branch state, owner ruleset steps and independent-data acceptance requirements.

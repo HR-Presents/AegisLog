@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.15 - 2026-10-05
+
+- Enforce baseline byte limits during reading, including stale size metadata.
+- Add Python 3.14 Linux and Windows validation and isolated Windows wheel installation checks.
+- Extend terminal viewport regressions, expose the existing Beginner action in the full utility panel, and retain portable performance tooling.
+- Use exact count ratios in detection-evaluation gates and disclose metric scope.
+- Preserve approved terminal and report designs.
+
 ## 2.1.14 - 2026-10-05
 
 - Preserve target group identity in terminal triage and report presentation groups.
