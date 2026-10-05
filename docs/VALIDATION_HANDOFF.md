@@ -2,9 +2,9 @@
 
 ## Repository protection
 
-On 2026-10-05 the GitHub branch API reported `main` as unprotected. The connected repository app has no administration capability. Repository documentation and CI do not enable a ruleset.
+Verified on 2026-10-05: the active Protect main ruleset targets `main`, blocks deletion and force pushes, requires a pull request with one approval and approval of the latest push, and requires resolved review threads. The bypass list is empty.
 
-An owner can open Settings → Rules → Rulesets, create a branch ruleset targeting `main`, activate it, require pull requests and passing status checks, block force pushes and deletion, and require branches to be current before merging where appropriate. Select the actual emitted CI matrix jobs, Security checks, package verification and Windows executable checks from recent runs. Include the Python 3.14 and isolated Windows wheel jobs. Avoid bypass permissions if review is meant to apply to administrators. Verify the rule through a test PR and a protection/ruleset read before calling protection enabled.
+Seven required checks are configured with strict up-to-date enforcement: the Python 3.10–3.14 test matrix, `windows-python314-smoke`, and `report-print-regression`. Future changes need an eligible independent reviewer; documentation does not substitute for the active ruleset. The connected repository app can read the ruleset but cannot change administration settings.
 
 ## Independently labeled real-world detection evaluation
 

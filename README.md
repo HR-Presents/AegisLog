@@ -449,6 +449,8 @@ AegisLog treats log-derived content as untrusted input. Normal presentation uses
 
 Analyze only sources you are authorized to access. Sanitize examples before sharing reports or filing public issues; redaction does not guarantee that every sensitive value has been removed. Install only trusted custom regex packs, which are local configuration rather than an execution-time sandbox.
 
+Custom rule safeguards: packs are limited to 1 MB, 32 files, 100 rules per pack and 200 rules total. Patterns retain literals, anchors, character classes, dot tokens and alternatives; groups, repetition, lookarounds and backreferences are rejected before execution to avoid backtracking stalls. Escaped metacharacters remain literal. Invalid packs are reported and skipped atomically. Existing packs using unsupported constructs must be rewritten; `--no-plugins` disables custom rules. These restrictions do not affect built-in detectors.
+
 The supported public product uses deterministic local analysis. AI Analyst and remote model workflows are not part of the supported public product surface. There is no automatic remediation or host-control workflow.
 
 Read [Security](SECURITY.md), [Threat Model](docs/THREAT_MODEL.md), [Privacy](docs/PRIVACY.md), and [No Auto-Remediation](docs/NO_AUTOREMEDIATION.md). Report vulnerabilities through the private route described in the security policy.

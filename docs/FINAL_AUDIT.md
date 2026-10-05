@@ -37,7 +37,10 @@ This is an engineering review of the current review branch, not an independent p
 3. Live monitors and the Security Workbench retain their documented line-oriented scope. They are not universal structured-schema importers.
 4. JSON containers are capped at 8 MB, nesting at 64 levels, CSV fields/physical line prefixes at the configured default 1 MB, and retained dashboard evidence at 10,000 records/8 MB. Check the displayed coverage and retention notes.
 5. Some older commands, including baseline and indicator extraction, can still load a complete file. Use bounded stream/file workflows for large inputs.
-6. Custom regex rule packs are trusted local configuration. Their patterns are not executed in a timeout sandbox; poorly chosen patterns can be slow. Test a pack on bounded samples before using it.
+6. Custom regex rule packs are trusted local configuration. Patterns are restricted to fixed-width tokens; unsupported backtracking constructs are rejected. Test a pack on representative samples before using it.
 7. Review builds remain unsigned. A trusted signing identity, reviewed release tag and real-user acceptance are required before claiming a polished commercial release. Windows Security permissions are not bypassed or changed.
 
 See COMPATIBILITY.md, LIMITATIONS.md, SECURITY_WORKBENCH.md and RELEASE_SECURITY.md for detailed operating boundaries. Passing the documented checks is evidence for the reviewed behavior, not a claim that every possible input or host environment has been tested.
+
+
+Custom rule safeguards: packs are limited to 1 MB, 32 files, 100 rules per pack and 200 rules total. Patterns retain literals, anchors, character classes, dot tokens and alternatives; groups, repetition, lookarounds and backreferences are rejected before execution to avoid backtracking stalls. Escaped metacharacters remain literal. Invalid packs are reported and skipped atomically. Existing packs using unsupported constructs must be rewritten; `--no-plugins` disables custom rules. These restrictions do not affect built-in detectors.

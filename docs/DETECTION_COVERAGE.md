@@ -34,4 +34,4 @@ Microsoft references:
 - [Windows security identifiers](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers)
 - [Event 4732: local group membership change](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4732)
 
-The approved terminal and report designs, free distribution, and removed browser dashboard remain unchanged. New source changes do not modify previously published v2.1.12 downloads.
+The approved terminal and report designs, free distribution, and removed browser dashboard remain unchanged. Source changes do not modify previously published downloads; install a reviewed release to receive fixes.

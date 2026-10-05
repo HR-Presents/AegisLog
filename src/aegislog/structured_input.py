@@ -7,6 +7,7 @@ from pathlib import Path
 import csv
 import json
 import hashlib
+from itertools import chain
 
 from .ingestion import iter_bounded_lines
 from .parsers import parse_line, PRIORITY_LEVELS
@@ -147,12 +148,20 @@ def iter_records(path: Path, coverage: Coverage, max_line_bytes=1_000_000, cance
         return
     # Whole JSON containers are supported up to 8 MB. Larger containers fall back visibly.
     if suffix == '.json' and path.stat().st_size <= 8_000_000:
-        raw_lines = list(lines())
-        raw = '\n'.join(raw_lines)
-        try:
-            obj = safe_json_loads(raw)
-        except (ValueError, RecursionError):
-            obj = None
+        line_source = iter(lines())
+        raw_lines, container_bytes, exceeded = [], 0, False
+        for line in line_source:
+            container_bytes += len(line.encode('utf-8')) + 1
+            raw_lines.append(line)
+            if container_bytes > 8_000_000:
+                exceeded = True
+                break
+        obj = None
+        if not exceeded:
+            try:
+                obj = safe_json_loads('\n'.join(raw_lines))
+            except (ValueError, RecursionError):
+                pass
         if obj is not None:
             records = obj if isinstance(obj, list) else obj.get('events') if isinstance(obj, dict) and isinstance(obj.get('events'), list) else [obj]
             for record in records:
@@ -161,7 +170,7 @@ def iter_records(path: Path, coverage: Coverage, max_line_bytes=1_000_000, cance
                 yield emit(original, text or original, kind, text is not None)
             return
         # Count physical lines once even when the JSON container is malformed/JSONL.
-        source = iter(raw_lines)
+        source = chain(raw_lines, line_source)
     else:
         source = lines()
     fields, separator, zeek_header = None, '\t', False
