@@ -287,7 +287,7 @@ def test_demo_context_and_timestamp_limits_are_explicit(tmp_path):
     summary = build_summary_report(data, "full.html")
     assert "SUMMARY ONLY" in summary
     assert 'href="full.html?print=1"' in summary
-    assert ".support-page{break-before:page}" in summary
+    assert ".support-page{break-before:page}" not in summary
     source.write_text("2026-10-03T12:00:00Z INFO app: real input")
     real = analyze_dashboard(source)
     assert "SYNTHETIC DEMO DATA" not in build_html_report(real)

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Preserve native collection time windows and count-limit warnings in both HTML reports.
+- Let summary supporting context flow after findings instead of forcing a largely empty extra page.
+- Explain explicit Volsnap Event 36 storage-limit observations without changing detector evidence.
+
 ## 2.1.15 - 2026-10-05
 
 - Enforce baseline byte limits during reading, including stale size metadata.

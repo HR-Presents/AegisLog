@@ -6,7 +6,6 @@ import json
 import os
 import platform
 import tempfile
-from html import escape
 from collections import Counter
 
 from .dashboard import analyze_dashboard
@@ -107,13 +106,9 @@ def finish_investigation(data, output, scope='Selected file; activity charts use
     output.mkdir(parents=True, exist_ok=True)
     from .output_safety import ensure_distinct_output
     ensure_distinct_output(data.source, output / 'evidence.json')
+    data = replace(data, collection_scope=scope)
     report = write_html_report(data, output)
     formats = Counter(event.source for event in data.events)
-    context = f'<p class="caveat">Collection scope: {escape(scope)} Retained formats: {escape(str(dict(formats)))}. Generic parsing is fallback coverage.</p>'
-    for html_path in [report, report.with_name(report.stem + '-appendix.html')]:
-        html = html_path.read_text(encoding='utf-8')
-        html = html.replace('<div class="scope">', '<div class="scope">' + context, 1) if '<div class="scope">' in html else html.replace('<div class="footer">', context + '<div class="footer">', 1)
-        html_path.write_text(html, encoding='utf-8')
     payload = dict(source=data.source, events=data.records, lines_processed=data.lines, recognized_records=data.recognized_records, findings=[dict(**asdict(item), explanation=explain_finding(item)) for item in data.findings],
                    incidents=[asdict(item) for item in data.incidents], severities=data.severities,
                    coverage=dict(scope=scope, status=data.coverage_status, format_counts=data.format_counts, recognized=data.recognized_records, invalid_records=data.invalid_records, note=data.coverage_note, retention=data.retention_note, retained_formats=dict(formats),

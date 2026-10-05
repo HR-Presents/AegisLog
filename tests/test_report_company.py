@@ -12,6 +12,20 @@ def test_specific_name_preserves_detector_and_evidence():
     assert finding.title == 'Operational error detected'
 
 
+def test_volsnap_limit_review_requires_provider_id_and_evidence():
+    from aegislog.report_company import brief_review
+    from aegislog.reporting import _recommendation
+    finding = Finding('MEDIUM', 'error', 'Operational error detected', '2026-10-05T06:58:23Z Volsnap[36]: ERROR The shadow copies of volume C: were aborted because the shadow copy storage could not grow due to a user imposed limit.', 'Generic review')
+    assert issue_name(finding) == 'Shadow-copy storage limit reached'
+    assert 'backup history' in brief_review(finding, 'Generic review')
+    assert 'before changing storage limits' in _recommendation(finding)
+    assert finding.title == 'Operational error detected'
+    for evidence in [finding.evidence.replace('Volsnap', 'OtherProvider'), finding.evidence.replace('[36]', '[37]'), finding.evidence.replace('user imposed limit', 'unknown reason')]:
+        other = replace(finding, evidence=evidence)
+        assert issue_name(other) == finding.title
+        assert _recommendation(other) == 'Generic review'
+
+
 def test_summary_has_no_raw_json_and_full_preserves_it(tmp_path: Path):
     path = tmp_path / 'system.log'
     path.write_text('2026-10-04T12:00:00Z Service Control Manager[7011]: ERROR timeout | AEGIS_EVENT_DATA={"Computer":"host"}\n')

@@ -28,9 +28,23 @@ def test_native_snapshot_scope_cleanup_and_export(tmp_path, monkeypatch):
     assert 'abcdef' not in Path(result['export']).read_text()
     assert Path(result['summary']).is_file()
     assert 'windows-System' in result['source']
+    for name in ('summary', 'evidence_report'):
+        html = Path(result[name]).read_text()
+        assert result['coverage']['scope'] in html
+        assert 'Selected file analysis' not in html
     for source, minutes, limit in [('docker', 60, 300), ('windows', 2, 300), ('windows', 60, 2001)]:
         with pytest.raises(ValueError):
             check_computer(source, 'System', minutes, limit, tmp_path)
+
+
+def test_native_count_limit_scope_reaches_both_reports(tmp_path, monkeypatch):
+    monkeypatch.setattr('aegislog.product.collect', lambda *a, **kw: ['2026-10-05T00:00:00Z Volsnap[36]: ERROR shadow copies aborted due to a user imposed limit\n'])
+    result = check_computer('windows', 'System', 1440, 1, tmp_path)
+    for name in ('summary', 'evidence_report'):
+        html = Path(result[name]).read_text()
+        assert 'within 1440 minutes' in html
+        assert 'Count limit reached' in html
+        assert 'Returned 1 events' in html
 
 
 def test_file_restrictions_source_preservation_coverage(tmp_path):
