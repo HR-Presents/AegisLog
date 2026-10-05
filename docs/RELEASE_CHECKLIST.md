@@ -8,6 +8,6 @@
 - [x] README/version/changelog updated
 - [x] No credentials, private logs, or `.env` files committed
 - [x] Security/privacy changes reviewed
-- [ ] GitHub Actions matrix passes on Python 3.10–3.13
+- [ ] GitHub Actions matrix passes on Python 3.10–3.14
 - [ ] Maintainer verifies `dist/SHA256SUMS` against downloaded artifacts
 - [ ] Tag created only after merge approval

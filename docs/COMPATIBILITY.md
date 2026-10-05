@@ -16,7 +16,7 @@
 | EVTX, compressed archives, UTF-16 or binary data | Not supported by the guided file workflow | Export readable UTF-8 text first |
 | macOS | File investigations and terminal investigations | No macOS native log collector is provided |
 
-Python package: Python 3.10+; automated compatibility checks currently cover 3.10–3.13. The Windows executable is built with Python 3.12. A newer installed Python version is not equivalent to a tested compatibility guarantee.
+Python package: Python 3.10+; automated compatibility checks currently cover 3.10–3.14. The Windows executable is built with Python 3.12. A newer installed Python version is not equivalent to a tested compatibility guarantee.
 
 Source discovery checks actual bounded read access and checks existing known Windows DISM/CBS or Linux auth/syslog/Nginx/Apache log paths. It does not discover every application log location on a computer. Folder discovery is recursive and bounded, skips symlinks, and lists candidate extensions. Each source is analyzed separately.
 
@@ -29,3 +29,5 @@ Folder scans default to likely log candidates. Include other text/configuration 
 Physical line counts, record counts and recognized record counts are separate. Coverage describes recognized structure, not detection recall. CSV headers and Zeek metadata are excluded from record totals. Malformed and truncated inputs are disclosed.
 
 JSON input nesting is capped at 64 levels. CSV fields are capped at the configured line limit (1 MB by default); malformed records are flagged and parsing proceeds where the CSV reader can recover. The report CLI uses the same bounded structured analysis as the terminal dashboard. Security Workbench, streaming and live monitors normalize known single-object JSON log records while retaining line-oriented detection scope; they are not universal schema importers. Docker snapshots retain both stdout and stderr; separately captured streams do not preserve exact interleaving. Local custom regex packs are trusted user configuration and are not an execution-time sandbox.
+
+Python 3.14 has a hash-locked Linux validation lane and Windows command smoke coverage. Windows checks cover installation, terminal start/quit, diagnostics, report identity and the portable streaming benchmark; they do not establish every terminal emulator or every native channel permission combination. The single executable remains built with Python 3.12.
