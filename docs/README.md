@@ -8,7 +8,7 @@ Welcome to the AegisLog documentation hub. Start with the user guide for the com
 
 | Goal | Guide |
 |---|---|
-| Current release / upgrade | [v2.1.16 notes](RELEASE_V2.1.16.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
+| Current release / upgrade | [v2.1.17 notes](RELEASE_V2.1.17.md) / [Upgrade](INSTALL.md#upgrade-and-verify) |
 | Proposed improvements | [Roadmap](ROADMAP.md) |
 | Install AegisLog | [Installation](INSTALL.md) |
 | Run your first analysis | [Quick Start](QUICKSTART.md) |
@@ -69,10 +69,10 @@ Public screenshots should come from a verified build and sanitized or synthetic 
 
 - **Investigation improvements:** [Workflows and validation](INVESTIGATION_WORKFLOWS.md)
 
-- **Published stable:** [v2.1.16 release notes](RELEASE_V2.1.16.md)
-- **Published release build commit:** `f511c971ca19bfb3560a65c1f3681ff3a9b1ace5`
-- **Latest reviewed report design:** included in v2.1.16; see [installation](INSTALL.md#latest-reviewed-report-design-on-main)
-- **Downloads and matching checksums:** [v2.1.16 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.16)
+- **Published stable:** [v2.1.17 release notes](RELEASE_V2.1.17.md)
+- **Published release build commit:** `63448e60ab2c905355d6dda8bab2837a7a106058`
+- **Latest reviewed report design:** included in v2.1.17; see [installation](INSTALL.md#latest-reviewed-report-design-on-main)
+- **Downloads and matching checksums:** [v2.1.17 release](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.17)
 - **Upgrade:** [Installation](INSTALL.md#upgrade-and-verify) / [Upgrading](UPGRADING.md)
 - **History:** [Changelog](../CHANGELOG.md)
 
