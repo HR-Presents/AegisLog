@@ -1,8 +1,8 @@
 # Roadmap
 
-AegisLog is currently released as **v2.1.14**. This roadmap describes priorities, not delivery promises or features already available.
+AegisLog is currently released as **v2.1.15**. This roadmap describes priorities, not delivery promises or features already available.
 
-## v2.1.14 — current stable release
+## v2.1.15 — current stable release
 
 Synthetic evaluations are not independently validated real-world effectiveness evidence.
 
