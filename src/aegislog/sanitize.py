@@ -13,6 +13,9 @@ _SENSITIVE_KEYS = {
     "authorization", "password", "passwd", "pwd", "secret", "token", "access_token",
     "refresh_token", "api_key", "apikey", "client_secret", "cookie", "set-cookie",
 }
+_NORMALIZED_SENSITIVE_KEYS = {re.sub(r"[-_\s]", "", key.casefold()) for key in _SENSITIVE_KEYS}
+
+
 _KEY_VALUE = re.compile(
     r"(?i)(?P<key>authorization|password|passwd|pwd|secret|token|access[_-]?token|refresh[_-]?token|api[_-]?key|apikey|client[_-]?secret|cookie|set-cookie)"
     r"(?P<sep>[\"']?\s*[:=]\s*)(?P<quote>[\"']?)(?P<value>[^\s,;\"']+|[^\"']*)(?P=quote)"
@@ -33,7 +36,7 @@ def terminal_safe(text: str) -> str:
 def _redact_structured(value: Any) -> Any:
     if isinstance(value, dict):
         return {
-            key: "[REDACTED]" if str(key).lower() in _SENSITIVE_KEYS else _redact_structured(item)
+            key: "[REDACTED]" if re.sub(r"[-_\s]", "", str(key).casefold()) in _NORMALIZED_SENSITIVE_KEYS else _redact_structured(item)
             for key, item in value.items()
         }
     if isinstance(value, list):
