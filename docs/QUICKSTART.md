@@ -4,14 +4,14 @@ AegisLog reads logs locally, highlights rule-backed investigation leads, and cre
 
 ## 1. Install and open
 
-**Windows without Python:** [download the Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.13/AegisLog-v2.1.13-Windows.zip), extract it, and open `AegisLog.exe`. The executable is currently unsigned; verify the release checksum before running it.
+**Windows without Python:** [download the Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.14/AegisLog-v2.1.14-Windows.zip), extract it, and open `AegisLog.exe`. The executable is currently unsigned; verify the release checksum before running it.
 
 **Python 3.10 or newer:** use these commands in your terminal. On Windows, use `python` when it works; substitute `py` if that is your installed launcher.
 
 ```powershell
 python -m pip install --user pipx
 python -m pipx ensurepath
-python -m pipx install "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.13/aegislog_ai-2.1.13-py3-none-any.whl"
+python -m pipx install "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.14/aegislog_ai-2.1.14-py3-none-any.whl"
 ```
 
 Close the terminal and open a new one so PATH updates take effect:

@@ -15,11 +15,11 @@ def test_current_published_stable() -> None:
     roadmap = _text("docs/ROADMAP.md")
     docs_index = _text("docs/README.md")
 
-    assert "current published stable release is **v2.1.13**" in project_status
-    assert "**Published stable:** v2.1.13" in project_status
-    assert "currently released as **v2.1.13**" in roadmap
-    assert "v2.1.13 — current stable release" in roadmap
-    assert "[v2.1.13 release notes](RELEASE_V2.1.13.md)" in docs_index
+    assert "current published stable release is **v2.1.14**" in project_status
+    assert "**Published stable:** v2.1.14" in project_status
+    assert "currently released as **v2.1.14**" in roadmap
+    assert "v2.1.14 — current stable release" in roadmap
+    assert "[v2.1.14 release notes](RELEASE_V2.1.14.md)" in docs_index
 
 
 def test_v216_release_target_and_checksum_are_recorded() -> None:

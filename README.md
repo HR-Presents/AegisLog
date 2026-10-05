@@ -283,13 +283,13 @@ Use **Print summary / Save PDF** for the overview or **Print complete report / S
 
 ### Current Release
 
-The investigation improvements are documented in [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md): grouped triage, explicit Windows session context, Docker/ECS message adapters, searchable saved cases, collection progress, signal comparisons, export preview, runtime diagnostics and opt-in release checks. These changes, the approved boxed report design and the repository audit fixes are included in the v2.1.13 Windows and Python downloads. Source/output collision checks, consistent incident IDs, custom-rule report inclusion and bounded ingestion improve investigation reliability.
+The investigation improvements are documented in [Investigation workflows](docs/INVESTIGATION_WORKFLOWS.md): grouped triage, explicit Windows session context, Docker/ECS message adapters, searchable saved cases, collection progress, signal comparisons, export preview, runtime diagnostics and opt-in release checks. These changes, the approved boxed report design and the repository audit fixes are included in the v2.1.14 Windows and Python downloads. Source/output collision checks, consistent incident IDs, custom-rule report inclusion and bounded ingestion improve investigation reliability.
 
-Windows detection quality now includes explicit group-SID classification, target-host correlation boundaries and clearer heuristic scores. See [Detection coverage](docs/DETECTION_COVERAGE.md).
+Recent reliability fixes preserve target-group evidence boundaries, redact credential-key variants, handle live path rotation and enforce baseline scope matching. Windows detection quality includes explicit group-SID classification, target-host correlation boundaries and clearer heuristic scores. See [Detection coverage](docs/DETECTION_COVERAGE.md).
 
-**[v2.1.13](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.13)** is the published stable release, built from `47561ba2d6c4089bffd94279668de729ed161a39`.
+**[v2.1.14](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.14)** is the published stable release, built from `e5f9ba0b69cc3aa3b41096699694dfb43a2761c3`.
 
-Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.13/AegisLog-v2.1.13-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
+Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.14/AegisLog-v2.1.14-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
 
 > [!NOTE]
 > **Windows signing status**
@@ -320,7 +320,7 @@ python -m pipx ensurepath
 Close and reopen your terminal so PATH changes take effect. Then install the published wheel:
 
 ```bash
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.13/aegislog_ai-2.1.13-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.14/aegislog_ai-2.1.14-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start
@@ -476,7 +476,7 @@ See [Compatibility](docs/COMPATIBILITY.md), [Limitations](docs/LIMITATIONS.md), 
 | [Compatibility](docs/COMPATIBILITY.md) | Formats and coverage limits |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Installation and runtime issues |
 | [Testing](docs/TESTING.md) | Validation guidance |
-| [Release Notes](docs/RELEASE_V2.1.13.md) | Published v2.1.13 changes |
+| [Release Notes](docs/RELEASE_V2.1.14.md) | Published v2.1.14 changes |
 | [Roadmap](docs/ROADMAP.md) | Released capabilities and future priorities |
 | [Documentation Index](docs/README.md) | Complete documentation directory |
 
