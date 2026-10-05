@@ -28,6 +28,7 @@ jobs:
           pdftotext -layout report-layout-qa/native-print/summary.pdf report-layout-qa/native-print/summary.txt
           python -c "from pathlib import Path; s=Path('report-layout-qa/native-print/summary.txt').read_text(); pages=[p for p in s.split(chr(12)) if p.strip()]; assert len(pages)==2, len(pages); assert all(len(p.strip())>600 for p in pages); assert 'Shadow-copy storage limit reached' in s; assert 'Count limit reached' in s"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
         with:
           name: native-report-print-regression
           path: report-layout-qa/native-print/

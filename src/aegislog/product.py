@@ -96,7 +96,7 @@ def check_computer(source, channel, minutes, limit, output):
         with os.fdopen(descriptor, 'w', encoding='utf-8') as stream:
             stream.writelines(lines)
         data = replace(analyze_dashboard(Path(name)), source=f'{source}-{channel or "journal"}-{minutes}min.log')
-        return finish_investigation(data, output, scope=f'Latest {limit} accessible events within {minutes} minutes. Returned {len(lines)} events. {limit_note} A count limit can exclude earlier events in this window.')
+        return finish_investigation(data, output, scope=f'Latest {limit} accessible events within {minutes} minutes. Returned {len(lines)} events. {limit_note}')
     finally:
         Path(name).unlink(missing_ok=True)
 
