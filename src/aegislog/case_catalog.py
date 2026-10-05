@@ -11,6 +11,8 @@ SCHEMA = 'aegislog-case-1'
 
 def save_case(data, output, report, scope):
     path = Path(output) / (Path(report).stem + '-case.json')
+    from .output_safety import ensure_distinct_output
+    ensure_distinct_output(data.source, path)
     payload = dict(schema=SCHEMA, source=redact_sensitive(data.source),
                    generated=datetime.now(timezone.utc).isoformat(), report=Path(report).name,
                    records=data.records, severities=data.severities, scope=scope,

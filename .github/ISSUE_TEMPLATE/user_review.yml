@@ -1,5 +1,5 @@
 name: User review
-about: Share your experience using AegisLog so maintainers and future users can learn from it.
+description: Share your experience using AegisLog so maintainers and future users can learn from it.
 title: "[Review]: "
 labels: ["user-review"]
 body:

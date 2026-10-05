@@ -1,13 +1,13 @@
 # Detection pipeline
 
-1. Read permitted log text with replacement for malformed UTF-8.
-2. Remove terminal control sequences and redact common secret patterns.
-3. Normalize supported structured formats into events.
-4. Apply deterministic security/operational rules.
-5. Correlate repeated authentication failures by source address.
-6. Score rare normalized event classes as anomaly leads.
-7. Group findings into investigation incidents.
-8. Render bounded terminal output or a JSON report.
-9. For question-driven investigation, summarize evidence locally; future external providers receive only explicitly opted-in, minimized, redacted context.
+1. Read bounded physical lines and normalize supported record formats.
+2. Redact recognized secrets and remove terminal control sequences.
+3. Apply deterministic rules with bounded retained findings and authentication state.
+4. Correlate signals using shared context; use resolved timestamps where available.
+5. Score rarity within the retained sample, not attack probability.
+6. Generate the local summary, retained evidence appendix and case metadata after checking output/source collisions.
+7. Open investigation commands using the same incident IDs as the report.
 
-This ordering keeps evidence collection and deterministic detection independent from generative AI.
+Known JSON log objects are normalized for line-oriented collectors too. JSON containers and CSV schemas still require the static file adapter; they are not interchangeable with an appended JSONL stream. Parsing coverage, detection coverage and retained evidence are distinct metrics.
+
+Public workflows use local deterministic analysis. Original telemetry remains authoritative; reports contain derived retained evidence. No matching rule establishes a clean system.

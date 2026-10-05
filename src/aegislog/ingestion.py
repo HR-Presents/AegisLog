@@ -40,3 +40,16 @@ def iter_bounded_lines(path: Path, max_line_bytes: int = 1_000_000, *, on_bytes=
             if truncated:
                 text += " [TRUNCATED]"
             yield InputLine(text, truncated)
+
+
+def recent_lines(path: Path, max_lines=10000, max_bytes=8_000_000):
+    """Retain a bounded recent sample while scanning with bounded physical lines."""
+    from collections import deque
+    lines, size = deque(), 0
+    for item in iter_bounded_lines(path, max_line_bytes=min(max_bytes, 1_000_000)):
+        text = item.text
+        size += len(text.encode('utf-8'))
+        lines.append(text)
+        while len(lines) > max_lines or size > max_bytes:
+            size -= len(lines.popleft().encode('utf-8'))
+    return list(lines)

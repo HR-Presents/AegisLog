@@ -22,7 +22,7 @@ def test_rfc3164_uses_explicit_year_hint_for_event_time_window():
     assert "timestamp unavailable" not in auth.evidence
 
 
-def test_rfc3164_inherits_year_only_after_absolute_timestamp_observed():
+def test_rfc3164_does_not_inherit_year_from_unrelated_absolute_timestamp():
     state = AnalysisState(auth_window_seconds=60)
     state.process("2026-09-07T09:59:50Z app: INFO analysis anchor")
     state.process("Sep  7 10:00:00 host sshd: Failed password for root from 203.0.113.51 port 22")
@@ -30,7 +30,7 @@ def test_rfc3164_inherits_year_only_after_absolute_timestamp_observed():
     auth = _auth(state.findings())
     assert auth.severity == "MEDIUM"
     assert "2 authentication failures" in auth.evidence
-    assert "window=60s" in auth.evidence
+    assert "timestamp unavailable" in auth.evidence
 
 
 def test_rfc3164_without_year_context_keeps_explicit_fallback():

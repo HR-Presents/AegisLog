@@ -56,8 +56,9 @@ def load_rules(directory: Path | None = None) -> tuple[list[PluginRule], list[st
 def apply_rules(lines: list[str], rules: list[PluginRule]) -> list[Finding]:
     findings: list[Finding] = []
     for raw in lines:
-        line = raw.strip()
+        from .sanitize import redact_sensitive
+        line = redact_sensitive(raw.strip())
         if not line: continue
         for rule in rules:
-            if rule.pattern.search(line): findings.append(Finding(rule.severity, rule.category, rule.title, line[:500], rule.recommendation))
+            if len(findings) < 5000 and rule.pattern.search(line): findings.append(Finding(rule.severity, rule.category, rule.title, line[:500], rule.recommendation))
     return findings

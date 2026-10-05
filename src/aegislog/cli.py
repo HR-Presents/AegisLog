@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .ingestion import recent_lines
+
 import json
 import platform
 import time
@@ -82,7 +84,7 @@ def analyze(path: Path = typer.Argument(..., exists=True, dir_okay=False), plugi
     _render(path)
     if plugins:
         rules, errors = load_rules()
-        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        lines = recent_lines(path)
         custom = apply_rules(lines, rules)
         for error in errors:
             console.print(f"Plugin warning: {escape(error)}")
@@ -104,7 +106,7 @@ def threats(path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> No
 @app.command()
 def anomalies(path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> None:
     """Find rare local event classes using lightweight anomaly scoring."""
-    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    lines = recent_lines(path)
     results = score_events([parse_line(line) for line in lines])
     if not results:
         console.print("No frequency anomalies detected in this sample.")
@@ -189,7 +191,7 @@ def hunt(query: str = "", severity: str = "", category: str = "", source: str = 
 @app.command("indicators")
 def indicators(path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> None:
     """Extract defensive IP/domain indicators from a log sample."""
-    values = extract_indicators(path.read_text(encoding="utf-8", errors="replace"))
+    values = extract_indicators("\n".join(recent_lines(path)))
     for kind, items in values.items():
         console.print(f"[bold]{kind}[/bold]")
         for item in items:
@@ -215,8 +217,8 @@ def baseline(
     current_path: Path = typer.Argument(..., exists=True, dir_okay=False),
 ) -> None:
     """Compare current telemetry with a baseline log sample."""
-    before = baseline_path.read_text(encoding="utf-8", errors="replace").splitlines()
-    current = current_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    before = recent_lines(baseline_path)
+    current = recent_lines(current_path)
     deltas = compare_baseline(before, current)
     table = _flat_table(("Event class", {"ratio": 1}), ("Baseline", {}), ("Current", {}), ("Ratio", {}))
     for item in deltas[:50]:
@@ -314,7 +316,10 @@ def scan(path: Path = typer.Argument(Path("/var/log"))) -> None:
     """Scan readable log files under a directory."""
     if not path.exists() or not path.is_dir():
         raise typer.BadParameter("scan path must be an existing directory")
-    files = [p for p in path.rglob("*") if p.is_file() and (p.suffix in {".log", ".txt"} or "log" in p.name.lower())][:100]
+    from .folder_scan import discover_logs
+    files, skipped, capped = discover_logs(path, limit=100)
+    if capped:
+        console.print("Discovery capped at 100 files or 10,000 directory entries.")
     console.print(f"Scanning {len(files)} candidate log files under {escape(str(path))}")
     for file in files:
         try:

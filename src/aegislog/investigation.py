@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -112,14 +111,14 @@ def entity_profiles(lines: list[str]) -> list[EntityProfile]:
     return sorted(profiles, key=lambda item: (-item.occurrences, item.kind, item.value))
 
 
-def build_incidents(lines: list[str]) -> list[InvestigationIncident]:
-    findings = analyze_lines(lines)
+def build_incidents(lines: list[str], findings=None) -> list[InvestigationIncident]:
+    if findings is None:
+        findings = analyze_lines(lines)
     timeline = build_timeline(lines)
-    grouped: dict[str, list[Finding]] = {}
-    for finding in findings:
-        grouped.setdefault(finding.category, []).append(finding)
+    from .incidents import correlated_groups
     incidents: list[InvestigationIncident] = []
-    for category, items in grouped.items():
+    for canonical, members in correlated_groups(findings):
+        category, items = canonical.category, list(members)
         top = max(items, key=lambda item: SEVERITY.get(item.severity, 0))
         relevant_entities: list[str] = []
         for item in items:
@@ -130,7 +129,7 @@ def build_incidents(lines: list[str]) -> list[InvestigationIncident]:
         if not related:
             evidence = " ".join(item.evidence for item in items)
             related = [event for event in timeline if event.service.lower() in evidence.lower()][:12]
-        digest = hashlib.sha256((category + "\0" + top.title + "\0" + "|".join(relevant_entities)).encode()).hexdigest()[:8].upper()
+        digest = canonical.id[:8].upper()
         incidents.append(
             InvestigationIncident(
                 id=f"INC-{digest}",
@@ -147,5 +146,7 @@ def build_incidents(lines: list[str]) -> list[InvestigationIncident]:
 
 
 def load_investigation(path: Path) -> tuple[list[str], list[InvestigationIncident], list[EntityProfile]]:
-    lines = path.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
-    return lines, build_incidents(lines), entity_profiles(lines)
+    from .dashboard import analyze_dashboard
+    data = analyze_dashboard(path)
+    lines = list(data.raw_lines)
+    return lines, build_incidents(lines, list(data.findings)), entity_profiles(lines)

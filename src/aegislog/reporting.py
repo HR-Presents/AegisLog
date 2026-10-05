@@ -402,7 +402,9 @@ def write_html_report(data: DashboardData, output_dir: Path | None = None, *,
     target = destination / (filename or f"{stem}-aegislog-report.html")
     appendix = target.with_name(target.stem + "-appendix.html")
     from .output_safety import ensure_distinct_output
-    ensure_distinct_output(data.source, target, appendix)
+    ensure_distinct_output(data.source, target, appendix,
+                           target.with_name(target.stem + "-case.json"),
+                           destination / "activity-baseline.json", destination / "evidence.json")
     full = build_html_report(data, summary_href=target.name)
     if appendix_extra:
         full = full.replace('<div class="footer">', appendix_extra + '<div class="footer">')

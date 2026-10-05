@@ -200,3 +200,15 @@ def iter_records(path: Path, coverage: Coverage, max_line_bytes=1_000_000, cance
             continue
         event = parse_line(raw)
         yield emit(raw, raw, event.source, event.source != 'generic')
+
+
+def canonical_line(raw):
+    """Normalize one known JSON log object for line-oriented collectors."""
+    if raw.lstrip().startswith('{'):
+        try:
+            text, _ = normalize_object(safe_json_loads(raw))
+        except (ValueError, TypeError, RecursionError):
+            return raw
+        if text is not None:
+            return text
+    return raw

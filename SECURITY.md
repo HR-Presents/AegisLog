@@ -10,7 +10,7 @@ Security fixes are prioritized for the latest published release. Users should re
 
 Logs can contain credentials, session identifiers, personal data, internal hostnames, and proprietary application data. AegisLog performs local redaction for common secret patterns, but no redactor is perfect.
 
-Review data handling before enabling any external AI provider. Do not commit real production logs, credentials, API keys, tokens, private customer data, or `.env` files to this repository.
+Review local reports and exports before sharing them. Do not commit real production logs, credentials, API keys, tokens, private customer data, or `.env` files to this repository.
 
 ## Reporting a vulnerability
 

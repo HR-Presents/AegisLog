@@ -127,7 +127,8 @@ def _timestamp(line: str, year: int | None):
 
 
 def make_record(number: int, line: str, year: int | None = None):
-    safe = redact_sensitive(line)
+    from .structured_input import canonical_line
+    safe = redact_sensitive(canonical_line(line))
     event = parse_line(safe)
     auth = _auth_event(safe, year)
     win = parse_windows_security_line(safe)

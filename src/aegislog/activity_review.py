@@ -15,6 +15,8 @@ def save_activity(data, output, scope):
     payload['signals'] = dict(Counter(
         f'{item.severity}|{item.category}|{item.title}' for item in getattr(data, 'findings', ())))
     path = Path(output) / 'activity-baseline.json'
+    from .output_safety import ensure_distinct_output
+    ensure_distinct_output(data.source, path)
     path.write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
     return path
 

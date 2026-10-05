@@ -331,7 +331,8 @@ class AnalysisState:
                     self._auth_peaks[key] = (len(events), events[-1])
 
     def process(self, raw: str) -> None:
-        line = redact(raw.strip())
+        from .structured_input import canonical_line
+        line = redact(canonical_line(raw).strip())
         self._current_line = line
         if not line:
             return
@@ -340,16 +341,11 @@ class AnalysisState:
             if priority:
                 self._append_finding(Finding(priority.group(1), "network", "Suricata IDS alert reported", line[:500], "Validate the upstream signature, packet/flow context and expected traffic; the IDS alert is an investigation lead, not proof of compromise."))
                 return
-        absolute_timestamp = _parse_absolute_timestamp(line)
-        if absolute_timestamp is not None:
-            self.timestamp_year_hint = absolute_timestamp.year
         windows_event = parse_windows_security_line(line)
         if windows_event is not None:
             signal = signal_for_event(windows_event)
             if windows_event.event_id == 4625:
                 windows_timestamp = _parse_absolute_timestamp(windows_event.timestamp)
-                if windows_timestamp is not None:
-                    self.timestamp_year_hint = windows_timestamp.year
                 self._add_auth(
                     AuthEvent(
                         windows_timestamp,
