@@ -33,7 +33,7 @@ def test_customer_bundle_has_no_stale_ai_branding() -> None:
 
 def test_readme_matches_current_public_product_surface() -> None:
     readme = _text("README.md")
-    assert "v2.1.15" in readme
+    assert "v2.1.16" in readme
     assert "VERSION 1.7" not in readme
     assert "SELECT  ›" not in readme
     assert "aegis@console >" in readme
@@ -46,8 +46,8 @@ def test_current_docs_identify_v216_as_stable() -> None:
     project_status = _text("docs/PROJECT_STATUS.md")
     roadmap = _text("docs/ROADMAP.md")
 
-    assert "Published stable:** [v2.1.15" in docs_index
-    assert "current published stable release is **v2.1.15**" in project_status
-    assert "currently released as **v2.1.15**" in roadmap
-    assert "RELEASE_V2.1.15.md" in docs_index
-    assert "RELEASE_V2.1.15.md" in project_status
+    assert "Published stable:** [v2.1.16" in docs_index
+    assert "current published stable release is **v2.1.16**" in project_status
+    assert "currently released as **v2.1.16**" in roadmap
+    assert "RELEASE_V2.1.16.md" in docs_index
+    assert "RELEASE_V2.1.16.md" in project_status
