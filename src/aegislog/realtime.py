@@ -57,9 +57,11 @@ def _prefix_digest(path: Path, length: int) -> str:
 
 
 def initial_cursor(path: Path, from_start: bool = False) -> FileCursor:
-    size = path.stat().st_size
-    offset = 0 if from_start else size
-    return FileCursor(offset, _file_identity(path), _prefix_digest(path, offset))
+    with path.open("rb") as handle:
+        stat = os.fstat(handle.fileno())
+        offset = 0 if from_start else stat.st_size
+        prefix = hashlib.sha256(handle.read(min(offset, _PREFIX_BYTES))).hexdigest() if offset else ""
+        return FileCursor(offset, (int(stat.st_dev), int(stat.st_ino)), prefix)
 
 
 def _bounded_complete_lines(
@@ -394,29 +396,34 @@ def render_realtime(state: RealtimeState) -> RenderableType:
 
 
 def read_new_lines_cursor(path: Path, cursor: FileCursor) -> tuple[list[str], FileCursor]:
+    # Identity, prefix and content must come from one open file. The path can
+    # rotate between any two operations; reopening it mixes file generations.
     try:
-        identity = _file_identity(path)
-        size = path.stat().st_size
+        with path.open("rb") as handle:
+            stat = os.fstat(handle.fileno())
+            identity = (int(stat.st_dev), int(stat.st_ino))
+            size = stat.st_size
+            offset = cursor.offset
+            pending = cursor.pending
+            pending_truncated = cursor.pending_truncated
+            reset_reason: str | None = None
+            prefix_length = min(cursor.offset, size, _PREFIX_BYTES)
+            current_prefix = hashlib.sha256(handle.read(prefix_length)).hexdigest() if prefix_length else ""
+            replaced = identity != cursor.identity or (cursor.prefix_digest and current_prefix != cursor.prefix_digest)
+            if not cursor.source_available:
+                offset = 0; pending = b""; pending_truncated = False; reset_reason = "source_recovered"
+            elif replaced:
+                offset = 0; pending = b""; pending_truncated = False; reset_reason = "source_replaced"
+            elif size < offset:
+                offset = 0; pending = b""; pending_truncated = False; reset_reason = "source_truncated"
+            handle.seek(offset, os.SEEK_SET)
+            data = handle.read(_MAX_READ_BYTES)
+            new_offset = handle.tell()
+            handle.seek(0)
+            new_prefix = hashlib.sha256(handle.read(min(new_offset, _PREFIX_BYTES))).hexdigest() if new_offset else ""
     except FileNotFoundError:
         return [], FileCursor(cursor.offset, cursor.identity, cursor.prefix_digest, cursor.pending, cursor.pending_truncated, cursor.dropped_bytes, False, "source_missing")
-    offset = cursor.offset
-    pending = cursor.pending
-    pending_truncated = cursor.pending_truncated
-    reset_reason: str | None = None
-    current_prefix = _prefix_digest(path, min(cursor.offset, size))
-    replaced = identity != cursor.identity or (cursor.prefix_digest and current_prefix != cursor.prefix_digest)
-    if not cursor.source_available:
-        offset = 0; pending = b""; pending_truncated = False; reset_reason = "source_recovered"
-    elif replaced:
-        offset = 0; pending = b""; pending_truncated = False; reset_reason = "source_replaced"
-    elif size < offset:
-        offset = 0; pending = b""; pending_truncated = False; reset_reason = "source_truncated"
-    with path.open("rb") as handle:
-        handle.seek(offset, os.SEEK_SET)
-        data = handle.read(_MAX_READ_BYTES)
-        new_offset = handle.tell()
     lines, pending, pending_truncated, dropped_bytes = _bounded_complete_lines(data, pending, pending_truncated, cursor.dropped_bytes)
-    new_prefix = _prefix_digest(path, new_offset)
     return lines, FileCursor(new_offset, identity, new_prefix, pending, pending_truncated, dropped_bytes, True, reset_reason)
 
 

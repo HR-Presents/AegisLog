@@ -78,3 +78,48 @@ def test_realtime_truncates_unusually_long_lines_explicitly() -> None:
     assert state.truncated_lines == 1
     assert "[TRUNCATED]" in state.lines[0]
     assert state.rolling_bytes <= 200
+
+
+def test_rotation_after_open_keeps_identity_and_bytes_from_same_file(tmp_path, monkeypatch):
+    import os
+    from aegislog import realtime
+
+    path = tmp_path / 'live.log'
+    path.write_bytes(b'old\n')
+    cursor = initial_cursor(path, from_start=True)
+    original_fstat = os.fstat
+    rotated = [False]
+
+    def rotate_after_open(fd):
+        stat = original_fstat(fd)
+        if not rotated[0]:
+            path.rename(tmp_path / 'rotated.log')
+            path.write_bytes(b'new\n')
+            rotated[0] = True
+        return stat
+
+    monkeypatch.setattr(realtime.os, 'fstat', rotate_after_open)
+    lines, cursor = read_new_lines_cursor(path, cursor)
+    assert lines == ['old\n']
+    lines, cursor = read_new_lines_cursor(path, cursor)
+    assert lines == ['new\n']
+    assert cursor.reset_reason == 'source_replaced'
+    assert read_new_lines_cursor(path, cursor)[0] == []
+
+
+def test_disappearance_when_opening_returns_missing_cursor(tmp_path, monkeypatch):
+    path = tmp_path / 'live.log'
+    path.write_bytes(b'old\n')
+    cursor = initial_cursor(path)
+    original_open = Path.open
+
+    def remove_before_open(self, *args, **kwargs):
+        if self == path:
+            self.unlink(missing_ok=True)
+        return original_open(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'open', remove_before_open)
+    lines, updated = read_new_lines_cursor(path, cursor)
+    assert lines == [] and updated.source_available is False
+    assert updated.reset_reason == 'source_missing'
+    assert updated.offset == cursor.offset
