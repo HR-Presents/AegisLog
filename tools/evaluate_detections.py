@@ -165,6 +165,11 @@ def evaluate(
         "dataset_kind": dataset_kind,
         "provenance": provenance.strip() if provenance else None,
         "cases": len(cases),
+        "metric_unit": "category presence per evaluation case; not individual finding occurrences",
+        "class_balance": {
+            "cases_with_expected_categories": sum(bool(case.get("expected_categories", [])) for case in cases),
+            "cases_without_expected_categories": sum(not case.get("expected_categories", []) for case in cases),
+        },
         "minimum_reported_severity": severity,
         "tp": totals["tp"],
         "fp": totals["fp"],
@@ -192,13 +197,18 @@ def regression_failures(
     max_fn: int | None = None,
 ) -> list[str]:
     failures: list[str] = []
-    if min_precision is not None and report["precision"] < min_precision:
-        failures.append(f"precision {report['precision']:.4f} < required {min_precision:.4f}")
-    if min_recall is not None and report["recall"] < min_recall:
-        failures.append(f"recall {report['recall']:.4f} < required {min_recall:.4f}")
-    if min_case_accuracy is not None and report["case_exact_accuracy"] < min_case_accuracy:
+    # Gate on counts rather than rounded presentation values. Keep compatibility
+    # with callers that supply only the historical metric summary fields.
+    precision = _safe_div(report["tp"], report["tp"] + report["fp"]) if "tp" in report else report["precision"]
+    recall = _safe_div(report["tp"], report["tp"] + report["fn"]) if "tp" in report else report["recall"]
+    accuracy = _safe_div(report["exact_match_cases"], report["cases"]) if "exact_match_cases" in report and "cases" in report else report["case_exact_accuracy"]
+    if min_precision is not None and precision < min_precision:
+        failures.append(f"precision {precision:.8f} < required {min_precision:.4f}")
+    if min_recall is not None and recall < min_recall:
+        failures.append(f"recall {recall:.8f} < required {min_recall:.4f}")
+    if min_case_accuracy is not None and accuracy < min_case_accuracy:
         failures.append(
-            f"case exact accuracy {report['case_exact_accuracy']:.4f} < required {min_case_accuracy:.4f}"
+            f"case exact accuracy {accuracy:.8f} < required {min_case_accuracy:.4f}"
         )
     if max_fp is not None and report["fp"] > max_fp:
         failures.append(f"false positives {report['fp']} > allowed {max_fp}")
@@ -277,6 +287,8 @@ def main() -> int:
                 f"{category}: precision={metrics['precision']:.4f} recall={metrics['recall']:.4f} "
                 f"tp={metrics['tp']} fp={metrics['fp']} fn={metrics['fn']}"
             )
+        print(f"metric_unit: {report['metric_unit']}")
+        print(f"class_balance: {report['class_balance']}")
         print(f"limitations: {report['limitations']}")
         if failures:
             for failure in failures:

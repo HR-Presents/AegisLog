@@ -103,3 +103,9 @@ Optional gates are available for controlled datasets:
 - `--max-fn` non-negative integer.
 
 A violated gate returns a non-zero process exit code, making it suitable for CI. Thresholds for independently labeled telemetry should be chosen from documented operational requirements rather than copied from synthetic fixtures.
+
+## Metric interpretation and exact gates
+
+Precision and recall count expected/detected category presence once per evaluation case. They do not score every individual finding, severity assignment, evidence reference or incident relationship. A matching category can therefore coexist with an incorrect individual finding; separate rule and context regressions remain necessary. Cases with no expected categories are negative controls for the selected detection threshold, not proof of a benign or clean system. Reports disclose both label classes.
+
+Displayed scores are rounded for readability. Regression gates use unrounded ratios derived from integer counts, so even one mismatch cannot round into a passing perfect-score requirement. Confidence intervals do not make these fixtures independent or representative.

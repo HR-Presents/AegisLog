@@ -104,3 +104,21 @@ def test_duplicate_case_ids_are_rejected(tmp_path: Path):
 
     with pytest.raises(ValueError, match="duplicate evaluation case id"):
         evaluate(dataset)
+
+
+def test_strict_gates_use_counts_not_rounded_perfect_scores():
+    report = dict(tp=99999, fp=1, fn=1, cases=100000, exact_match_cases=99999,
+                  precision=1.0, recall=1.0, case_exact_accuracy=1.0)
+    failures = regression_failures(report, min_precision=1.0, min_recall=1.0, min_case_accuracy=1.0)
+    assert len(failures) == 3
+    assert all('0.99999000' in failure for failure in failures)
+    assert not regression_failures(report, min_precision=0.999, min_recall=0.999, min_case_accuracy=0.999)
+
+
+def test_report_states_metric_unit_and_label_class_balance():
+    report = evaluate(FIXTURE)
+    assert 'category presence per evaluation case' in report['metric_unit']
+    balance = report['class_balance']
+    assert sum(balance.values()) == report['cases']
+    assert balance['cases_with_expected_categories'] > 0
+    assert balance['cases_without_expected_categories'] > 0
