@@ -30,7 +30,7 @@ From home, P opens built-in demo replay immediately. This is recorded sample act
 
 Reports and exports are local. Rolling retention and displayed chart slices are labelled. Findings require investigation; they are not proof of compromise.
 
-This bundle contains AegisLog 2.1.16. The release notes identify its build commit. The Windows executable is unsigned. The checksum file applies to `dist/AegisLog.exe`.
+This bundle contains AegisLog 2.1.17. The release notes identify its build commit. The Windows executable is unsigned. The checksum file applies to `dist/AegisLog.exe`.
 
 ## Guided investigations
 
