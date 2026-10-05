@@ -11,8 +11,6 @@ Validation includes 689 passing regression tests, including growing-file hashing
 
 ## Install or upgrade
 
-After this release is published:
-
 ```powershell
 python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.17/aegislog_ai-2.1.17-py3-none-any.whl"
 aegislog --version
@@ -23,5 +21,7 @@ aegislog start
 Without Python, extract `AegisLog-v2.1.17-Windows.zip` and run `dist\AegisLog.exe start`. Do not combine pipx `--force` with `--pip-args="--force-reinstall"`. Generate fresh reports after updating; previously saved reports remain unchanged.
 
 The Windows executable remains unsigned. Verify the matching release SHA-256 checksums; checksums identify bytes, not publisher identity. No browser dashboard, paid service, remote AI dependency, automatic remediation or host permission bypass is added. Findings remain investigation leads, not proof of compromise.
+
+Build commit: `63448e60ab2c905355d6dda8bab2837a7a106058`. Executable SHA-256: `4f22fb571cd47935c24e8a8ce7a3089f35caf8f715aefdac3454483a4f21d22f`. The [review manifest](../packaging/release-review.json) records all seven asset digests.
 
 **MADE BY HR-PRESENTS**

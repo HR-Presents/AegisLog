@@ -18,7 +18,7 @@ Get-FileHash .\AegisLog.exe -Algorithm SHA256
 Get-Content .\AegisLog.exe.sha256
 ```
 
-Compare the two SHA-256 values exactly, using the checksum beside the same release asset. The published version is **v2.1.16**. See [release notes](RELEASE_V2.1.16.md).
+Compare the two SHA-256 values exactly, using the checksum beside the same release asset. The published version is **v2.1.17**. See [release notes](RELEASE_V2.1.17.md).
 
 ## Install as a terminal command
 
@@ -37,20 +37,20 @@ Close and reopen the terminal to reload PATH. Administrator access is not requir
 
 ### Latest reviewed report design on main
 
-The approved company-facing summary and polished full report are included in the published v2.1.16 wheel and Windows EXE/ZIP. Generate a new report after updating to apply the native scope and summary pagination fixes; saved HTML/PDF files remain unchanged. Use A4, 100% scale and turn off browser Headers and footers when saving PDF.
+The approved company-facing summary and polished full report are included in the published v2.1.17 wheel and Windows EXE/ZIP. Generate a new report after updating to apply the native scope and summary pagination fixes; saved HTML/PDF files remain unchanged. Use A4, 100% scale and turn off browser Headers and footers when saving PDF.
 
 ### Upgrade and verify
 
 Exit AegisLog first, then install the published wheel:
 
 ```cmd
-python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.16/aegislog_ai-2.1.16-py3-none-any.whl"
+python -m pipx install --force "https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.17/aegislog_ai-2.1.17-py3-none-any.whl"
 aegislog --version
 aegislog doctor
 aegislog start
 ```
 
-The version should be **2.1.16**. Regenerate existing reports after updating. Your source logs are not modified; retain saved reports until you choose to delete them. Do not add `--pip-args="--force-reinstall"`: it can duplicate the uv backend's reinstall option.
+The version should be **2.1.17**. Regenerate existing reports after updating. Your source logs are not modified; retain saved reports until you choose to delete them. Do not add `--pip-args="--force-reinstall"`: it can duplicate the uv backend's reinstall option.
 
 If `aegislog` is not recognized after installation, reopen the terminal. In Command Prompt, an immediate launch is `"%USERPROFILE%\.local\bin\aegislog.exe" start`; in PowerShell use `& "$env:USERPROFILE\.local\bin\aegislog.exe" start`.
 
