@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.12 - 2026-10-05
+
+- Guard source files against report, metadata and baseline output collisions, including hard links.
+- Align report and investigation incident IDs; preserve absolute timeline timestamps and explicit syslog year context.
+- Include custom-rule findings and omitted counts in reports; preserve same-named live source identities.
+- Share known JSON log normalization with Workbench, streaming and live detection.
+- Bound legacy readers, watch ingestion and folder discovery; correct stale documentation and issue forms.
+- Retire historical release jobs and use reusable draft preparation and digest-verified publication.
+
 ## 2.1.11 — 2026-10-04
 
 - Package the approved boxed report layout with black text, light sea-blue framing, aligned metrics and a larger logo.

@@ -22,3 +22,7 @@ The v2.1.11 build target is `999537ddc2f6d27a6a03cd1266e4dc71e18a0329`. Its exec
 The v2.1.6 build target is `1eb0a4a4124599544b3608eb84582979770e4a04`. Its executable SHA-256 is `c16c944415bcd929c1b53588f60c3f920a3ca4abcc8923c745ca1594329c66a2`; verify against `AegisLog.exe.sha256` on the release page.
 
 v2.1.0 established the reliability foundation; v2.1.3 is an earlier published presentation release. Historical release notes and checksums remain in GitHub Releases and the changelog.
+
+## Release candidate
+
+v2.1.12 packages the repository audit fixes. Its draft must pass build, smoke, asset and checksum verification before replacing the published stable release.

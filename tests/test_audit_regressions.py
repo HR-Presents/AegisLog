@@ -104,3 +104,20 @@ def test_historical_release_jobs_are_disabled():
         jobs = text.split('jobs:', 1)[1]
         for match in re.finditer(r'^  [\w-]+:\n', jobs, re.M):
             assert jobs[match.end():].startswith('    if: ${{ false }}'), path
+
+
+def test_release_preparation_is_version_derived_and_draft_only():
+    import yaml
+    workflow = yaml.safe_load(Path('.github/workflows/prepare-release.yml').read_text())
+    jobs = workflow['jobs']
+    assert jobs['validate']['needs'] == 'metadata'
+    assert set(jobs['prepare-draft']['needs']) == {'metadata', 'validate', 'build-windows-exe'}
+    assert jobs['prepare-draft']['permissions']['contents'] == 'write'
+    assert "github.event_name != 'pull_request'" in jobs['prepare-draft']['if']
+    body = '\n'.join(step.get('run', '') for step in jobs['prepare-draft']['steps'])
+    assert '--draft --target "$GITHUB_SHA"' in body
+    assert 'Release exists; refusing mutation.' in body
+    assert 'Tag exists; refusing reuse.' in body
+    assert 'sha256sum --check' in body
+    assert 'needs.metadata.outputs.tag' in body
+    assert 'gh release edit' not in body

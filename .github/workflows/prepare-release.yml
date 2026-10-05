@@ -1,0 +1,282 @@
+name: Prepare release draft
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/prepare-release.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/prepare-release.yml"
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type RELEASE-vX.Y.Z matching pyproject.toml to prepare a draft"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: prepare-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  metadata:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - id: version
+        run: |
+          python - <<'PYTHON'
+          import os, re, tomllib
+          version = tomllib.load(open('pyproject.toml', 'rb'))['project']['version']
+          assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'version={version}\ntag=v{version}\n')
+          PYTHON
+
+  validate:
+    needs: metadata
+    env:
+      RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+      RELEASE_TAG: ${{ needs.metadata.outputs.tag }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Validate source and package
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r packaging/build-lock-linux.txt
+          python -m pip install --require-hashes -r packaging/validation-lock-py312-linux.txt
+          python -m pip install --require-hashes -r packaging/runtime-lock.txt
+          python -m pip install -e . --no-deps --no-build-isolation
+          ruff check .
+          pytest -q
+          python tools/evaluate_detections.py evaluation/labeled_events.jsonl --dataset-kind synthetic --min-precision 1.0 --min-recall 1.0 --min-case-accuracy 1.0 --max-fp 0 --max-fn 0
+          python tools/evaluate_detections.py evaluation/representative_synthetic_v21.jsonl --dataset-kind synthetic --min-precision 1.0 --min-recall 1.0 --min-case-accuracy 1.0 --max-fp 0 --max-fn 0
+          bandit -q -r src
+          pip-audit
+          python -m build --no-isolation
+          python -m twine check dist/*
+          python -c 'import aegislog, tomllib; assert aegislog.__version__ == tomllib.load(open("pyproject.toml", "rb"))["project"]["version"] == "${{ needs.metadata.outputs.version }}"'
+          python - <<'PYTHON'
+          import zipfile
+          from pathlib import Path
+          wheel = next(Path('dist').glob('*.whl'))
+          with zipfile.ZipFile(wheel) as package:
+              assert 'aegislog/assets/aegislog-logo.png' in package.namelist()
+              assert 'aegislog/report_document.py' in package.namelist()
+          PYTHON
+          (cd dist && sha256sum aegislog_ai-* > SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: AegisLog-${{ needs.metadata.outputs.tag }}-Python
+          if-no-files-found: error
+          path: dist/*
+
+  build-windows-exe:
+    env:
+      RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+      RELEASE_TAG: ${{ needs.metadata.outputs.tag }}
+    needs: [metadata, validate]
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install locked build and runtime dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --require-hashes -r packaging/build-lock-windows.txt
+          python -m pip install --require-hashes -r packaging/runtime-lock.txt
+          python -m pip install -e . --no-deps --no-build-isolation
+
+      - name: Build AegisLog.exe
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean --onefile --console --collect-data aegislog --name AegisLog packaging/aegislog_onefile.py
+
+      - name: Verify single executable and core command surface
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "dist\AegisLog.exe")) { throw "AegisLog.exe was not created" }
+          $version = .\dist\AegisLog.exe --version | Out-String
+          if ($LASTEXITCODE -ne 0 -or $version.Trim() -notmatch ("(?:^|\s)" + [regex]::Escape($env:RELEASE_VERSION) + "$")) { throw "Expected version ${{ needs.metadata.outputs.version }}, got $version" }
+          .\dist\AegisLog.exe doctor
+          $helpText = .\dist\AegisLog.exe --help | Out-String
+          if ($LASTEXITCODE -ne 0 -or $helpText -match "(?im)^\s*[│|]?\s*desktop\s") { throw "Removed desktop command returned" }
+          $aegisHomeOutput = "q" | .\dist\AegisLog.exe start | Out-String
+          if ($LASTEXITCODE -ne 0 -or $aegisHomeOutput -notmatch "ANALYZE LOG" -or $aegisHomeOutput -notmatch "REPORTS" -or $aegisHomeOutput -match "\[D\]\s*LOCAL DASHBOARD") { throw "Terminal home/navigation regression" }
+          $walkthrough = "g`nn`n`nq" | .\dist\AegisLog.exe start | Out-String
+          if ($LASTEXITCODE -ne 0 -or $walkthrough -notmatch "BEGINNER WALKTHROUGH" -or $walkthrough -notmatch "synthetic") { throw "Beginner walkthrough smoke failed" }
+          .\dist\AegisLog.exe start --help
+          .\dist\AegisLog.exe check-computer --help
+          .\dist\AegisLog.exe review examples\auth.log
+          if ($LASTEXITCODE -ne 0) { throw "Grouped review failed" }
+          .\dist\AegisLog.exe diagnostics --output support-smoke.json
+          if ($LASTEXITCODE -ne 0) { throw "Runtime diagnostics failed" }
+          .\dist\AegisLog.exe update-check --help
+          .\dist\AegisLog.exe dashboard examples\auth.log
+          .\dist\AegisLog.exe cases --query auth
+          if ($LASTEXITCODE -ne 0) { throw "Case search failed" }
+          $report = Get-ChildItem "aegislog-reports" -Filter "*-report.html" -Recurse | Select-Object -First 1
+          if (-not $report) { throw "Executable report missing" }
+          $reportHtml = Get-Content $report.FullName -Raw
+          if ($reportHtml -notmatch 'data:image/png;base64,' -or $reportHtml -notmatch 'MADE BY HR-PRESENTS' -or $reportHtml -notmatch 'company-report') { throw "Company report identity missing" }
+          $appendix = Get-ChildItem "aegislog-reports" -Filter "*-appendix.html" -Recurse | Select-Object -First 1
+          if (-not $appendix) { throw "Full evidence report missing" }
+          $appendixHtml = Get-Content $appendix.FullName -Raw
+          if ($appendixHtml -notmatch 'Technical appendix' -or $appendixHtml -notmatch 'Retained detector evidence') { throw "Full report polish missing" }
+          .\dist\AegisLog.exe live --help
+          .\dist\AegisLog.exe live-multi --help
+          .\dist\AegisLog.exe native-sources
+          .\dist\AegisLog.exe native-live --help
+          .\dist\AegisLog.exe incidents --help
+          .\dist\AegisLog.exe investigate --help
+          .\dist\AegisLog.exe explain --help
+          .\dist\AegisLog.exe mitre --help
+
+      - name: Read-only native Windows snapshot smoke
+        shell: pwsh
+        run: |
+          .\dist\AegisLog.exe native-analyze windows --channel System --limit 10
+          if ($LASTEXITCODE -ne 0) { throw "Native Windows System snapshot failed" }
+
+      - name: Verify signing adapter fails closed without certificate material
+        shell: pwsh
+        run: |
+          try {
+            ./packaging/sign_windows.ps1 `
+              -Path "dist\AegisLog.exe" `
+              -PfxPath (Join-Path $env:RUNNER_TEMP "missing-signing-cert.pfx") `
+              -PfxPassword "synthetic-test-only" `
+              -ExpectedThumbprint "0000000000000000000000000000000000000000" `
+              -TimestampUrl "https://example.invalid/timestamp"
+            throw "Signing adapter unexpectedly accepted missing certificate material"
+          }
+          catch {
+            $message = $_.Exception.Message
+            if ($message -notmatch "Signing PFX not found") {
+              throw
+            }
+            Write-Host "Signing adapter correctly failed closed: $message"
+          }
+
+      - name: Verify unsigned artifact is rejected by release guard
+        shell: pwsh
+        run: |
+          try {
+            & ./packaging/verify_authenticode.ps1 -Path "dist\AegisLog.exe"
+            throw "Unsigned PR artifact unexpectedly passed the release Authenticode guard"
+          }
+          catch {
+            $message = $_.Exception.Message
+            if ($message -notmatch "Authenticode signature is not valid" -or $message -notmatch "NotSigned") {
+              throw
+            }
+            Write-Host "Release guard correctly rejected the unsigned PR artifact: $message"
+          }
+
+      - name: Verify distribution is exactly one executable
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem "dist" -File
+          if ($files.Count -ne 1) { throw "Expected exactly one customer executable in dist" }
+          if ($files[0].Name -ne "AegisLog.exe") { throw "Unexpected distribution file: $($files[0].Name)" }
+
+      - name: Include demo and quickstart
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force "demo" | Out-Null
+          Copy-Item "docs/examples/security-demo.log", "docs/examples/watchlist-demo.txt", "docs/examples/tuning-demo.json" -Destination "demo"
+          Copy-Item "packaging/WINDOWS_QUICKSTART.md" -Destination "QUICKSTART.md"
+          .\dist\AegisLog.exe security demo\security-demo.log --watchlist demo\watchlist-demo.txt --export demo-smoke-evidence.json
+          if ($LASTEXITCODE -ne 0) { throw "Security workbench executable smoke failed" }
+          .\dist\AegisLog.exe replay --help
+          if ($LASTEXITCODE -ne 0) { throw "Replay command smoke failed" }
+
+      - name: Generate checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash "dist\AegisLog.exe" -Algorithm SHA256).Hash.ToLower()
+          "$hash  AegisLog.exe" | Set-Content -Encoding ascii "AegisLog.exe.sha256"
+
+      - name: Attest executable provenance
+        if: github.event_name != 'pull_request'
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: dist/AegisLog.exe
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: AegisLog-${{ needs.metadata.outputs.tag }}-Windows
+          if-no-files-found: error
+          path: |
+            dist/AegisLog.exe
+            AegisLog.exe.sha256
+            QUICKSTART.md
+            demo/
+
+  prepare-draft:
+    env:
+      RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+      RELEASE_TAG: ${{ needs.metadata.outputs.tag }}
+    needs: [metadata, validate, build-windows-exe]
+    if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Require matching manual confirmation when dispatched
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: test "$CONFIRMATION" = "RELEASE-${{ needs.metadata.outputs.tag }}"
+      - name: Validate release target
+        run: python tools/release_preflight.py --repository "$GITHUB_REPOSITORY" --ref "$GITHUB_REF" --sha "$GITHUB_SHA" --release-tag ${{ needs.metadata.outputs.tag }} --release-version ${{ needs.metadata.outputs.version }} --confirmation RELEASE-${{ needs.metadata.outputs.tag }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: AegisLog-${{ needs.metadata.outputs.tag }}-Windows
+          path: windows-assets
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: AegisLog-${{ needs.metadata.outputs.tag }}-Python
+          path: python-assets
+      - name: Verify and create immutable draft assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view ${{ needs.metadata.outputs.tag }} >/dev/null 2>&1; then echo "Release exists; refusing mutation."; exit 1; fi
+          if git ls-remote --exit-code --tags origin refs/tags/${{ needs.metadata.outputs.tag }} >/dev/null 2>&1; then echo "Tag exists; refusing reuse."; exit 1; fi
+          cp windows-assets/AegisLog.exe.sha256 windows-assets/dist/AegisLog.exe.sha256
+          (cd windows-assets/dist && sha256sum --check AegisLog.exe.sha256)
+          (cd python-assets && sha256sum --check SHA256SUMS)
+          mkdir release-assets
+          cp windows-assets/dist/AegisLog.exe windows-assets/AegisLog.exe.sha256 release-assets/
+          cp python-assets/* release-assets/
+          (cd windows-assets && zip -r ../release-assets/AegisLog-${{ needs.metadata.outputs.tag }}-Windows.zip dist QUICKSTART.md demo AegisLog.exe.sha256)
+          (cd release-assets && sha256sum AegisLog-${{ needs.metadata.outputs.tag }}-Windows.zip > AegisLog-${{ needs.metadata.outputs.tag }}-Windows.zip.sha256)
+          printf '\nBuild commit: `%s`\n\nRelease asset checksums:\n\n```text\n' "$GITHUB_SHA" >> docs/RELEASE_V${{ needs.metadata.outputs.version }}.md
+          cat release-assets/AegisLog.exe.sha256 release-assets/AegisLog-${{ needs.metadata.outputs.tag }}-Windows.zip.sha256 release-assets/SHA256SUMS >> docs/RELEASE_V${{ needs.metadata.outputs.version }}.md
+          printf '\n```\n' >> docs/RELEASE_V${{ needs.metadata.outputs.version }}.md
+          gh release create ${{ needs.metadata.outputs.tag }} release-assets/* --draft --target "$GITHUB_SHA" --title "AegisLog ${{ needs.metadata.outputs.tag }}" --notes-file docs/RELEASE_V${{ needs.metadata.outputs.version }}.md
