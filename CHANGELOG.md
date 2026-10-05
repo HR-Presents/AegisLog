@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.13 - 2026-10-05
+
+- Classify Windows group changes using explicit target group SIDs.
+- Separate authentication bursts by observed target host and require explicit Windows target identity for failure-to-success sequences.
+- Stop session context at reused logon IDs; reject ambiguous anchors.
+- Label confidence values as uncalibrated heuristic scores and document detection coverage.
+- Preserve approved terminal and report designs.
+
 ## 2.1.12 - 2026-10-05
 
 - Guard source files against report, metadata and baseline output collisions, including hard links.

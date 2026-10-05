@@ -1,3 +1,3 @@
 """AegisLog - terminal-first defensive log intelligence."""
 
-__version__ = "2.1.12"
+__version__ = "2.1.13"
