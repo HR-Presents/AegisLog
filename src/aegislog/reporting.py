@@ -202,6 +202,9 @@ def _incident_records(data: DashboardData) -> str:
 
 def _recommendation(item) -> str:
     evidence = item.evidence.lower()
+    from .report_company import issue_name, brief_review
+    if item.category == "error" and issue_name(item) == 'Shadow-copy storage limit reached':
+        return brief_review(item, item.recommendation)
     if item.category == "error" and "service control manager[7011]" in evidence:
         return "Check the named service's own logs and dependencies around this timeout; compare restart history, CPU, memory and disk pressure. Validate the cause before changing service settings."
     if item.category == "error" and "distributedcom[10010]" in evidence:
