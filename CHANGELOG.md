@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.1.16 - 2026-10-05
 
 - Preserve native collection time windows and count-limit warnings in both HTML reports.
 - Let summary supporting context flow after findings instead of forcing a largely empty extra page.
