@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .ingestion import recent_lines
+
 from pathlib import Path
 
 import typer
@@ -47,8 +49,8 @@ def behavior(
     current: Path = typer.Option(..., "--current", exists=True, dir_okay=False),
 ) -> None:
     """Compare a current log window against multiple historical baseline windows."""
-    baseline_windows = [path.read_text(encoding="utf-8", errors="replace").splitlines() for path in baseline]
-    current_lines = current.read_text(encoding="utf-8", errors="replace").splitlines()
+    baseline_windows = [recent_lines(path) for path in baseline]
+    current_lines = recent_lines(current)
     deltas = compare_windows(baseline_windows, current_lines)
     table = Table(show_lines=True)
     table.add_column("Bucket")

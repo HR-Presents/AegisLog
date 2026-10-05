@@ -1,4 +1,4 @@
-name: Update v2.1.6 release guidance
+name: Update v2.1.6 release guidance (retired)
 on:
   push:
     branches: [main]
@@ -7,6 +7,7 @@ permissions:
   contents: write
 jobs:
   release-notes:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     runs-on: ubuntu-24.04
     steps:
       - name: Update guidance while retaining published checksums

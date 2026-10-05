@@ -1,4 +1,4 @@
-name: Prepare v2.1.4 draft release
+name: Prepare v2.1.4 draft release (retired)
 
 on:
   pull_request:
@@ -27,6 +27,7 @@ concurrency:
 
 jobs:
   validate:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -58,6 +59,7 @@ jobs:
           path: dist/*
 
   build-windows-exe:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     needs: validate
     runs-on: windows-2025
     steps:
@@ -183,8 +185,9 @@ jobs:
             demo/
 
   prepare-draft:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     needs: [validate, build-windows-exe]
-    if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Historical guard: if: github.repository == 'HR-Presents/AegisLog-AI' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     permissions:
       contents: write

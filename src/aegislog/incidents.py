@@ -65,7 +65,7 @@ def _correlation_key(finding: Finding) -> tuple[str, str, str, str]:
     return (category, "", "", "")
 
 
-def correlate(findings: list[Finding]) -> list[Incident]:
+def correlated_groups(findings: list[Finding]):
     groups: dict[tuple[str, str, str, str], list[Finding]] = defaultdict(list)
     for finding in findings:
         groups[_correlation_key(finding)].append(finding)
@@ -129,7 +129,7 @@ def correlate(findings: list[Finding]) -> list[Incident]:
                 description.append('Time unresolved')
             else:
                 description.append(start.strftime('%Y-%m-%d %H:%M:%S UTC') + ' to ' + end.strftime('%H:%M:%S UTC'))
-        incidents.append(
+        incidents.append((
             Incident(
                 id=digest,
                 category=top.category,
@@ -138,11 +138,15 @@ def correlate(findings: list[Finding]) -> list[Incident]:
                 title=top.title,
                 evidence=tuple(item.evidence for item in items[:5]),
                 context=' · '.join(description),
-            )
-        )
+            ), tuple(items)
+        ))
 
     return sorted(
         incidents,
-        key=lambda item: (SEVERITY.get(item.severity, 0), item.count),
+        key=lambda pair: (SEVERITY.get(pair[0].severity, 0), pair[0].count),
         reverse=True,
     )
+
+
+def correlate(findings: list[Finding]) -> list[Incident]:
+    return [incident for incident, _ in correlated_groups(findings)]

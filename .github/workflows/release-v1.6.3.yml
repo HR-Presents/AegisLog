@@ -1,4 +1,4 @@
-name: Release v1.6.3
+name: Release v1.6.3 (retired)
 
 on:
   workflow_dispatch:
@@ -21,6 +21,7 @@ env:
 
 jobs:
   validate:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -85,6 +86,7 @@ jobs:
           python -m twine check dist/*
 
   build-windows-exe:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     needs: validate
     runs-on: windows-2025
     permissions:
@@ -150,6 +152,7 @@ jobs:
           path: release-assets/*
 
   publish:
+    if: ${{ false }} # Historical release; never rerun against published assets.
     needs: build-windows-exe
     runs-on: ubuntu-24.04
     permissions:

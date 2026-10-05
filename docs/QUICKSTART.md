@@ -47,4 +47,4 @@ For live monitoring, choose **02** and a growing log. Static demo files do not p
 
 Press **B** to return, then **Q** at home to quit. Your normal terminal prompt returns. AegisLog is not installed as a background service by this guide.
 
-[Command reference](COMMANDS.md) · [Detection rules](DETECTION_RULES.md) · [First-user checklist](FIRST_USER_CHECKLIST.md)
+[Command reference](COMMANDS.md) · [Detection rules](RULES.md) · [First-user checklist](FIRST_USER_CHECKLIST.md)

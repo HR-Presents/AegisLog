@@ -75,7 +75,8 @@ class MultiSourceState:
         if not lines:
             return 0
         stamp = time.monotonic() if now is None else now
-        label = source.name
+        label = (str(source.resolve()) if sum(p.name == source.name for p in self.sources) > 1
+                 else source.name)
         for line in lines:
             self._lines.append((label, line))
             self.total_lines += 1

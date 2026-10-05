@@ -1,7 +1,9 @@
 # Detection rules
 
-V0.2 ships a deliberately small, explainable local rule set covering repeated authentication failures, suspicious sudo/privilege events, selected suspicious web-request patterns, fatal/crash/OOM events, and generic errors/timeouts/denials.
+AegisLog uses deterministic rules for authentication failures, selected Windows security events, suspicious privilege and web activity, operational failures and recognized Suricata alerts. Parsing a format does not mean every possible threat in that format is detected.
 
-Rules are signals rather than verdicts. A matching string can have a benign explanation, and a real incident may not match any built-in rule. Future rule packs should include an identifier, severity rationale, references, tests, and configurable thresholds where appropriate.
+Authentication correlation uses extracted account, host and source context. Resolved timestamps support time windows; yearless syslog requires an explicit year hint. Without one, bounded event-order grouping does not establish elapsed time.
 
-Repeated authentication failures are correlated by source IP. Five or more failures create a possible brute-force finding; twenty or more raise its severity. These defaults are intended for demonstrations and must become configurable before a stable production release.
+Windows incident grouping includes provider, Event ID, account/host context and a maximum five-minute span. Generic fallback grouping has no time-window guarantee. Incident IDs use the same correlation implementation in reports and investigation commands.
+
+`analyze` includes enabled local declarative rule packs in the displayed findings and HTML report. Use `--no-plugins` to exclude them. Rule packs are trusted operator configuration; review their patterns and severity choices. Findings are investigation leads, not proof of compromise. Synthetic tests verify supported examples, not real-world accuracy.

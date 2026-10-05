@@ -21,6 +21,7 @@ from .ui import bounded
 
 console = Console()
 last_report: Path | None = None
+_custom_findings = ContextVar("custom_findings", default=())
 _snapshot_context = ContextVar("snapshot_context", default=("", ""))
 
 
@@ -96,6 +97,16 @@ def dashboard(
         def show_progress(lines, records):
             progress.update(task, description=f'Analyzing {path.name}: {lines:,} lines / {records:,} records')
         data = analyze_dashboard(path, timestamp_year_hint=timestamp_year, progress=show_progress)
+        custom = _custom_findings.get()
+        if custom:
+            from collections import Counter
+            from .incidents import correlate
+            combined = (*data.findings, *custom)
+            retained = combined[:5000]
+            data = replace(data, findings=tuple(retained), incidents=tuple(correlate(list(retained))),
+                           severities=dict(Counter(f.severity for f in retained)),
+                           categories=dict(Counter(f.category for f in retained)),
+                           dropped_findings=data.dropped_findings + len(combined) - len(retained) + getattr(custom, "omitted", 0))
         label, scope = _snapshot_context.get()
         data = replace(data, source_label=label, collection_scope=scope)
         progress.update(task, description="Building investigation summary...")
@@ -126,20 +137,18 @@ def analyze_dashboard_command(
     ),
 ) -> None:
     """Analyze a log and open the compact AegisLog terminal summary."""
-    dashboard(path, timestamp_year=timestamp_year)
-    if plugins:
-        rules, errors = load_rules()
-        if not rules and not errors:
-            return
-        from .ingestion import iter_bounded_lines
-        custom = apply_rules((item.text for item in iter_bounded_lines(path)), rules)
-        if errors:
-            console.print(f"Rule-pack warnings: {len(errors)}. Run `aegislog plugins` for details.")
-        if custom:
-            console.print(
-                f"Additional local rule-pack findings: {len(custom)}. "
-                "Run `aegislog plugins` to inspect installed packs."
-            )
+    rules, errors = load_rules() if plugins else ([], [])
+    from .ingestion import iter_bounded_lines
+    custom = apply_rules((item.text for item in iter_bounded_lines(path)), rules) if rules else []
+    token = _custom_findings.set(custom)
+    try:
+        dashboard(path, timestamp_year=timestamp_year)
+    finally:
+        _custom_findings.reset(token)
+    if errors:
+        console.print(f"Rule-pack warnings: {len(errors)}. Run `aegislog plugins` for details.")
+    if custom:
+        console.print(f"Additional local rule-pack findings: {len(custom)}; included in the investigation report.")
 
 
 def replace_analyze_command(app: typer.Typer) -> None:

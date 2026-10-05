@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .ingestion import recent_lines
+
 import json
 import platform
 import time
@@ -82,7 +84,7 @@ def analyze(path: Path = typer.Argument(..., exists=True, dir_okay=False), plugi
     _render(path)
     if plugins:
         rules, errors = load_rules()
-        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        lines = recent_lines(path)
         custom = apply_rules(lines, rules)
         for error in errors:
             console.print(f"Plugin warning: {escape(error)}")
@@ -104,7 +106,8 @@ def threats(path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> No
 @app.command()
 def anomalies(path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> None:
     """Find rare local event classes using lightweight anomaly scoring."""
-    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    console.print("Analyzing a bounded recent sample: up to 10,000 lines / 8 MB.")
+    lines = recent_lines(path)
     results = score_events([parse_line(line) for line in lines])
     if not results:
         console.print("No frequency anomalies detected in this sample.")
@@ -189,7 +192,8 @@ def hunt(query: str = "", severity: str = "", category: str = "", source: str = 
 @app.command("indicators")
 def indicators(path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> None:
     """Extract defensive IP/domain indicators from a log sample."""
-    values = extract_indicators(path.read_text(encoding="utf-8", errors="replace"))
+    console.print("Indicators from a bounded recent sample: up to 10,000 lines / 8 MB.")
+    values = extract_indicators("\n".join(recent_lines(path)))
     for kind, items in values.items():
         console.print(f"[bold]{kind}[/bold]")
         for item in items:
@@ -215,8 +219,9 @@ def baseline(
     current_path: Path = typer.Argument(..., exists=True, dir_okay=False),
 ) -> None:
     """Compare current telemetry with a baseline log sample."""
-    before = baseline_path.read_text(encoding="utf-8", errors="replace").splitlines()
-    current = current_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    console.print("Comparing bounded recent samples: up to 10,000 lines / 8 MB per file.")
+    before = recent_lines(baseline_path)
+    current = recent_lines(current_path)
     deltas = compare_baseline(before, current)
     table = _flat_table(("Event class", {"ratio": 1}), ("Baseline", {}), ("Current", {}), ("Ratio", {}))
     for item in deltas[:50]:
@@ -246,16 +251,17 @@ def collect(
 @app.command()
 def watch(path: Path = typer.Argument(..., exists=True, dir_okay=False), interval: float = 1.0, window: int = 200) -> None:
     """Follow a growing log file with stateful rolling correlation until Ctrl+C."""
+    from .realtime import initial_cursor, read_new_lines_cursor
     analyzer = RollingAnalyzer(window_size=window)
+    cursor = initial_cursor(path, from_start=False)
     console.print(f"Watching {escape(str(path))} with a {window}-line correlation window. Press Ctrl+C to stop.")
     try:
-        with path.open("r", encoding="utf-8", errors="replace") as handle:
-            handle.seek(0, 2)
-            while True:
-                line = handle.readline()
-                if not line:
-                    time.sleep(max(interval, 0.1))
-                    continue
+        while True:
+            lines, cursor = read_new_lines_cursor(path, cursor)
+            if not lines:
+                time.sleep(max(interval, 0.1))
+                continue
+            for line in lines:
                 findings = analyzer.push(line)
                 event = parse_line(line)
                 for finding in findings:
@@ -314,7 +320,10 @@ def scan(path: Path = typer.Argument(Path("/var/log"))) -> None:
     """Scan readable log files under a directory."""
     if not path.exists() or not path.is_dir():
         raise typer.BadParameter("scan path must be an existing directory")
-    files = [p for p in path.rglob("*") if p.is_file() and (p.suffix in {".log", ".txt"} or "log" in p.name.lower())][:100]
+    from .folder_scan import discover_logs
+    files, skipped, capped = discover_logs(path, limit=100)
+    if capped:
+        console.print("Discovery capped at 100 files or 10,000 directory entries.")
     console.print(f"Scanning {len(files)} candidate log files under {escape(str(path))}")
     for file in files:
         try:
