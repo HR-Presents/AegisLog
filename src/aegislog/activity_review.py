@@ -1,5 +1,6 @@
 """Optional local count comparisons and identifier-free aggregate sharing."""
 import json
+import re
 from collections import Counter
 from pathlib import Path
 from .safe_json import loads
@@ -28,6 +29,9 @@ def read_activity(path):
     obj = loads(path.read_text(encoding='utf-8'))
     if not isinstance(obj, dict) or obj.get('schema') != SCHEMA or not isinstance(obj.get('source'), str):
         raise ValueError('Choose an AegisLog activity-baseline.json file.')
+    scope = obj.get('scope')
+    if not isinstance(scope, str) or len(scope) > 4096 or terminal_safe(scope) != scope:
+        raise ValueError('Invalid baseline collection scope.')
     for key in ['records', 'recognized', 'incidents']:
         if type(obj.get(key)) is not int or obj[key] < 0:
             raise ValueError('Invalid baseline counts.')
@@ -44,11 +48,23 @@ def read_activity(path):
     return obj
 
 
+def _collection_settings(scope):
+    # Returned counts and limit-hit notices describe the sample, not settings.
+    native = re.match(r'^Latest (\d+) accessible events within (\d+) minutes\.', scope)
+    if native:
+        return ('native', int(native[1]), int(native[2]))
+    return ('explicit', scope)
+
+
+def _require_comparable(before, after):
+    if before['source'] != after['source'] or _collection_settings(before['scope']) != _collection_settings(after['scope']):
+        raise ValueError('Choose baselines for the same source, time window and event limit.')
+
+
 def compare_signals(previous, current):
     """New/recurring/not observed labels describe samples, not incident resolution."""
     before, after = read_activity(previous), read_activity(current)
-    if before['source'] != after['source']:
-        raise ValueError('Choose baselines for the same source and time-window label.')
+    _require_comparable(before, after)
     if not before['records'] or not after['records']:
         raise ValueError('Both samples need records.')
     for obj in (before, after):
@@ -66,8 +82,7 @@ def compare_signals(previous, current):
 
 def compare_activity(previous, current):
     before, after = read_activity(previous), read_activity(current)
-    if before['source'] != after['source']:
-        raise ValueError('Choose a previous baseline for the same source and time-window label.')
+    _require_comparable(before, after)
     if not before['records'] or not after['records']:
         raise ValueError('Both samples need records for a meaningful comparison.')
     changes = []
