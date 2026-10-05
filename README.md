@@ -289,6 +289,8 @@ The latest release also preserves native collection scope in both reports, impro
 
 Recent reliability fixes preserve target-group evidence boundaries, redact credential-key variants, handle live path rotation and enforce baseline scope matching. Windows detection quality includes explicit group-SID classification, target-host correlation boundaries and clearer heuristic scores. See [Detection coverage](docs/DETECTION_COVERAGE.md).
 
+The merged final-audit safeguards are being prepared for v2.1.17; [candidate release notes](docs/RELEASE_V2.1.17.md) describe the custom-rule compatibility changes. The stable links below remain v2.1.16 until the new assets are verified and published.
+
 **[v2.1.16](https://github.com/HR-Presents/AegisLog-AI/releases/tag/v2.1.16)** is the published stable release, built from `f511c971ca19bfb3560a65c1f3681ff3a9b1ace5`.
 
 Download the [Windows ZIP](https://github.com/HR-Presents/AegisLog-AI/releases/download/v2.1.16/AegisLog-v2.1.16-Windows.zip), standalone executable, Python wheel, or source package from the release page. Matching SHA-256 files are included.
