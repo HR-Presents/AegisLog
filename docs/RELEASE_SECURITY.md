@@ -6,7 +6,7 @@ Release workflows provide tests, linting, Bandit, dependency audit, package vali
 
 ## Current reproducibility status
 
-The reviewed direct artifact-build inputs are pinned in `packaging/build-tools.txt`: `pip==26.2.1`, `setuptools==84.0.0`, `build==1.6.0`, `twine==7.0.0`, and `pyinstaller==6.22.2`.
+The reviewed direct artifact-build inputs are pinned in `packaging/build-tools.txt`: `pip==26.2.2`, `setuptools==84.1.0`, `build==1.6.0`, `twine==7.0.0`, and `pyinstaller==6.22.2`.
 
 Their resolved transitive dependencies are SHA-256 locked separately for Python 3.12 on the two supported build environments:
 
