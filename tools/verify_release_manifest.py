@@ -70,10 +70,12 @@ def main():
     parser.add_argument('manifest', type=Path)
     parser.add_argument('release', type=Path)
     parser.add_argument('--directory', type=Path)
+    parser.add_argument('--allow-published', action='store_true',
+                        help='Verify an already published release without requiring draft state')
     args = parser.parse_args()
     manifest = json.loads(args.manifest.read_text())
     release = json.loads(args.release.read_text())
-    validate_identity(manifest, release)
+    validate_identity(manifest, release, require_draft=not args.allow_published)
     if args.directory:
         validate_bytes(manifest, args.directory)
     print('Reviewed release identity, asset digests and requested bytes verified')

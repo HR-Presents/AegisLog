@@ -6,7 +6,7 @@ Release workflows provide tests, linting, Bandit, dependency audit, package vali
 
 ## Current reproducibility status
 
-The reviewed direct artifact-build inputs are pinned in `packaging/build-tools.txt`: `pip==26.2.1`, `setuptools==84.0.0`, `build==1.6.0`, `twine==7.0.0`, and `pyinstaller==6.22.2`.
+The reviewed direct artifact-build inputs are pinned in `packaging/build-tools.txt`: `pip==26.2.2`, `setuptools==84.1.0`, `build==1.6.0`, `twine==7.0.0`, and `pyinstaller==6.22.2`.
 
 Their resolved transitive dependencies are SHA-256 locked separately for Python 3.12 on the two supported build environments:
 
@@ -23,7 +23,7 @@ Runtime/customer-bundle dependencies are independently transitively pinned and S
 
 ## Release validation toolchain
 
-The actual v1.6.0 release-validation environment is Python 3.12 on `ubuntu-24.04`. Its direct validation tools are exact pins in `packaging/validation-tools.txt`: `pytest==9.1.1`, `ruff==0.16.6`, `bandit==1.9.4`, and `pip-audit==2.10.1`.
+The actual v1.6.0 release-validation environment is Python 3.12 on `ubuntu-24.04`. Its direct validation tools are exact pins in `packaging/validation-tools.txt`: `pytest==9.1.1`, `ruff==0.16.6`, `bandit==1.9.4`, and `pip-audit==2.10.1`. The dependency-audit gate continues to run on Python 3.12. Python 3.10 compatibility jobs omit pip-audit and its dependency subtree because the patched filelock requires Python 3.11 or newer; they retain the full test, lint, detection and Bandit checks. No audit gate is skipped or advisory suppressed.
 
 The resolved validation wheel sets are SHA-256 locked separately for every supported CI interpreter: `packaging/validation-lock-py310-linux.txt`, `packaging/validation-lock-py311-linux.txt`, `packaging/validation-lock-py312-linux.txt`, `packaging/validation-lock-py313-linux.txt`, and `packaging/validation-lock-py314-linux.txt`. Separate files are required because dependency membership and compiled-wheel hashes genuinely differ by Python version; for example Python 3.10 requires `exceptiongroup`, resolves a different compatible `stevedore`, and multiple compiled wheels have interpreter-specific hashes.
 

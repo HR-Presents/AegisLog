@@ -3,8 +3,9 @@
 pytest==9.1.1
 ruff==0.16.6
 bandit==1.9.4
-pip-audit==2.10.1
+# Dependency auditing runs on Python 3.12; its patched filelock needs Python 3.11+.
+pip-audit==2.10.1; python_version >= '3.11'
 
 # Keep resolver checks aligned with the reviewed transitive lock versions.
-filelock==4.0.9
-platformdirs==4.12.2
+filelock==4.2.1; python_version >= '3.11'
+platformdirs==4.12.2; python_version >= '3.11'
