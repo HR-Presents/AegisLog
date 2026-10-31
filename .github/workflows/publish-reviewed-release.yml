@@ -17,6 +17,7 @@ jobs:
       contents: write
     outputs:
       tag: ${{ steps.review.outputs.tag }}
+      draft: ${{ steps.review.outputs.draft }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -32,11 +33,12 @@ jobs:
           from tools.verify_release_manifest import validate_identity
           manifest = json.load(open('packaging/release-review.json'))
           release = json.loads(subprocess.check_output(['gh', 'api', f"repos/HR-Presents/AegisLog/releases/{manifest['release_id']}"], text=True))
-          tag = validate_identity(manifest, release)
+          tag = validate_identity(manifest, release, require_draft=False)
           with open('release.json', 'w') as output:
               json.dump(release, output)
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write(f'tag={tag}\n')
+              output.write(f"draft={str(release['draft']).lower()}\n")
           PY
       - name: Verify downloaded assets and checksum files
         env:
@@ -46,11 +48,11 @@ jobs:
           set -euo pipefail
           mkdir reviewed-assets
           gh release download "$RELEASE_TAG" --repo HR-Presents/AegisLog --dir reviewed-assets
-          python tools/verify_release_manifest.py packaging/release-review.json release.json --directory reviewed-assets
+          python tools/verify_release_manifest.py packaging/release-review.json release.json --directory reviewed-assets --allow-published
           (cd reviewed-assets && sha256sum --check AegisLog.exe.sha256 && sha256sum --check "AegisLog-$RELEASE_TAG-Windows.zip.sha256" && sha256sum --check SHA256SUMS)
   publish:
     needs: verify
-    if: github.repository == 'HR-Presents/AegisLog' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: needs.verify.outputs.draft == 'true' && github.repository == 'HR-Presents/AegisLog' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
